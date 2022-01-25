@@ -67,9 +67,10 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 void addLineToHtmlBuffer(const char * line,  size_t stringSize, size_t * startPos)
 { 
   static const char lineEnding[]="<br/>\n";
-  //size_t stringSizeWithEndLine = stringSize + sizeof(lineEnding) - 1;
-  memcpy(tempPage+(*startPos==0?0:(*startPos)-1), line, stringSize);
-  (*startPos) += stringSize;
+
+  size_t i=(*startPos==0?0:(*startPos)-1);
+  memcpy(tempPage+(*startPos==0?0:(*startPos)-1), line, stringSize-1);
+  (*startPos) = i+stringSize-1;
   memcpy(tempPage+(*startPos), lineEnding, sizeof(lineEnding));
   (*startPos) += sizeof(lineEnding);
 
@@ -83,6 +84,7 @@ esp_err_t get_handler(httpd_req_t *req)
 //    httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
     addLineToHtmlBuffer(" URI GET Response", sizeof(" URI GET Response"), &tempPageSize);
     addLineToHtmlBuffer("Hola mundo!", sizeof("Hola mundo!"), &tempPageSize);
+    addLineToHtmlBuffer(" ", 1, &tempPageSize);
     httpd_resp_send(req, tempPage, HTTPD_RESP_USE_STRLEN);
     return ESP_OK;
 }
