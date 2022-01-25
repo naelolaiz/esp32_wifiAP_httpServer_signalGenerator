@@ -224,6 +224,7 @@ void app_main()
 #ifdef OLD_TEST_HTTPD
     xTaskCreate(&httpd_task, "http_server", 1024, NULL, 2, NULL);
 #endif
+start_webserver();
  
 }
 
