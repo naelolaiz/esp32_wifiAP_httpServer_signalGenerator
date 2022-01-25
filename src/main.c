@@ -68,10 +68,10 @@ void addLineToHtmlBuffer(const char * line,  size_t stringSize, size_t * startPo
 { 
   static const char lineEnding[]="<br/>\n";
   //size_t stringSizeWithEndLine = stringSize + sizeof(lineEnding) - 1;
-  memcpy(tempPage+(*startPos==0?0:(*startPos)-1), line, stringSize - 1);
-  (*startPos) += (stringSize-1);
+  memcpy(tempPage+(*startPos==0?0:(*startPos)-1), line, stringSize);
+  (*startPos) += stringSize;
   memcpy(tempPage+(*startPos), lineEnding, sizeof(lineEnding));
-  (startPos) += sizeof(lineEnding);
+  (*startPos) += sizeof(lineEnding);
 
 }
 
