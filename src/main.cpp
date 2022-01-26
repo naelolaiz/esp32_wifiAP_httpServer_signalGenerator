@@ -114,6 +114,7 @@ esp_err_t get_handler(httpd_req_t *req)
 //    addLineToHtmlBuffer(formPage, sizeof(formPage),&tempPageSize);
 //    addLineToHtmlBuffer(formPageEnding, sizeof(formPageEnding),&tempPageSize);
 //    httpd_resp_send(req, tempPage, HTTPD_RESP_USE_STRLEN);
+    formForLed.clearExtraText();
     httpd_resp_send(req, formForLed.getHtmlPage().c_str(), HTTPD_RESP_USE_STRLEN);
   }
   else
@@ -162,7 +163,7 @@ esp_err_t post_handler(httpd_req_t *req)
     //const char resp[] = "URI POST Response";
     ////httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
     //httpd_resp_send(req, content, 10);//HTTPD_RESP_USE_STRLEN);
-    //formForLed.setExtraText(content);
+    formForLed.setExtraText(content);
     httpd_resp_send(req, formForLed.getHtmlPage().c_str(), HTTPD_RESP_USE_STRLEN);
 #if 0
     addLineToHtmlBuffer(formPage, sizeof(formPage),&tempPageSize);

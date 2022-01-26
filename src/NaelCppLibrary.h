@@ -25,6 +25,7 @@ public:
     void setLed1Value(bool value);
     void setLed2Value(bool value);
     void setExtraText(const std::string& extraText);
+    void clearExtraText();
 
     const std::string & getHtmlPage();
 
