@@ -84,7 +84,7 @@ esp_err_t get_handler(httpd_req_t *req)
 //    httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
     addLineToHtmlBuffer(" URI GET Response", sizeof(" URI GET Response"), &tempPageSize);
     addLineToHtmlBuffer("Hola mundo!", sizeof("Hola mundo!"), &tempPageSize);
-    addLineToHtmlBuffer(" ", 1, &tempPageSize);
+    addLineToHtmlBuffer(req->uri, HTTPD_MAX_URI_LEN+1, &tempPageSize);
     httpd_resp_send(req, tempPage, HTTPD_RESP_USE_STRLEN);
     return ESP_OK;
 }
