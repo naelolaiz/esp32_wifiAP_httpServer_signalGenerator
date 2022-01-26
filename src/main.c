@@ -23,6 +23,19 @@ EventGroupHandle_t wifi_event_group;
 static char tempPage[4096];
 static size_t tempPageSize = 0;
 
+static char formPage[] = "<html>\n \
+<head>\n \
+<title>Control Led</title>\n \
+</head>\n \
+<body>\n \
+  <form action=\"/action_page\">\n \
+  <input type=\"checkbox\" id=\"led1\" name=\"led1\" value=\"Led\">\n \
+  <label for=\"led1\"> Led status </label><br>\n \
+  <input type=\"submit\" value=\"Submit\">\n \
+</form>\n \
+</body>\n \
+</html>\n \
+";
 
 static esp_err_t event_handler(void *ctx, system_event_t *event)
 {
@@ -79,6 +92,15 @@ void addLineToHtmlBuffer(const char * line,  size_t stringSize, size_t * startPo
 /* Our URI handler function to be called during GET /uri request */
 esp_err_t get_handler(httpd_req_t *req)
 {
+  if(strcmp(req->uri, "/form") ==0)
+  {
+    size_t startAt=0;
+    addLineToHtmlBuffer(formPage, sizeof(formPage),&startAt);
+    httpd_resp_send(req, formPage, HTTPD_RESP_USE_STRLEN);
+  }
+  else
+  {
+    tempPageSize=0;
     /* Send a simple response */
 //    const char resp[] = "URI GET Response";
 //    httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
@@ -86,6 +108,7 @@ esp_err_t get_handler(httpd_req_t *req)
     addLineToHtmlBuffer("Hola mundo!", sizeof("Hola mundo!"), &tempPageSize);
     addLineToHtmlBuffer(req->uri, HTTPD_MAX_URI_LEN+1, &tempPageSize);
     httpd_resp_send(req, tempPage, HTTPD_RESP_USE_STRLEN);
+  }
     return ESP_OK;
 }
 
@@ -133,6 +156,22 @@ httpd_uri_t uri_get = {
 /* URI handler structure for POST /uri */
 httpd_uri_t uri_post = {
     .uri      = "/uri",
+    .method   = HTTP_POST,
+    .handler  = post_handler,
+    .user_ctx = NULL
+};
+
+/* URI handler structure for GET /form */
+httpd_uri_t uri_get = {
+    .uri      = "/form",
+    .method   = HTTP_GET,
+    .handler  = get_handler,
+    .user_ctx = NULL
+};
+
+/* URI handler structure for POST /form */
+httpd_uri_t uri_post = {
+    .uri      = "/action_page",
     .method   = HTTP_POST,
     .handler  = post_handler,
     .user_ctx = NULL
