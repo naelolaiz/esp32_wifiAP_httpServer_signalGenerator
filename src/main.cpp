@@ -49,6 +49,10 @@ static char formPageEnding[] = "</body>\n \
 </html>\n \
 ";
 
+
+
+FormForLed formForLed;
+
 static esp_err_t event_handler(void *ctx, system_event_t *event)
 {
   switch(event->event_id) {
@@ -106,10 +110,11 @@ esp_err_t get_handler(httpd_req_t *req)
 {
   if(strcmp(req->uri, "/form") ==0)
   {
-    tempPageSize=0;
-    addLineToHtmlBuffer(formPage, sizeof(formPage),&tempPageSize);
-    addLineToHtmlBuffer(formPageEnding, sizeof(formPageEnding),&tempPageSize);
-    httpd_resp_send(req, tempPage, HTTPD_RESP_USE_STRLEN);
+//    tempPageSize=0;
+//    addLineToHtmlBuffer(formPage, sizeof(formPage),&tempPageSize);
+//    addLineToHtmlBuffer(formPageEnding, sizeof(formPageEnding),&tempPageSize);
+//    httpd_resp_send(req, tempPage, HTTPD_RESP_USE_STRLEN);
+    httpd_resp_send(req, formForLed.getHtmlPage().c_str(), HTTPD_RESP_USE_STRLEN);
   }
   else
   {
@@ -157,7 +162,9 @@ esp_err_t post_handler(httpd_req_t *req)
     //const char resp[] = "URI POST Response";
     ////httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
     //httpd_resp_send(req, content, 10);//HTTPD_RESP_USE_STRLEN);
-    tempPageSize=0;
+    formForLed.setExtraText(content);
+    httpd_resp_send(req, formForLed.getHtmlPage().c_str(), HTTPD_RESP_USE_STRLEN);
+#if 0
     addLineToHtmlBuffer(formPage, sizeof(formPage),&tempPageSize);
     if(content[0]!=0)
     {
@@ -165,6 +172,7 @@ esp_err_t post_handler(httpd_req_t *req)
     }
     addLineToHtmlBuffer(formPageEnding, sizeof(formPageEnding),&tempPageSize);
     httpd_resp_send(req, tempPage, HTTPD_RESP_USE_STRLEN);
+#endif
     return ESP_OK;
 }
 
