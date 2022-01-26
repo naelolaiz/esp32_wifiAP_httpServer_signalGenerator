@@ -10,6 +10,7 @@
 
 // http
 #include <esp_http_server.h>
+// based on https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/protocols/esp_http_server.html
 
 
 #define AP_SSID "TEST_ESP32\0"
@@ -28,12 +29,14 @@ static char formPage[] = "<html>\n \
 <title>Control Led</title>\n \
 </head>\n \
 <body>\n \
-  <form action=\"/action_page\" method=\"post\">\n \
-  <input type=\"checkbox\" id=\"led1\" name=\"led1\" value=\"Led\">\n \
+  <form action=\"/form\" method=\"post\">\n \
+  <input type=\"checkbox\" id=\"led1\" name=\"led1\">\n \
   <label for=\"led1\"> Led status </label><br>\n \
+  <input type=\"checkbox\" id=\"led2\" name=\"led2\">\n \
+  <label for=\"led2\"> Led status </label><br>\n \
   <input type=\"submit\" value=\"Submit\">\n \
-</form>\n \
-</body>\n \
+</form>\n <br/>";
+static char formPageEnding[] = "</body>\n \
 </html>\n \
 ";
 
@@ -94,9 +97,10 @@ esp_err_t get_handler(httpd_req_t *req)
 {
   if(strcmp(req->uri, "/form") ==0)
   {
-    size_t startAt=0;
-    addLineToHtmlBuffer(formPage, sizeof(formPage),&startAt);
-    httpd_resp_send(req, formPage, HTTPD_RESP_USE_STRLEN);
+    tempPageSize=0;
+    addLineToHtmlBuffer(formPage, sizeof(formPage),&tempPageSize);
+    addLineToHtmlBuffer(formPageEnding, sizeof(formPageEnding),&tempPageSize);
+    httpd_resp_send(req, tempPage, HTTPD_RESP_USE_STRLEN);
   }
   else
   {
@@ -141,9 +145,17 @@ esp_err_t post_handler(httpd_req_t *req)
 
 //    ESP_LOGI(TAG, content);
     /* Send a simple response */
-    const char resp[] = "URI POST Response";
-    //httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
-    httpd_resp_send(req, content, 10);//HTTPD_RESP_USE_STRLEN);
+    //const char resp[] = "URI POST Response";
+    ////httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
+    //httpd_resp_send(req, content, 10);//HTTPD_RESP_USE_STRLEN);
+    tempPageSize=0;
+    addLineToHtmlBuffer(formPage, sizeof(formPage),&tempPageSize);
+    if(content[0]!=0)
+    {
+      addLineToHtmlBuffer(content,sizeof(content),&tempPageSize);
+    }
+    addLineToHtmlBuffer(formPageEnding, sizeof(formPageEnding),&tempPageSize);
+    httpd_resp_send(req, tempPage, HTTPD_RESP_USE_STRLEN);
     return ESP_OK;
 }
 
@@ -173,7 +185,7 @@ httpd_uri_t form_get = {
 
 /* URI handler structure for POST /form */
 httpd_uri_t form_post = {
-    .uri      = "/action_page",
+    .uri      = "/form",
     .method   = HTTP_POST,
     .handler  = post_handler,
     .user_ctx = NULL
