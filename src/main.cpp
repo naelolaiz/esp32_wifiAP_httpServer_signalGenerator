@@ -13,6 +13,15 @@
 // based on https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/protocols/esp_http_server.html
 
 
+#include "NaelCppLibrary.h"
+
+extern "C"
+{
+  void app_main();
+}
+
+
+
 #define AP_SSID "TEST_ESP32\0"
 #define AP_PASSWORD "myPassword1234\0"
 
@@ -152,7 +161,7 @@ esp_err_t post_handler(httpd_req_t *req)
     addLineToHtmlBuffer(formPage, sizeof(formPage),&tempPageSize);
     if(content[0]!=0)
     {
-      addLineToHtmlBuffer(content,sizeof(content),&tempPageSize);
+      addLineToHtmlBuffer(content,20,&tempPageSize);
     }
     addLineToHtmlBuffer(formPageEnding, sizeof(formPageEnding),&tempPageSize);
     httpd_resp_send(req, tempPage, HTTPD_RESP_USE_STRLEN);
@@ -221,12 +230,10 @@ void stop_webserver(httpd_handle_t server)
     }
 }
 
-void app_main()
-{   
+void start_wifi_AP()
+{
   // init nvram - used by the WIFI storage
   ESP_ERROR_CHECK( nvs_flash_init());
-
-
   //
   wifi_event_group = xEventGroupCreate();
   ESP_ERROR_CHECK( esp_event_loop_init(event_handler, NULL) );
@@ -241,11 +248,10 @@ void app_main()
     ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
  
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
-
     wifi_config_t ap_config = {
           .ap = {
-            .ssid = AP_SSID,
-            .password = AP_PASSWORD,
+            {.ssid = AP_SSID},
+            {.password = AP_PASSWORD},
             .channel = 0,
             .authmode = WIFI_AUTH_WPA2_PSK,
             .ssid_hidden = 0,
@@ -258,6 +264,12 @@ void app_main()
  
     ESP_ERROR_CHECK(esp_wifi_start());
 
-    xTaskCreate(&wpa2_enterprise_example_task, "wpa2_enterprise_example_task", 4096, NULL, 5, NULL);
-start_webserver();
+
+}
+
+void app_main()
+{   
+  start_wifi_AP();
+  xTaskCreate(&wpa2_enterprise_example_task, "wpa2_enterprise_example_task", 4096, NULL, 5, NULL);
+  start_webserver();
 }
