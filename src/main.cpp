@@ -163,7 +163,9 @@ esp_err_t post_handler(httpd_req_t *req)
     //const char resp[] = "URI POST Response";
     ////httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
     //httpd_resp_send(req, content, 10);//HTTPD_RESP_USE_STRLEN);
-    formForLed.setExtraText(content);
+//    formForLed.setExtraText(content);
+    formForLed.setLed1Value(formForLed.parseLed1Status(content));
+    formForLed.setLed2Value(formForLed.parseLed2Status(content));
     httpd_resp_send(req, formForLed.getHtmlPage().c_str(), HTTPD_RESP_USE_STRLEN);
 #if 0
     addLineToHtmlBuffer(formPage, sizeof(formPage),&tempPageSize);

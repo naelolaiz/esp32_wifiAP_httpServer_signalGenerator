@@ -2,7 +2,6 @@
 #define __NAEL_MY_CPP_LIBRARY_H__
 
 #include <string>
-#include <regex>
 
 class NaelCppLibrary
 {
@@ -26,6 +25,8 @@ public:
     void setLed2Value(bool value);
     void setExtraText(const std::string& extraText);
     void clearExtraText();
+    bool parseLed1Status(const char * content);
+    bool parseLed2Status(const char * content);
 
     const std::string & getHtmlPage();
 

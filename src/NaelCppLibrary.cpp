@@ -1,4 +1,5 @@
 #include "NaelCppLibrary.h"
+#include <regex>
 
 const char * NaelCppLibrary::getForm()
 {
@@ -46,6 +47,16 @@ void FormForLed::setExtraText(const std::string& extraText)
 void FormForLed::clearExtraText()
 {
     mExtraText.clear();
+}
+
+bool FormForLed::parseLed1Status(const char * content)
+{
+    return std::regex_search(content, std::regex("led1=on"));
+}
+
+bool FormForLed::parseLed2Status(const char * content)
+{
+    return std::regex_search(content, std::regex("led2=on"));
 }
 
 const std::string & FormForLed::getHtmlPage()
