@@ -28,7 +28,7 @@ static char formPage[] = "<html>\n \
 <title>Control Led</title>\n \
 </head>\n \
 <body>\n \
-  <form action=\"/action_page\">\n \
+  <form action=\"/action_page\" method=\"post\">\n \
   <input type=\"checkbox\" id=\"led1\" name=\"led1\" value=\"Led\">\n \
   <label for=\"led1\"> Led status </label><br>\n \
   <input type=\"submit\" value=\"Submit\">\n \
@@ -100,7 +100,7 @@ esp_err_t get_handler(httpd_req_t *req)
   }
   else
   {
-    //tempPageSize=0;
+    tempPageSize=0;
     /* Send a simple response */
 //    const char resp[] = "URI GET Response";
 //    httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
@@ -139,9 +139,11 @@ esp_err_t post_handler(httpd_req_t *req)
         return ESP_FAIL;
     }
 
+//    ESP_LOGI(TAG, content);
     /* Send a simple response */
     const char resp[] = "URI POST Response";
-    httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
+    //httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
+    httpd_resp_send(req, content, 10);//HTTPD_RESP_USE_STRLEN);
     return ESP_OK;
 }
 
