@@ -100,7 +100,7 @@ esp_err_t get_handler(httpd_req_t *req)
   }
   else
   {
-    tempPageSize=0;
+    //tempPageSize=0;
     /* Send a simple response */
 //    const char resp[] = "URI GET Response";
 //    httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
@@ -162,7 +162,7 @@ httpd_uri_t uri_post = {
 };
 
 /* URI handler structure for GET /form */
-httpd_uri_t uri_get = {
+httpd_uri_t form_get = {
     .uri      = "/form",
     .method   = HTTP_GET,
     .handler  = get_handler,
@@ -170,7 +170,7 @@ httpd_uri_t uri_get = {
 };
 
 /* URI handler structure for POST /form */
-httpd_uri_t uri_post = {
+httpd_uri_t form_post = {
     .uri      = "/action_page",
     .method   = HTTP_POST,
     .handler  = post_handler,
@@ -191,6 +191,8 @@ httpd_handle_t start_webserver(void)
         /* Register URI handlers */
         httpd_register_uri_handler(server, &uri_get);
         httpd_register_uri_handler(server, &uri_post);
+        httpd_register_uri_handler(server, &form_get);
+        httpd_register_uri_handler(server, &form_post);
     }
     /* If server failed to start, handle will be NULL */
     return server;
