@@ -14,6 +14,7 @@
 
 
 #include "NaelCppLibrary.h"
+#include <driver/gpio.h>
 
 extern "C"
 {
@@ -165,18 +166,11 @@ esp_err_t post_handler(httpd_req_t *req)
     //httpd_resp_send(req, content, 10);//HTTPD_RESP_USE_STRLEN);
 //    formForLed.setExtraText(content);
     const bool led1 = formForLed.parseLed1Status(content);
+
+    gpio_set_level(GPIO_NUM_2, led1);
     formForLed.setLed1Value(led1);
     formForLed.setLed2Value(formForLed.parseLed2Status(content));
     httpd_resp_send(req, formForLed.getHtmlPage().c_str(), HTTPD_RESP_USE_STRLEN);
-#if 0
-    addLineToHtmlBuffer(formPage, sizeof(formPage),&tempPageSize);
-    if(content[0]!=0)
-    {
-      addLineToHtmlBuffer(content,20,&tempPageSize);
-    }
-    addLineToHtmlBuffer(formPageEnding, sizeof(formPageEnding),&tempPageSize);
-    httpd_resp_send(req, tempPage, HTTPD_RESP_USE_STRLEN);
-#endif
     return ESP_OK;
 }
 
@@ -277,6 +271,11 @@ void start_wifi_AP()
     ESP_ERROR_CHECK(esp_wifi_start());
 
 
+}
+
+void setupLed()
+{
+  gpio_set_direction(GPIO_NUM_2, GPIO_MODE_OUTPUT);
 }
 
 void app_main()
