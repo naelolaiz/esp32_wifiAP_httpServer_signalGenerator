@@ -65,6 +65,11 @@
 			"thread": "cpp",
 			"cinttypes": "cpp",
 			"typeinfo": "cpp"
-		}
+		},
+		"githubPullRequests.remotes": [
+			"origin",
+			"upstream",
+			"git@github.com:naelolaiz/esp32_control_via_wifi_http_test_rtos.git"
+		]
 	}
 }
