@@ -171,7 +171,8 @@ esp_err_t post_handler(httpd_req_t *req)
     //const char resp[] = "URI POST Response";
     ////httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
     //httpd_resp_send(req, content, 10);//HTTPD_RESP_USE_STRLEN);
-    formForLed.setExtraText(content.data());
+//    formForLed.setExtraText(content.data());
+    formForLed.setExtraText(formForLed.parseToUart(content.data());
     const bool led1 = formForLed.parseLed1Status(content.data());
 
     gpio_set_level(GPIO_NUM_16, led1?0:1);
