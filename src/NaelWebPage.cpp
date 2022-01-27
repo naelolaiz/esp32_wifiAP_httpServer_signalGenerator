@@ -13,8 +13,8 @@ BODY\n\
 </html>\n\
 ";
 
-std::string FormForLed::mHtmlForm = "<form action=\"/form\" method=\"post\">\n\
-  <input type=\"checkbox\" onchange=\"$('#form').submit();\" id=\"led1\" name=\"led1\" LED1_CHECKED>\n\
+std::string FormForLed::mHtmlForm = "<form action=\"\" method=\"post\">\n\
+  <input type=\"checkbox\" onchange=\"$('#form').submit();\" id=\"led1\" name=\"led1\" class=\"checkbox\" LED1_CHECKED>\n\
   <label for=\"led1\"> Led status </label><br>\n\
   <input type=\"checkbox\" id=\"led2\" name=\"led2\" LED2_CHECKED>\n\
   <label for=\"led2\"> Led status </label><br>\n\
