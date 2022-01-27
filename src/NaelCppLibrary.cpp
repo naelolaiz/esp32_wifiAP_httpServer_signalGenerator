@@ -24,6 +24,8 @@ std::string FormForLed::mHtmlForm = "<form action=\"/form\" method=\"post\">\n\
   <label for=\"led2\"> Led status </label><br>\n\
   <input type=\"submit\" value=\"Submit\">\n\
   <!-- <input type=\"text\" id=\"lname\" name=\"lname\">\n -->\
+  <label for=\"toUart\">Send to Uart:</label><br>\n \
+  <input type=\"text\" id=\"toUart\" name=\"toUart\"><br>\n \
   <input id=\"dummyId\" name=\"dummyId\" type=\"hidden\" value=\"lalalaa\">\n\
 </form>\n <br/>";
 FormForLed::FormForLed(const std::string & pageTitle)
@@ -57,6 +59,17 @@ bool FormForLed::parseLed1Status(const char * content)
 bool FormForLed::parseLed2Status(const char * content)
 {
     return std::regex_search(content, std::regex("led2=on"));
+}
+
+std::string FormForLed::parseToUart(const char * content)
+{
+    std::string temp(content); // TODO : avoid copy
+   std::smatch m;
+   if(std::regex_match(temp, m, std::regex("toUart=(.*)&")))
+   {
+       return m[1];
+   }
+   return "";
 }
 
 const std::string & FormForLed::getHtmlPage()

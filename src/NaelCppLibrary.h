@@ -27,6 +27,7 @@ public:
     void clearExtraText();
     bool parseLed1Status(const char * content);
     bool parseLed2Status(const char * content);
+    std::string parseToUart(const char * content);
 
     const std::string & getHtmlPage();
 

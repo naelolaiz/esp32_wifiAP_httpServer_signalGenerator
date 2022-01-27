@@ -15,6 +15,7 @@
 
 #include "NaelCppLibrary.h"
 #include <driver/gpio.h>
+#include <array>
 
 extern "C"
 {
@@ -44,6 +45,8 @@ static char formPage[] = "<html>\n \
   <label for=\"led1\"> Led status </label><br>\n \
   <input type=\"checkbox\" id=\"led2\" name=\"led2\">\n \
   <label for=\"led2\"> Led status </label><br>\n \
+  <label for=\"toUart\">Send to Uart:</label><br>\n \
+  <input type=\"text\" id=\"toUart\" name=\"toUart\"><br>\n \
   <input type=\"submit\" value=\"Submit\">\n \
 </form>\n <br/>";
 static char formPageEnding[] = "</body>\n \
@@ -142,12 +145,14 @@ esp_err_t post_handler(httpd_req_t *req)
      * as well be any binary data (needs type casting).
      * In case of string data, null termination will be absent, and
      * content length would give length of string */
-    char content[100];
+    //char content[100];
+    std::array<char,100> content;
+    content.fill(0);
 
     /* Truncate if content length larger than the buffer */
     size_t recv_size = req->content_len < sizeof(content) ? req->content_len : sizeof(content);
 
-    int ret = httpd_req_recv(req, content, recv_size);
+    int ret = httpd_req_recv(req, content.data(), recv_size);
     if (ret <= 0) {  /* 0 return value indicates connection closed */
         /* Check if timeout occurred */
         if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
@@ -166,13 +171,16 @@ esp_err_t post_handler(httpd_req_t *req)
     //const char resp[] = "URI POST Response";
     ////httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
     //httpd_resp_send(req, content, 10);//HTTPD_RESP_USE_STRLEN);
-//    formForLed.setExtraText(content);
-    const bool led1 = formForLed.parseLed1Status(content);
+    formForLed.setExtraText(content.data());
+    const bool led1 = formForLed.parseLed1Status(content.data());
 
     gpio_set_level(GPIO_NUM_16, led1?0:1);
     formForLed.setLed1Value(led1);
-    formForLed.setLed2Value(formForLed.parseLed2Status(content));
+    formForLed.setLed2Value(formForLed.parseLed2Status(content.data()));
     httpd_resp_send(req, formForLed.getHtmlPage().c_str(), HTTPD_RESP_USE_STRLEN);
+
+    ESP_LOGI(TAG, "%s", formForLed.parseToUart(content.data()).c_str());
+
     return ESP_OK;
 }
 
