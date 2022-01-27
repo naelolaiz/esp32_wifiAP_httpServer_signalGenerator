@@ -6,8 +6,11 @@ class ParseRequests {
 public:
   static size_t getSizeT(httpd_req_t *req, const char *id) {
     char buffer[18];
-    ESP_ERROR_CHECK(
-        httpd_req_get_hdr_value_str(req, id, buffer, sizeof(buffer)));
+    const esp_err_t err =
+        httpd_req_get_hdr_value_str(req, id, buffer, sizeof(buffer));
+    if (err != ESP_OK) {
+      return 0;
+    }
     return std::atoi(buffer);
   }
   static size_t getFrequency(httpd_req_t *req) {
@@ -16,8 +19,12 @@ public:
   }
   static std::string getStdString(httpd_req_t *req, const char *id) {
     char buffer[255];
-    ESP_ERROR_CHECK(
-        httpd_req_get_hdr_value_str(req, id, buffer, sizeof(buffer)));
+    const esp_err_t err =
+        httpd_req_get_hdr_value_str(req, id, buffer, sizeof(buffer));
+    //        ESP_ERROR_CHECK()
+    if (err != ESP_OK) {
+      return "";
+    }
     return std::string(buffer);
   }
 };
