@@ -30,6 +30,7 @@ public:
     std::string parseToUart(const char * content);
 
     const std::string & getHtmlPage();
+    const std::string & getOscControlPage();
 
 };
 

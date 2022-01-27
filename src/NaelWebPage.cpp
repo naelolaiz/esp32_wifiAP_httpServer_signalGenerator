@@ -1,4 +1,5 @@
 #include "NaelWebPage.h"
+#include "SignalGeneratorControlForm.h"
 #include <regex>
 
 const char *NaelCppLibrary::getForm() { return nullptr; }
@@ -13,8 +14,9 @@ BODY\n\
 </html>\n\
 ";
 
-std::string FormForLed::mHtmlForm = "<form action=\"\" method=\"post\">\n\
-  <input type=\"checkbox\" onchange=\"$('#form').submit();\" id=\"led1\" name=\"led1\" class=\"checkbox\" LED1_CHECKED>\n\
+std::string FormForLed::mHtmlForm =
+    "<form action=\"\" method=\"post\" id=\"form\">\n\
+  <input type=\"checkbox\" onchange=\"document.forms.form.submit();\" id=\"led1\" name=\"led1\" class=\"checkbox\" LED1_CHECKED>\n\
   <label for=\"led1\"> Led status </label><br>\n\
   <input type=\"checkbox\" id=\"led2\" name=\"led2\" LED2_CHECKED>\n\
   <label for=\"led2\"> Led status </label><br>\n\
@@ -26,6 +28,8 @@ std::string FormForLed::mHtmlForm = "<form action=\"\" method=\"post\">\n\
 </form>\n <br/>";
 // See
 // https://stackoverflow.com/questions/18135420/jquery-javascript-submit-form-when-checkbox-is-clicked
+// https://forums.phpfreaks.com/topic/162996-auto-submit-form-on-selecting-checkbox/
+// https://stackoverflow.com/questions/2435525/best-practice-access-form-elements-by-html-id-or-name-attribute
 FormForLed::FormForLed(const std::string &pageTitle) : mTitle(pageTitle) {}
 void FormForLed::setLed1Value(bool value) { mLed1Value = value; }
 
@@ -66,4 +70,8 @@ const std::string &FormForLed::getHtmlPage() {
       std::regex_replace(mHtmlEmptyBody, std::regex("TITLE"), mTitle),
       std::regex("BODY"), body);
   return mTemporalStringToReturnHtml;
+}
+
+const std::string &FormForLed::getOscControlPage() {
+  return SignalGeneratorForm;
 }

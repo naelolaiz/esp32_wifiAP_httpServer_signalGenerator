@@ -7,6 +7,10 @@ esp_err_t Server::Server::get_handler(httpd_req_t *req) {
     formForLed.clearExtraText();
     httpd_resp_send(req, formForLed.getHtmlPage().c_str(),
                     HTTPD_RESP_USE_STRLEN);
+  }
+  if (strcmp(req->uri, "/siggen") == 0) {
+    httpd_resp_send(req, mFormForLed.getOscControlPage().c_str(),
+                    HTTPD_RESP_USE_STRLEN);
   } else {
     /* Send a simple response */
     const char resp[] = "URI GET Response";
@@ -44,24 +48,32 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
     return ESP_FAIL;
   }
 
-  FormForLed &mFormForLed = static_cast<Server *>(req->user_ctx)->mFormForLed;
-  //    ESP_LOGI(TAG, content);
-  /* Send a simple response */
-  // const char resp[] = "URI POST Response";
-  ////httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
-  // httpd_resp_send(req, content, 10);//HTTPD_RESP_USE_STRLEN);
-  //    mFormForLed.setExtraText(content.data());
-  // mFormForLed.setExtraText(mFormForLed.parseToUart(content.data()));
-  const bool led1 = mFormForLed.parseLed1Status(content.data());
+  if (strcmp(req->uri, "/form") == 0) {
+    FormForLed &mFormForLed = static_cast<Server *>(req->user_ctx)->mFormForLed;
+    //    ESP_LOGI(TAG, content);
+    /* Send a simple response */
+    // const char resp[] = "URI POST Response";
+    ////httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
+    // httpd_resp_send(req, content, 10);//HTTPD_RESP_USE_STRLEN);
+    //    mFormForLed.setExtraText(content.data());
+    // mFormForLed.setExtraText(mFormForLed.parseToUart(content.data()));
+    const bool led1 = mFormForLed.parseLed1Status(content.data());
 
-  gpio_set_level(GPIO_NUM_16,
-                 led1 ? 0 : 1); // TODO: remove. task checking and updating.
-  mFormForLed.setLed1Value(led1);
-  mFormForLed.setLed2Value(mFormForLed.parseLed2Status(content.data()));
-  httpd_resp_send(req, mFormForLed.getHtmlPage().c_str(),
-                  HTTPD_RESP_USE_STRLEN);
+    gpio_set_level(GPIO_NUM_16,
+                   led1 ? 0 : 1); // TODO: remove. task checking and updating.
+    mFormForLed.setLed1Value(led1);
+    mFormForLed.setLed2Value(mFormForLed.parseLed2Status(content.data()));
+    httpd_resp_send(req, mFormForLed.getHtmlPage().c_str(),
+                    HTTPD_RESP_USE_STRLEN);
 
-  // ESP_LOGI(TAG, "%s", mFormForLed.parseToUart(content.data()).c_str());
+    // ESP_LOGI(TAG, "%s", mFormForLed.parseToUart(content.data()).c_str());
+  } else if (strcmp(req->uri, "/siggen") == 0) {
+    httpd_resp_send(req, mFormForLed.getOscControlPage().c_str(),
+                    HTTPD_RESP_USE_STRLEN);
+  } else {
+    const char resp[] = "WTF?";
+    httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
+  }
 
   return ESP_OK;
 }
@@ -81,6 +93,8 @@ httpd_handle_t Server::Server::start_webserver(void) {
     httpd_register_uri_handler(mServer, &uri_post);
     httpd_register_uri_handler(mServer, &form_get);
     httpd_register_uri_handler(mServer, &form_post);
+    httpd_register_uri_handler(mServer, &oscControlGet);
+    httpd_register_uri_handler(mServer, &oscControlPost);
   }
   /* If server failed to start, handle will be NULL */
   return mServer;

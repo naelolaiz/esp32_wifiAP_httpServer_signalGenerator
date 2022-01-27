@@ -41,6 +41,18 @@ private:
                            .handler = post_handler,
                            .user_ctx = this};
 
+  /* URI handler structure for GET /form */
+  httpd_uri_t oscControlGet = {.uri = "/siggen",
+                               .method = HTTP_GET,
+                               .handler = get_handler,
+                               .user_ctx = this};
+
+  /* URI handler structure for POST /form */
+  httpd_uri_t oscControlPost = {.uri = "/siggen",
+                                .method = HTTP_POST,
+                                .handler = post_handler,
+                                .user_ctx = this};
+
 public:
   Server(/* args */) = default;
   static esp_err_t get_handler(httpd_req_t *req);
