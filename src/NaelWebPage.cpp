@@ -14,7 +14,7 @@ BODY\n\
 ";
 
 std::string FormForLed::mHtmlForm = "<form action=\"/form\" method=\"post\">\n\
-  <input type=\"checkbox\" id=\"led1\" name=\"led1\" LED1_CHECKED>\n\
+  <input type=\"checkbox\" onchange=\"$('#form').submit();\" id=\"led1\" name=\"led1\" LED1_CHECKED>\n\
   <label for=\"led1\"> Led status </label><br>\n\
   <input type=\"checkbox\" id=\"led2\" name=\"led2\" LED2_CHECKED>\n\
   <label for=\"led2\"> Led status </label><br>\n\
@@ -24,6 +24,8 @@ std::string FormForLed::mHtmlForm = "<form action=\"/form\" method=\"post\">\n\
   <input type=\"text\" id=\"toUart\" name=\"toUart\"><br>\n \
   <input id=\"dummyId\" name=\"dummyId\" type=\"hidden\" value=\"lalalaa\">\n\
 </form>\n <br/>";
+// See
+// https://stackoverflow.com/questions/18135420/jquery-javascript-submit-form-when-checkbox-is-clicked
 FormForLed::FormForLed(const std::string &pageTitle) : mTitle(pageTitle) {}
 void FormForLed::setLed1Value(bool value) { mLed1Value = value; }
 
