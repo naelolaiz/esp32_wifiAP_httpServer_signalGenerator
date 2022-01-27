@@ -169,7 +169,7 @@ esp_err_t post_handler(httpd_req_t *req)
 //    formForLed.setExtraText(content);
     const bool led1 = formForLed.parseLed1Status(content);
 
-    gpio_set_level(GPIO_NUM_16, led1?1:0);
+    gpio_set_level(GPIO_NUM_16, led1?0:1);
     formForLed.setLed1Value(led1);
     formForLed.setLed2Value(formForLed.parseLed2Status(content));
     httpd_resp_send(req, formForLed.getHtmlPage().c_str(), HTTPD_RESP_USE_STRLEN);
