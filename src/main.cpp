@@ -84,6 +84,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
   while (1) {
     vTaskDelay(5000 / portTICK_PERIOD_MS);
 
+/*
     if (tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_AP , &ip) == 0) {
       ESP_LOGI(TAG, "~~~~~~~~~~~");
       ESP_LOGI(TAG, "IP:"IPSTR, IP2STR(&ip.ip));
@@ -91,6 +92,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
       ESP_LOGI(TAG, "GW:"IPSTR, IP2STR(&ip.gw));
       ESP_LOGI(TAG, "~~~~~~~~~~~");
     }
+    */
   }
 }
 
@@ -167,7 +169,7 @@ esp_err_t post_handler(httpd_req_t *req)
 //    formForLed.setExtraText(content);
     const bool led1 = formForLed.parseLed1Status(content);
 
-    gpio_set_level(GPIO_NUM_2, led1);
+    gpio_set_level(GPIO_NUM_16, led1?1:0);
     formForLed.setLed1Value(led1);
     formForLed.setLed2Value(formForLed.parseLed2Status(content));
     httpd_resp_send(req, formForLed.getHtmlPage().c_str(), HTTPD_RESP_USE_STRLEN);
@@ -275,7 +277,8 @@ void start_wifi_AP()
 
 void setupLed()
 {
-  gpio_set_direction(GPIO_NUM_2, GPIO_MODE_OUTPUT);
+  gpio_reset_pin(GPIO_NUM_16);
+  gpio_set_direction(GPIO_NUM_16, GPIO_MODE_OUTPUT);
 }
 
 void app_main()
