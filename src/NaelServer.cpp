@@ -1,5 +1,28 @@
 #include "NaelServer.h"
 
+namespace {
+
+class ParseRequests {
+public:
+  static size_t getSizeT(httpd_req_t *req, const char *id) {
+    char buffer[18];
+    ESP_ERROR_CHECK(
+        httpd_req_get_hdr_value_str(req, id, buffer, sizeof(buffer)));
+    return std::atoi(buffer);
+  }
+  static size_t getFrequency(httpd_req_t *req) {
+    static const std::string id = "number-frequency-osc-1";
+    return getSizeT(req, id.c_str());
+  }
+  static std::string getStdString(httpd_req_t *req, const char *id) {
+    char buffer[255];
+    ESP_ERROR_CHECK(
+        httpd_req_get_hdr_value_str(req, id, buffer, sizeof(buffer)));
+    return std::string(buffer);
+  }
+};
+} // namespace
+
 /* Our URI handler function to be called during GET /uri request */
 esp_err_t Server::Server::get_handler(httpd_req_t *req) {
   FormForLed &formForLed = static_cast<Server *>(req->user_ctx)->mFormForLed;
@@ -68,6 +91,15 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
 
     // ESP_LOGI(TAG, "%s", mFormForLed.parseToUart(content.data()).c_str());
   } else if (strcmp(req->uri, "/siggen") == 0) {
+    const size_t frequency = ParseRequests::getFrequency(req);
+    const std::string waveform =
+        ParseRequests::getStdString(req, "select-waveform-osc1") +
+        std::to_string(frequency);
+    if (frequency == 0 && waveform.compare("off") == 0) {
+      gpio_set_level(GPIO_NUM_16, 1);
+    }
+
+    httpd_resp_send(req, waveform.c_str(), HTTPD_RESP_USE_STRLEN);
     httpd_resp_send(req, mFormForLed.getOscControlPage().c_str(),
                     HTTPD_RESP_USE_STRLEN);
   } else {

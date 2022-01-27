@@ -1,6 +1,8 @@
 #ifndef __SIGNAL_GENERATOR_CONTROL_HTML_H__
 #define __SIGNAL_GENERATOR_CONTROL_HTML_H__
+#include <esp_http_server.h>
 #include <string>
+
 static const std::string SignalGeneratorForm = "<html>\n \
 <head>\n \
 <style>\n \
@@ -27,7 +29,7 @@ display: table-cell;\n \
     <div class=\"formbuilder-select form-group field-select-waveform-osc1\">\n \
     <p>\n \
         <label for=\"select-waveform-osc1\" class=\"formbuilder-select-label\">Wave type</label>\n \
-        <select class=\"form-control\" name=\"select-waveform-osc1\" id=\"select-waveform-osc1\" required=\"required\" aria-required=\"true\">\n \
+        <select class=\"form-control-osc1\" name=\"select-waveform-osc1\" id=\"select-waveform-osc1\" required=\"required\" aria-required=\"true\">\n \
             <option value=\"off\" selected=\"true\" id=\"select-waveform-osc1-0\">OFF</option>\n \
             <option value=\"sine\" id=\"select-waveform-osc1-1\">SINE</option>\n \
             <option value=\"triangular\" id=\"select-waveform-osc1-2\">TRIANGULAR</option>\n \
@@ -39,19 +41,19 @@ display: table-cell;\n \
     <div class=\"formbuilder-number form-group field-number-phase-osc1\">\n \
     <p>\n \
         <label for=\"number-phase-osc1\" class=\"formbuilder-number-label\">Starting Phase</label>\n \
-        <input type=\"number\" class=\"form-control\" name=\"number-phase-osc1\" access=\"false\" value=\"0\" min=\"0\" max=\"360\" step=\"0.1\" id=\"number-phase-osc1\" required=\"required\" aria-required=\"true\">\n \
+        <input type=\"number\" class=\"form-control-osc1\" name=\"number-phase-osc1\" access=\"false\" value=\"0\" min=\"0\" max=\"360\" step=\"0.1\" id=\"number-phase-osc1\" required=\"required\" aria-required=\"true\">\n \
     </p>\n \
     </div>\n \
     <div class=\"formbuilder-number form-group field-number-frequency-osc1\">\n \
     <p>\n \
         <label for=\"number-frequency-osc1\" class=\"formbuilder-number-label\">Frequency</label>\n \
-        <input type=\"number\" class=\"form-control\" name=\"number-frequency-osc1\" access=\"false\" value=\"1000\" min=\"0\" max=\"10000000\" step=\"1\" id=\"number-frequency-osc1\" required=\"required\" aria-required=\"true\">\n \
+        <input type=\"number\" class=\"form-control-osc1\" name=\"number-frequency-osc1\" access=\"false\" value=\"1000\" min=\"0\" max=\"10000000\" step=\"1\" id=\"number-frequency-osc1\" required=\"required\" aria-required=\"true\">\n \
     </p>\n \
     </div>\n \
     <div class=\"formbuilder-number form-group field-number-gain-osc1\">\n \
     <p>\n \
         <label for=\"number-gain-osc1\" class=\"formbuilder-number-label\">Gain</label>\n \
-        <input type=\"number\" class=\"form-control\" name=\"number-gain-osc1\" access=\"false\" value=\"1.0\" min=\"0\" max=\"1\" step=\"0.1\" id=\"number-gain-osc1\" required=\"required\" aria-required=\"true\">\n \
+        <input type=\"number\" class=\"form-control-osc1\" name=\"number-gain-osc1\" access=\"false\" value=\"1.0\" min=\"0\" max=\"1\" step=\"0.1\" id=\"number-gain-osc1\" required=\"required\" aria-required=\"true\">\n \
     </p>\n \
     </div>\n \
     <div class=\"formbuilder-button form-group field-button-submit-osc1\">\n \
