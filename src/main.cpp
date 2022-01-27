@@ -116,5 +116,6 @@ void app_main()
   start_wifi_AP();
   setupLed();
   xTaskCreate(&wpa2_enterprise_example_task, "wpa2_enterprise_example_task", 4096, NULL, 5, NULL);
-  start_webserver();
+  Server::Server server;
+  server.start_webserver();
 }
