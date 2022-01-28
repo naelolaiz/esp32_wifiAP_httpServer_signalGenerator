@@ -1,4 +1,6 @@
 #include "OnBoardLedManager.h"
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 
 Misc::OnBoardLedManager::~OnBoardLedManager() {
   gpio_reset_pin(mOnBoardLedPin);

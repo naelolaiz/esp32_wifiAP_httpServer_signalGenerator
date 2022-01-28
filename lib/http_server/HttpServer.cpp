@@ -116,7 +116,7 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
     // mFormForLed.setExtraText(mFormForLed.parseToUart(content.data()));
     const bool led1 = mFormForLed.parseLed1Status(content.data());
 
-    mOnBoardLedMonitor.setRequestedValue(led1);
+    Misc::OnBoardLedManager::setRequestedValue(led1);
     mFormForLed.setLed1Value(led1);
     mFormForLed.setLed2Value(mFormForLed.parseLed2Status(content.data()));
     httpd_resp_send(req, mFormForLed.getHtmlPage().c_str(),
@@ -130,7 +130,7 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
         " - " + std::to_string(frequency) + " - " +
         std::to_string(ParseRequests::getPhase(content.data()));
     if (waveform.compare("off0") == 0) {
-      mOnBoardLedMonitor.setRequestedValue(1);
+      Misc::OnBoardLedManager::setRequestedValue(1);
     }
 
     // httpd_resp_send(req, content.data(), HTTPD_RESP_USE_STRLEN);
