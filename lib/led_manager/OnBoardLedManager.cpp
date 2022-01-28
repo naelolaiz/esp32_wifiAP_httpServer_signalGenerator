@@ -35,7 +35,6 @@ void Misc::OnBoardLedManager::BlinkingLedTask(void *pvParameters) {
 
       struct DataForTimer {
         std::atomic<bool> newRequestAvailable = false;
-        std::atomic<bool> timerRunning = true;
         OnBoardLedManager *ledManager = nullptr;
       } dataForTimer;
       dataForTimer.ledManager = static_cast<OnBoardLedManager *>(pvParameters);
@@ -44,12 +43,10 @@ void Misc::OnBoardLedManager::BlinkingLedTask(void *pvParameters) {
       xTaskCreate(
           [](void *pvP) {
             DataForTimer *dataForTimer = static_cast<DataForTimer *>(pvP);
-            while (dataForTimer->timerRunning.load() &&
-                   !dataForTimer->newRequestAvailable.load()) {
+            while (true) {
               auto optional = dataForTimer->ledManager->mRequestedValue.load();
               if (optional.has_value()) {
                 dataForTimer->newRequestAvailable.store(true);
-                dataForTimer->timerRunning.store(false);
                 break;
               }
               vTaskDelay(1 / portTICK_PERIOD_MS);
@@ -58,13 +55,11 @@ void Misc::OnBoardLedManager::BlinkingLedTask(void *pvParameters) {
           "long sleep unless new request", 1024, &dataForTimer, 5, &xHandle);
 
       int counter = 5000;
-      while (dataForTimer.timerRunning.load() &&
-             !dataForTimer.newRequestAvailable.load() && counter > 0) {
+      while (counter > 0 && !dataForTimer.newRequestAvailable.load()) {
 
         vTaskDelay(1 / portTICK_PERIOD_MS);
         counter--;
       }
-      dataForTimer.timerRunning.store(false);
 
       if (xHandle != nullptr) {
         vTaskDelete(xHandle);
