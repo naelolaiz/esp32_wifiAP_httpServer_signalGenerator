@@ -1,4 +1,4 @@
-# esp32_wifiap_httpserver_osc
+# esp32_wifiAP_httpServer_signalGenerator
 PoC of a web server used to control a signal generator.
 Parts
 Wifi AP - Basic parts done
