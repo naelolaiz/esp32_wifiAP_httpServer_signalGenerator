@@ -20,6 +20,23 @@ public:
     static const std::string id = "number-frequency-osc-1";
     return getSizeT(content, id.c_str());
   }
+  static float getFloat(const char *content, const char *id) {
+    char buffer[30];
+    const esp_err_t err =
+        //        httpd_req_get_hdr_value_str(req, id, buffer, sizeof(buffer));
+        httpd_query_key_value(content, id, buffer, sizeof(buffer));
+
+    if (err != ESP_OK) {
+      return 0;
+    }
+    return std::atof(buffer);
+  }
+
+  static float getPhase(const char *content) {
+    static const std::string id = "number-phase-osc1";
+    return getFloat(content, id.c_str());
+  }
+
   // static std::string getStdString(httpd_req_t *req, const char *id) {
   static std::string getStdString(const char *content, const char *id) {
     char buffer[255];
@@ -106,12 +123,13 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
     const size_t frequency = ParseRequests::getFrequency(content.data());
     const std::string waveform =
         ParseRequests::getStdString(content.data(), "select-waveform-osc1") +
-        std::to_string(frequency);
-    if (frequency == 0 && waveform.compare("off") == 0) {
+        std::to_string(frequency) +
+        std::to_string(ParseRequests::getPhase(content.data()));
+    if (waveform.compare("off0") == 0) {
       gpio_set_level(GPIO_NUM_16, 1);
     }
 
-    httpd_resp_send(req, content.data(), HTTPD_RESP_USE_STRLEN);
+    // httpd_resp_send(req, content.data(), HTTPD_RESP_USE_STRLEN);
     httpd_resp_send(req, waveform.c_str(), HTTPD_RESP_USE_STRLEN);
     httpd_resp_send(req, mFormForLed.getOscControlPage().c_str(),
                     HTTPD_RESP_USE_STRLEN);
