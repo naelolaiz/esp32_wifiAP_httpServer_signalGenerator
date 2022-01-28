@@ -18,8 +18,7 @@ public:
   static void toggleStatus();
   static void set(bool level);
   static void BlinkingLedTask(void *pvParameters);
-  static void setRequestedValue(bool value) {} // mRequestedValue.store(value);
-                                               // }
+  static void setRequestedValue(bool value);
 };
 } // namespace Misc
 #endif // __ONBOARD_LED_MANAGER_H__

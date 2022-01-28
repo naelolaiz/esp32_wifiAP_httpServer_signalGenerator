@@ -41,3 +41,5 @@ void Misc::OnBoardLedManager::BlinkingLedTask(void *pvParameters) {
     vTaskDelay(msToWait / portTICK_PERIOD_MS);
   }
 }
+
+void Misc::OnBoardLedManager::setRequestedValue(bool value) { mRequestedValue.store(value); }
