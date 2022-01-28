@@ -5,11 +5,9 @@
 extern "C" {
 #include <esp_http_server.h>
 }
+class FormForLed;
 // based on
 // https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/protocols/esp_http_server.html
-#include "NaelWebPage.h"
-#include <array>
-#include <driver/gpio.h> // TODO: remove
 class Server {
 private:
   static FormForLed mFormForLed;

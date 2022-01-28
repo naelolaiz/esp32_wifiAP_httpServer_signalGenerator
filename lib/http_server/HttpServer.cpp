@@ -1,4 +1,7 @@
-#include "NaelServer.h"
+#include "HttpServer.h"
+#include "NaelWebPage.h"
+#include <array>
+#include <driver/gpio.h> // TODO: remove
 
 namespace {
 
@@ -141,14 +144,8 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
-/* Function for stopping the webserver */
 /* Function for starting the webserver */
 esp_err_t Server::Server::start_webserver() {
-  /* Generate default configuration */
-  // httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-  /* Empty handle to esp_http_server */
-  // httpd_handle_t server = NULL;
-
   /* Start the httpd server */
   const auto err = httpd_start(&mServer, &mConfig);
   if (err == ESP_OK) {
@@ -164,6 +161,7 @@ esp_err_t Server::Server::start_webserver() {
   return err;
 }
 
+/* Function for stopping the webserver */
 esp_err_t Server::Server::stop_webserver() {
   if (mServer) {
     /* Stop the httpd server */

@@ -1,5 +1,6 @@
 #ifndef __NAEL_TASKS_H__
 #define __NAEL_TASKS_H__
+#include "esp_log.h"
 #include <esp_netif.h>
 //#include <stdlib.h>
 #include <string.h>

@@ -1,6 +1,6 @@
-#include "NaelAP.h"
-#include "NaelServer.h"
+#include "HttpServer.h"
 #include "NaelTasks.h"
+#include "Wifi_AP.h"
 #include <driver/gpio.h>
 
 extern "C" {
@@ -18,8 +18,7 @@ void app_main() {
 
   accessPoint.start_wifi_AP();
   setupLed();
-  xTaskCreate(&monitor_tcpip_task, "monitor_tcpip_task",
-              4096, NULL, 5, NULL);
+  xTaskCreate(&monitor_tcpip_task, "monitor_tcpip_task", 4096, NULL, 5, NULL);
 
-  server.start_webserver();
+  ESP_ERROR_CHECK(server.start_webserver());
 }
