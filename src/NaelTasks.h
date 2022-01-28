@@ -1,6 +1,6 @@
 #ifndef __NAEL_TASKS_H__
 #define __NAEL_TASKS_H__
-#include "tcpip_adapter.h"
+#include <esp_netif.h>
 //#include <stdlib.h>
 #include <string.h>
 

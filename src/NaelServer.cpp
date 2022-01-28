@@ -143,14 +143,15 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
 
 /* Function for stopping the webserver */
 /* Function for starting the webserver */
-httpd_handle_t Server::Server::start_webserver(void) {
+esp_err_t Server::Server::start_webserver() {
   /* Generate default configuration */
   // httpd_config_t config = HTTPD_DEFAULT_CONFIG();
   /* Empty handle to esp_http_server */
   // httpd_handle_t server = NULL;
 
   /* Start the httpd server */
-  if (httpd_start(&mServer, &mConfig) == ESP_OK) {
+  const auto err = httpd_start(&mServer, &mConfig);
+  if (err == ESP_OK) {
     /* Register URI handlers */
     httpd_register_uri_handler(mServer, &uri_get);
     httpd_register_uri_handler(mServer, &uri_post);
@@ -160,13 +161,17 @@ httpd_handle_t Server::Server::start_webserver(void) {
     httpd_register_uri_handler(mServer, &oscControlPost);
   }
   /* If server failed to start, handle will be NULL */
-  return mServer;
+  return err;
 }
-void Server::Server::stop_webserver(httpd_handle_t server) {
-  if (server) {
+
+esp_err_t Server::Server::stop_webserver() {
+  if (mServer) {
     /* Stop the httpd server */
-    httpd_stop(server);
+    httpd_stop(mServer);
+    mServer = nullptr;
+    return ESP_OK;
   }
+  return ESP_ERR_NOT_FOUND;
 }
 
 FormForLed Server::Server::mFormForLed = FormForLed();

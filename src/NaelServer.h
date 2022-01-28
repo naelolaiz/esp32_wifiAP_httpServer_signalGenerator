@@ -57,8 +57,8 @@ public:
   Server(/* args */) = default;
   static esp_err_t get_handler(httpd_req_t *req);
   static esp_err_t post_handler(httpd_req_t *req);
-  httpd_handle_t start_webserver(void);
-  void stop_webserver(httpd_handle_t server);
+  esp_err_t start_webserver();
+  esp_err_t stop_webserver();
 };
 
 #endif // __NAEL_SERVER_H__
