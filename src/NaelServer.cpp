@@ -4,23 +4,28 @@ namespace {
 
 class ParseRequests {
 public:
-  static size_t getSizeT(httpd_req_t *req, const char *id) {
+  // static size_t getSizeT(httpd_req_t *req, const char *id) {
+  static size_t getSizeT(const char *content, const char *id) {
     char buffer[18];
     const esp_err_t err =
-        httpd_req_get_hdr_value_str(req, id, buffer, sizeof(buffer));
+        //        httpd_req_get_hdr_value_str(req, id, buffer, sizeof(buffer));
+        httpd_query_key_value(content, id, buffer, sizeof(buffer));
+
     if (err != ESP_OK) {
       return 0;
     }
     return std::atoi(buffer);
   }
-  static size_t getFrequency(httpd_req_t *req) {
+  static size_t getFrequency(const char *content) {
     static const std::string id = "number-frequency-osc-1";
-    return getSizeT(req, id.c_str());
+    return getSizeT(content, id.c_str());
   }
-  static std::string getStdString(httpd_req_t *req, const char *id) {
+  // static std::string getStdString(httpd_req_t *req, const char *id) {
+  static std::string getStdString(const char *content, const char *id) {
     char buffer[255];
     const esp_err_t err =
-        httpd_req_get_hdr_value_str(req, id, buffer, sizeof(buffer));
+        httpd_query_key_value(content, id, buffer, sizeof(buffer));
+    // httpd_req_get_hdr_value_str(req, id, buffer, sizeof(buffer));
     //        ESP_ERROR_CHECK()
     if (err != ESP_OK) {
       return "";
@@ -98,9 +103,9 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
 
     // ESP_LOGI(TAG, "%s", mFormForLed.parseToUart(content.data()).c_str());
   } else if (strcmp(req->uri, "/siggen") == 0) {
-    const size_t frequency = ParseRequests::getFrequency(req);
+    const size_t frequency = ParseRequests::getFrequency(content.data());
     const std::string waveform =
-        ParseRequests::getStdString(req, "select-waveform-osc1") +
+        ParseRequests::getStdString(content.data(), "select-waveform-osc1") +
         std::to_string(frequency);
     if (frequency == 0 && waveform.compare("off") == 0) {
       gpio_set_level(GPIO_NUM_16, 1);
