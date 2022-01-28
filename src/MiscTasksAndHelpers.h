@@ -1,8 +1,10 @@
 #ifndef __NAEL_TASKS_H__
 #define __NAEL_TASKS_H__
 #include "esp_log.h"
+#include <atomic>
 #include <driver/gpio.h>
 #include <esp_netif.h>
+#include <optional>
 #include <string.h>
 //#include <esp_rom_gpio.h>
 namespace Misc {
@@ -33,6 +35,7 @@ class OnBoardLedMonitor {
   static constexpr uint32_t mInitialValue = 1; // inverted. Starting OFF
 
 public:
+  static std::atomic<std::optional<bool>> mRequestedValue;
   OnBoardLedMonitor() {
     gpio_reset_pin(mOnBoardLedPin);
     gpio_set_direction(mOnBoardLedPin, GPIO_MODE_OUTPUT);
