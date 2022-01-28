@@ -46,13 +46,24 @@ public:
 
     gpio_set_level(mOnBoardLedPin, !gpio_get_level(mOnBoardLedPin));
   }
-  static void turnON() { gpio_set_level(mOnBoardLedPin, !mInitialValue); }
-  static void turnOFF() { gpio_set_level(mOnBoardLedPin, mInitialValue); }
+  static void set(bool level) { gpio_set_level(mOnBoardLedPin, level); }
   static void BlinkingLedTask(void *pvParameters) {
+    size_t msToWait = 500;
     while (1) {
-      vTaskDelay(500 / portTICK_PERIOD_MS);
+      const auto possibleRequest =
+          static_cast<OnBoardLedMonitor *>(pvParameters)
+              ->mRequestedValue.exchange(std::nullopt);
+      if (possibleRequest.has_value()) {
+        set(possibleRequest.value());
+        msToWait = 2000;
+      } else {
+        toggleStatus();
+        msToWait = 500;
+      }
+      vTaskDelay(msToWait / portTICK_PERIOD_MS);
     }
   }
+  static void setRequestedValue(bool value) { mRequestedValue.store(value); }
 };
 
 } // namespace Misc

@@ -22,7 +22,7 @@ void app_main() {
 
   // start a dummy task blinking the led
   xTaskCreate(&Misc::OnBoardLedMonitor::BlinkingLedTask, "blinking_led_task",
-              4096, NULL, 5, NULL);
+              4096, &ledMonitor, 5, NULL);
 
   // start the web server
   ESP_ERROR_CHECK(server.start_webserver());
