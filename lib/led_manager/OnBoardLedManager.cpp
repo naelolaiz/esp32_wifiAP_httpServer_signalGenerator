@@ -42,4 +42,6 @@ void Misc::OnBoardLedManager::BlinkingLedTask(void *pvParameters) {
   }
 }
 
-void Misc::OnBoardLedManager::setRequestedValue(bool value) { mRequestedValue.store(value); }
+void Misc::OnBoardLedManager::setRequestedValue(bool value) {
+  mRequestedValue.store(value);
+}
