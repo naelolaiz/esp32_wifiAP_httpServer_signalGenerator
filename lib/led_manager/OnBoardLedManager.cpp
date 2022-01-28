@@ -47,12 +47,11 @@ void Misc::OnBoardLedManager::BlinkingLedTask(void *pvParameters) {
               auto optional = dataForTimer->ledManager->mRequestedValue.load();
               if (optional.has_value()) {
                 dataForTimer->newRequestAvailable.store(true);
-                break;
               }
               vTaskDelay(1 / portTICK_PERIOD_MS);
             }
           },
-          "long sleep unless new request", 1024, &dataForTimer, 5, &xHandle);
+          "long sleep unless new request", 2048, &dataForTimer, 5, &xHandle);
 
       int counter = 5000;
       while (counter > 0 && !dataForTimer.newRequestAvailable.load()) {
