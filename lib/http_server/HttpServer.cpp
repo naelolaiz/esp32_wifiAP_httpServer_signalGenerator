@@ -54,9 +54,6 @@ public:
 };
 } // namespace
 
-Server::Server(Misc::OnBoardLedManager &onBoardLedMonitor)
-    : mOnBoardLedMonitor(onBoardLedMonitor) {}
-
 /* Our URI handler function to be called during GET /uri request */
 esp_err_t Server::Server::get_handler(httpd_req_t *req) {
   FormForLed &formForLed = static_cast<Server *>(req->user_ctx)->mFormForLed;
