@@ -26,18 +26,53 @@ void Misc::OnBoardLedManager::set(bool level) {
   gpio_set_level(mOnBoardLedPin, level);
 }
 void Misc::OnBoardLedManager::BlinkingLedTask(void *pvParameters) {
-  size_t msToWait = 500;
+  constexpr size_t msToWait = 500;
   while (1) {
     const auto possibleRequest = static_cast<OnBoardLedManager *>(pvParameters)
                                      ->mRequestedValue.exchange(std::nullopt);
     if (possibleRequest.has_value()) {
       set(!possibleRequest.value());
-      msToWait = 2000;
+
+      struct DataForTimer {
+        std::atomic<bool> newRequestAvailable = false;
+        std::atomic<bool> timerRunning = true;
+        OnBoardLedManager *ledManager = nullptr;
+      } dataForTimer;
+      dataForTimer.ledManager = static_cast<OnBoardLedManager *>(pvParameters);
+
+      TaskHandle_t xHandle = nullptr;
+      xTaskCreate(
+          [](void *pvP) {
+            DataForTimer *dataForTimer = static_cast<DataForTimer *>(pvP);
+            while (dataForTimer->timerRunning.load() &&
+                   !dataForTimer->newRequestAvailable.load()) {
+              auto optional = dataForTimer->ledManager->mRequestedValue.load();
+              if (optional.has_value()) {
+                dataForTimer->newRequestAvailable.store(true);
+                dataForTimer->timerRunning.store(false);
+                break;
+              }
+              vTaskDelay(1 / portTICK_PERIOD_MS);
+            }
+          },
+          "long sleep unless new request", 1024, &dataForTimer, 5, &xHandle);
+
+      int counter = 5000;
+      while (dataForTimer.timerRunning.load() &&
+             !dataForTimer.newRequestAvailable.load() && counter > 0) {
+
+        vTaskDelay(1 / portTICK_PERIOD_MS);
+        counter--;
+      }
+      dataForTimer.timerRunning.store(false);
+
+      if (xHandle != nullptr) {
+        vTaskDelete(xHandle);
+      }
     } else {
       toggleStatus();
-      msToWait = 500;
+      vTaskDelay(msToWait / portTICK_PERIOD_MS);
     }
-    vTaskDelay(msToWait / portTICK_PERIOD_MS);
   }
 }
 
