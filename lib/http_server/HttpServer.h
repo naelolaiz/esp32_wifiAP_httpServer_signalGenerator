@@ -5,12 +5,17 @@
 extern "C" {
 #include <esp_http_server.h>
 }
+
+// for led setting
+#include "OnBoardLedManager.h"
+
 class FormForLed;
 // based on
 // https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/protocols/esp_http_server.html
 class Server {
 private:
   static FormForLed mFormForLed;
+  Misc::OnBoardLedManager &mOnBoardLedMonitor;
   httpd_config_t mConfig = HTTPD_DEFAULT_CONFIG();
   /* Empty handle to esp_http_server */
   httpd_handle_t mServer{nullptr};
@@ -52,7 +57,7 @@ private:
                                 .user_ctx = this};
 
 public:
-  Server(/* args */) = default;
+  Server(Misc::OnBoardLedManager &onBoardLedMonitor);
   static esp_err_t get_handler(httpd_req_t *req);
   static esp_err_t post_handler(httpd_req_t *req);
   esp_err_t start_webserver();
