@@ -1,7 +1,6 @@
 #include "HttpServer.h"
 #include "NaelWebPage.h"
 #include <array>
-#include <driver/gpio.h> // TODO: remove
 
 namespace {
 
@@ -114,8 +113,10 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
     // mFormForLed.setExtraText(mFormForLed.parseToUart(content.data()));
     const bool led1 = mFormForLed.parseLed1Status(content.data());
 
+#if 0
     gpio_set_level(GPIO_NUM_16,
                    led1 ? 0 : 1); // TODO: remove. task checking and updating.
+#endif
     mFormForLed.setLed1Value(led1);
     mFormForLed.setLed2Value(mFormForLed.parseLed2Status(content.data()));
     httpd_resp_send(req, mFormForLed.getHtmlPage().c_str(),
@@ -128,9 +129,11 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
         ParseRequests::getStdString(content.data(), "select-waveform-osc1") +
         " - " + std::to_string(frequency) + " - " +
         std::to_string(ParseRequests::getPhase(content.data()));
+#if 0 
     if (waveform.compare("off0") == 0) {
       gpio_set_level(GPIO_NUM_16, 1);
     }
+#endif
 
     // httpd_resp_send(req, content.data(), HTTPD_RESP_USE_STRLEN);
     httpd_resp_send(req, waveform.c_str(), HTTPD_RESP_USE_STRLEN);
