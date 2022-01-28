@@ -6,7 +6,7 @@ class ParseRequests {
 public:
   // static size_t getSizeT(httpd_req_t *req, const char *id) {
   static size_t getSizeT(const char *content, const char *id) {
-    char buffer[18];
+    char buffer[30];
     const esp_err_t err =
         //        httpd_req_get_hdr_value_str(req, id, buffer, sizeof(buffer));
         httpd_query_key_value(content, id, buffer, sizeof(buffer));
@@ -17,7 +17,7 @@ public:
     return std::atoi(buffer);
   }
   static size_t getFrequency(const char *content) {
-    static const std::string id = "number-frequency-osc-1";
+    static const std::string id = "number-frequency-osc1";
     return getSizeT(content, id.c_str());
   }
   static float getFloat(const char *content, const char *id) {
@@ -123,7 +123,7 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
     const size_t frequency = ParseRequests::getFrequency(content.data());
     const std::string waveform =
         ParseRequests::getStdString(content.data(), "select-waveform-osc1") +
-        std::to_string(frequency) +
+        " - " + std::to_string(frequency) + " - " +
         std::to_string(ParseRequests::getPhase(content.data()));
     if (waveform.compare("off0") == 0) {
       gpio_set_level(GPIO_NUM_16, 1);
