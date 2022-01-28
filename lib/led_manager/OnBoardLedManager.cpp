@@ -27,17 +27,20 @@ void Misc::OnBoardLedManager::set(bool level) {
 }
 void Misc::OnBoardLedManager::BlinkingLedTask(void *pvParameters) {
   constexpr size_t msToWait = 500;
-  while (1) {
-    const auto possibleRequest = static_cast<OnBoardLedManager *>(pvParameters)
-                                     ->mRequestedValue.exchange(std::nullopt);
+  while (true) {
+    OnBoardLedManager *onBoardLedManager =
+        static_cast<OnBoardLedManager *>(pvParameters);
+
+    const auto possibleRequest =
+        onBoardLedManager->mRequestedValue.exchange(std::nullopt);
+
     if (possibleRequest.has_value()) {
       set(!possibleRequest.value());
 
       struct DataForTimer {
         std::atomic<bool> newRequestAvailable = false;
-        OnBoardLedManager *ledManager = nullptr;
+        OnBoardLedManager *ledManager = onBoardLedManager;
       } dataForTimer;
-      dataForTimer.ledManager = static_cast<OnBoardLedManager *>(pvParameters);
 
       TaskHandle_t xHandle = nullptr;
       xTaskCreate(
