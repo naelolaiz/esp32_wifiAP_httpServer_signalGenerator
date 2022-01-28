@@ -3,7 +3,7 @@
 #include <freertos/task.h>
 
 Misc::OnBoardLedManager::~OnBoardLedManager() {
-  // gpio_reset_pin(mOnBoardLedPin);
+  gpio_reset_pin(mOnBoardLedPin);
 }
 
 std::atomic<bool> Misc::OnBoardLedManager::mCurrentValue =
@@ -37,7 +37,6 @@ void Misc::OnBoardLedManager::BlinkingLedTask(void *pvParameters) {
       toggleStatus();
       msToWait = 500;
     }
-    toggleStatus();
     vTaskDelay(msToWait / portTICK_PERIOD_MS);
   }
 }

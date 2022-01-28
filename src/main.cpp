@@ -25,4 +25,10 @@ void app_main() {
   // start a dummy task blinking the led
   xTaskCreate(&Misc::OnBoardLedManager::BlinkingLedTask, "blinking_led_task",
               4096, &ledManager, 5, NULL);
+
+  // loop to keep the instanced classes alive
+  while (true) {
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    ;
+  }
 }
