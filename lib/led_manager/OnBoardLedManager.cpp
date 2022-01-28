@@ -31,7 +31,7 @@ void Misc::OnBoardLedManager::BlinkingLedTask(void *pvParameters) {
     const auto possibleRequest = static_cast<OnBoardLedManager *>(pvParameters)
                                      ->mRequestedValue.exchange(std::nullopt);
     if (possibleRequest.has_value()) {
-      set(possibleRequest.value());
+      set(!possibleRequest.value());
       msToWait = 2000;
     } else {
       toggleStatus();
