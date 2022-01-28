@@ -39,8 +39,9 @@ void Misc::OnBoardLedManager::BlinkingLedTask(void *pvParameters) {
 
       struct DataForTimer {
         std::atomic<bool> newRequestAvailable = false;
-        OnBoardLedManager *ledManager = onBoardLedManager;
+        OnBoardLedManager *ledManager = nullptr;
       } dataForTimer;
+      dataForTimer.ledManager = onBoardLedManager;
 
       TaskHandle_t xHandle = nullptr;
       xTaskCreate(
