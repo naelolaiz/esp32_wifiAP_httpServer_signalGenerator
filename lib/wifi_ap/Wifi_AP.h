@@ -8,8 +8,8 @@
 #include "freertos/event_groups.h"
 #include "nvs_flash.h"
 
-#define AP_SSID "TEST_ESP32\0"
-#define AP_PASSWORD "myPassword1234\0"
+#define AP_SSID "TEST_ESP32"
+#define AP_PASSWORD "myPassword1234"
 const int CONNECTED_BIT = BIT0;
 class NaelAP {
 private:
