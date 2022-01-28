@@ -28,16 +28,15 @@ void Misc::OnBoardLedManager::set(bool level) {
 void Misc::OnBoardLedManager::BlinkingLedTask(void *pvParameters) {
   size_t msToWait = 500;
   while (1) {
-    // const auto possibleRequest = static_cast<OnBoardLedManager
-    // *>(pvParameters)
-    //                                  ->mRequestedValue.exchange(std::nullopt);
-    // if (possibleRequest.has_value()) {
-    //   set(possibleRequest.value());
-    //   msToWait = 2000;
-    // } else {
-    //   toggleStatus();
-    //   msToWait = 500;
-    // }
+    const auto possibleRequest = static_cast<OnBoardLedManager *>(pvParameters)
+                                     ->mRequestedValue.exchange(std::nullopt);
+    if (possibleRequest.has_value()) {
+      set(possibleRequest.value());
+      msToWait = 2000;
+    } else {
+      toggleStatus();
+      msToWait = 500;
+    }
     toggleStatus();
     vTaskDelay(msToWait / portTICK_PERIOD_MS);
   }
