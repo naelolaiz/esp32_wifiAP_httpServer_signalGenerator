@@ -15,7 +15,7 @@ void app_main() {
   accessPoint.start_wifi_AP();
 
   // start the http server
-  Server server();
+  Server server;
   ESP_ERROR_CHECK(server.start_webserver());
 
   // start a dummy task monitoring tcpip
