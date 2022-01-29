@@ -15,7 +15,7 @@ See the main header file for full information
 #define SPIBUS_WRITE (0x7F) /*!< addr & SPIBUS_WRITE */
 
 #define AD_DEBUG                                                               \
-  1 ///< Enable or disable (default) debugging output from the MD_AD9833 library
+  0 ///< Enable or disable (default) debugging output from the MD_AD9833 library
 
 #if AD_DEBUG
 #include "esp_log.h"
