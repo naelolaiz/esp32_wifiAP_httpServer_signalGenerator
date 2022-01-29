@@ -38,7 +38,7 @@ esp_err_t ESP_AD9833::addDeviceAD9833() {
   devConfig.queue_size = 1;
   devConfig.pre_cb = NULL;
   devConfig.post_cb = NULL;
-  return spi_bus_add_device(mHost, &devConfig, &mDeviceHandle);
+  return spi_bus_add_device(mHost, &devConfig, &mDeviceHandleAD9833);
 }
 
 esp_err_t
@@ -61,11 +61,15 @@ ESP_AD9833::addDeviceMCP41xxx() // TODO: move outside -share host- so it doesn´
   devConfig.queue_size = 1;
   devConfig.pre_cb = NULL;
   devConfig.post_cb = NULL;
-  return spi_bus_add_device(mHost, &devConfig, &mDeviceHandle);
+  return spi_bus_add_device(mHost, &devConfig, &mDeviceHandleMCP41xxx);
 }
 
-esp_err_t ESP_AD9833::removeDevice() {
-  return spi_bus_remove_device(mDeviceHandle);
+esp_err_t ESP_AD9833::removeDeviceAD9833() {
+  return spi_bus_remove_device(mDeviceHandleAD9833);
+}
+
+esp_err_t ESP_AD9833::removeDeviceMCP41xx() {
+  return spi_bus_remove_device(mDeviceHandleMCP41xxx);
 }
 
 esp_err_t ESP_AD9833::write16(uint16_t data) {
@@ -86,7 +90,7 @@ esp_err_t ESP_AD9833::writeBytes(uint8_t regAddr, size_t length,
   transaction.user = NULL;
   transaction.tx_buffer = data;
   transaction.rx_buffer = NULL;
-  esp_err_t err = spi_device_transmit(mDeviceHandle, &transaction);
+  esp_err_t err = spi_device_transmit(mDeviceHandleAD9833, &transaction);
 #if defined CONFIG_SPIBUS_LOG_READWRITES
   if (!err) {
     char str[length * 5 + 1];
@@ -101,7 +105,7 @@ esp_err_t ESP_AD9833::writeBytes(uint8_t regAddr, size_t length,
 }
 
 esp_err_t ESP_AD9833::close() {
-  ESP_ERROR_CHECK(removeDevice());
+  ESP_ERROR_CHECK(removeDeviceAD9833());
   if (mHost) {
     return spi_bus_free(mHost);
   } else

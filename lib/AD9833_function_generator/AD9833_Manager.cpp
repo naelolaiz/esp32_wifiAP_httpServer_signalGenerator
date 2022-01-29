@@ -73,5 +73,6 @@ void AD9833FuncGen::MCP41xxxWrite(uint8_t value) {
   SPI.transfer(MCP_WRITE);   // Write the command
   SPI.transfer(value);       // Write the potentiometer value
   digitalWrite(pinCS, HIGH); // End transfer
-  SPI.endTransaction();*/
+  SPI.endTransaction();
+  */
 }

@@ -12,7 +12,8 @@
 class ESP_AD9833 {
   spi_bus_config_t mBusConfig;
   spi_host_device_t mHost{HSPI_HOST};
-  spi_device_handle_t mDeviceHandle;
+  spi_device_handle_t mDeviceHandleAD9833;
+  spi_device_handle_t mDeviceHandleMCP41xxx;
 
 public:
   /**
@@ -44,7 +45,8 @@ public:
 private:
   esp_err_t addDeviceAD9833();
   esp_err_t addDeviceMCP41xxx();
-  esp_err_t removeDevice();
+  esp_err_t removeDeviceAD9833();
+  esp_err_t removeDeviceMCP41xx();
   esp_err_t write16(uint16_t data);
   esp_err_t writeBytes(uint8_t regAddr, size_t length, const uint8_t *data);
 
