@@ -219,8 +219,7 @@ bool ESP_AD9833::setActiveFrequency(channel_t chan) {
 }
 
 ESP_AD9833::channel_t ESP_AD9833::getActiveFrequency(void) {
-  // return bitRead(_regCtl, AD_FSELECT) ? CHAN_1 : CHAN_0;
-  return (((1 << AD_FSELECT) & _regCtl) == 0 ? CHAN_0 : CHAN_1);
+  return bitRead(_regCtl, AD_FSELECT) ? CHAN_1 : CHAN_0;
 };
 
 bool ESP_AD9833::setActivePhase(channel_t chan) {
@@ -241,8 +240,7 @@ bool ESP_AD9833::setActivePhase(channel_t chan) {
 }
 
 ESP_AD9833::channel_t ESP_AD9833::getActivePhase(void) {
-  // return bitRead(_regCtl, AD_PSELECT) ? CHAN_1 : CHAN_0;
-  return (((1 << AD_PSELECT) & _regCtl) == 0 ? CHAN_0 : CHAN_1);
+  return bitRead(_regCtl, AD_PSELECT) ? CHAN_1 : CHAN_0;
 };
 
 bool ESP_AD9833::setMode(mode_t mode) {
@@ -271,7 +269,6 @@ bool ESP_AD9833::setMode(mode_t mode) {
     bitSet(_regCtl, AD_DIV2);
     bitClear(_regCtl, AD_SLEEP1);
     bitClear(_regCtl, AD_SLEEP12);
-    _regCtl &= ~(1 << AD_SLEEP12);
     break;
   case MODE_SQUARE2:
     PRINTS("SQ2");
