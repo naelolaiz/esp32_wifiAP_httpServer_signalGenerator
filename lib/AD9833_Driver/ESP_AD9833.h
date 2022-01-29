@@ -239,6 +239,7 @@ public:
   bool setPhase(channel_t chan, uint16_t phase);
 
   /** @} */
+  void setMpuPot(uint8_t value); // 0-255
 
 private:
   // Hardware register images

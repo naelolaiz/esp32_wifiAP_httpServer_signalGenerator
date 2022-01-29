@@ -51,7 +51,7 @@ ESP_AD9833::addDeviceMCP41xxx() // TODO: move outside -share host- so it doesn´
   devConfig.command_bits = 0;
   devConfig.address_bits = 8;
   devConfig.dummy_bits = 0;
-  devConfig.mode = 2;
+  devConfig.mode = 0;
   devConfig.duty_cycle_pos = 128;                 // default 128 = 50%/50% duty
   devConfig.cs_ena_pretrans = 0;                  // 0 not used
   devConfig.cs_ena_posttrans = 0;                 // 0 not used
@@ -202,6 +202,31 @@ void ESP_AD9833::spiSend(uint16_t data)
   write16(data);
   //  digitalWrite(_fsyncPin, HIGH);
   gpio_set_level(_fsyncPin, 1);
+  //  SPI.endTransaction();
+}
+
+void ESP_AD9833::setMpuPot(uint8_t value) // 0-255
+{
+#if AD_DEBUG
+  PRINTX("\nspiSend", data);
+  dumpCmd(data);
+#endif // AD_DEBUG
+       // maximum speed in Hz, order, dataMode (0 )
+       //  SPI.beginTransaction(SPISettings(14000000, MSBFIRST, SPI_MODE2));
+  gpio_set_level(_mpuCsPin, 0);
+
+#if 0
+  write16(data);
+
+  constexpr uint8_t MCP_WRITE 0b00010001;
+  uint8_t buffer[2] = {{MCP_WRITE}};
+
+  buffer[0] = data && 0xFF;
+  buffer[1] = (data && 0xFF00) >> 8;
+  return writeBytes(0 /* ? */, 2, buffer);
+#endif
+
+  gpio_set_level(_mpuCsPin, 1);
   //  SPI.endTransaction();
 }
 

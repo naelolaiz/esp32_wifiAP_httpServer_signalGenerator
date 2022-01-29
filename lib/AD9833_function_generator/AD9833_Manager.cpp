@@ -64,15 +64,16 @@ float AD9833FuncGen::convertVolumeTomVpp(uint8_t volume) {
  * Write a value (0..255) to the digital potentiometer MCP41xxx
  */
 void AD9833FuncGen::MCP41xxxWrite(uint8_t value) {
-  /*
+  mDriver9833.setMpuPot(value);
+#if 0
   SPI.beginTransaction(SPISettings(
       14000000, MSBFIRST, SPI_MODE0)); //  communicated by Timothy Corcoran
   // SPI.beginTransaction(SPISettings(3500000, MSBFIRST, SPI_MODE3));  //
   // communicated by Stephen Avis
-  digitalWrite(pinCS, LOW);  // Begin transfer
+  digitalWrite(mPinCS, LOW); // Begin transfer
   SPI.transfer(MCP_WRITE);   // Write the command
   SPI.transfer(value);       // Write the potentiometer value
   digitalWrite(pinCS, HIGH); // End transfer
   SPI.endTransaction();
-  */
+#endif
 }
