@@ -129,7 +129,7 @@ public:
    * \param mode  wave defined by one of the mode_t enumerations
    * \return true if successful, false otherwise
    */
-  boolean setMode(mode_t mode);
+  bool setMode(mode_t mode);
 
   /**
    * Get current frequency output channel
@@ -148,7 +148,7 @@ public:
    * \param chan output channel identifier (channel_t)
    * \return true if successful, false otherwise
    */
-  boolean setActiveFrequency(channel_t chan);
+  bool setActiveFrequency(channel_t chan);
 
   /**
    * Get channel frequency
@@ -169,7 +169,7 @@ public:
    * \param freq frequency in Hz
    * \return true if successful, false otherwise
    */
-  boolean setFrequency(channel_t chan, float freq);
+  bool setFrequency(channel_t chan, float freq);
 
   /** @} */
 
@@ -194,7 +194,7 @@ public:
    * \param chan output channel identifier (channel_t)
    * \return true if successful, false otherwise
    */
-  boolean setActivePhase(channel_t chan);
+  bool setActivePhase(channel_t chan);
 
   /**
    * Get channel phase
@@ -217,7 +217,7 @@ public:
    * \param phase in tenths of a degree [0..3600]
    * \return true if successful, false otherwise
    */
-  boolean setPhase(channel_t chan, uint16_t phase);
+  bool setPhase(channel_t chan, uint16_t phase);
 
   /** @} */
 

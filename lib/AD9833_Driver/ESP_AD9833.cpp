@@ -143,7 +143,7 @@ void ESP_AD9833::begin(void)
   setActivePhase(CHAN_0);
 }
 
-boolean ESP_AD9833::setActiveFrequency(channel_t chan) {
+bool ESP_AD9833::setActiveFrequency(channel_t chan) {
   PRINT("\nsetActiveFreq CHAN_", chan);
 
   switch (chan) {
@@ -164,7 +164,7 @@ ESP_AD9833::channel_t ESP_AD9833::getActiveFrequency(void) {
   return bitRead(_regCtl, AD_FSELECT) ? CHAN_1 : CHAN_0;
 };
 
-boolean ESP_AD9833::setActivePhase(channel_t chan) {
+bool ESP_AD9833::setActivePhase(channel_t chan) {
   PRINT("\nsetActivePhase CHAN_", chan);
 
   switch (chan) {
@@ -185,7 +185,7 @@ ESP_AD9833::channel_t ESP_AD9833::getActivePhase(void) {
   return bitRead(_regCtl, AD_PSELECT) ? CHAN_1 : CHAN_0;
 };
 
-boolean ESP_AD9833::setMode(mode_t mode) {
+bool ESP_AD9833::setMode(mode_t mode) {
   PRINTS("\nsetWave ");
   _modeLast = mode;
 
@@ -247,7 +247,7 @@ uint16_t ESP_AD9833::calcPhase(float a)
   return (uint16_t)((512.0 * (a / 10) / 45) + 0.5);
 }
 
-boolean ESP_AD9833::setFrequency(channel_t chan, float freq) {
+bool ESP_AD9833::setFrequency(channel_t chan, float freq) {
   uint16_t freq_select;
 
   PRINT("\nsetFreq CHAN_", chan);
@@ -281,7 +281,7 @@ boolean ESP_AD9833::setFrequency(channel_t chan, float freq) {
   return (true);
 }
 
-boolean ESP_AD9833::setPhase(channel_t chan, uint16_t phase) {
+bool ESP_AD9833::setPhase(channel_t chan, uint16_t phase) {
   uint16_t phase_select;
 
   PRINT("\nsetPhase CHAN_", chan);
@@ -307,4 +307,3 @@ boolean ESP_AD9833::setPhase(channel_t chan, uint16_t phase) {
 
   return (true);
 }
-

@@ -1,4 +1,4 @@
-#include "AD9833Driver.h"
+#include "AD9833_Manager.h"
 /**
  * Set initial values of both AD9833 channels
  * and set channel_0 as active
