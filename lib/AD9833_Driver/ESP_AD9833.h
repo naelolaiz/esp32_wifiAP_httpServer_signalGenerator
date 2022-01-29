@@ -42,7 +42,8 @@ public:
 
   // NEW API
 private:
-  esp_err_t addDevice();
+  esp_err_t addDeviceAD9833();
+  esp_err_t addDeviceMCP41xxx();
   esp_err_t removeDevice();
   esp_err_t write16(uint16_t data);
   esp_err_t writeBytes(uint8_t regAddr, size_t length, const uint8_t *data);
@@ -73,7 +74,19 @@ public:
    *
    * \param fsyncPin		output for selecting the device.
    */
-  explicit ESP_AD9833(gpio_num_t fsyncPin);
+  explicit ESP_AD9833(gpio_num_t fsyncPin, gpio_num_t mpuCsPin)
+      : mHost(HSPI_HOST), _dataPin(0), _clkPin(0), _fsyncPin(fsyncPin),
+        _mpuCsPin(mpuCsPin), _hardwareSPI(true) {
+    mBusConfig = {.mosi_io_num = SPI2_IOMUX_PIN_NUM_MOSI,
+                  .miso_io_num = SPI2_IOMUX_PIN_NUM_MISO,
+                  .sclk_io_num = SPI2_IOMUX_PIN_NUM_CLK,
+                  .quadwp_io_num = -2,
+                  .quadhd_io_num = -2,
+                  .max_transfer_sz = SPI_MAX_DMA_LEN,
+                  .flags = SPICOMMON_BUSFLAG_MASTER,
+                  .intr_flags = ESP_INTR_FLAG_LOWMED}; // TODO: check
+  }
+  //     https://github.com/natanaeljr/esp31-SPIbus/blob/master/include/SPIbus.hpp-------------------------------------
 
   /**
    * Initialize the object.
@@ -177,8 +190,7 @@ public:
   bool setFrequency(channel_t chan, float freq);
 
   /** @} */
-
-  //--------------------------------------------------------------
+  // Class functions
   /** \name Methods for AD98933 phase control
    * @{
    */
@@ -241,7 +253,8 @@ private:
   uint8_t _dataPin; // DATA is shifted out of this pin ...
   uint8_t _clkPin;  // ... signaled by a CLOCK on this pin ...
   gpio_num_t
-      _fsyncPin;     // ... and LOADed when the fsync pin is driven HIGH to LOW
+      _fsyncPin; // ... and LOADed when the fsync pin is driven HIGH to LOW
+  gpio_num_t _mpuCsPin;
   bool _hardwareSPI; // true if SPI interface is the hardware interface
 
   // Convenience calculations

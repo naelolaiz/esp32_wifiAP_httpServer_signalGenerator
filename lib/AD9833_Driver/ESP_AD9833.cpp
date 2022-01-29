@@ -18,7 +18,11 @@ template <class T> void bitClear(T &data, uint8_t bitToClear) {
 }
 } // namespace
 
-esp_err_t ESP_AD9833::addDevice() {
+// Class functions
+
+//     https://github.com/natanaeljr/esp31-SPIbus/blob/master/include/SPIbus.hpp
+
+esp_err_t ESP_AD9833::addDeviceAD9833() {
   spi_device_interface_config_t devConfig;
 
   devConfig.command_bits = 0;
@@ -29,7 +33,30 @@ esp_err_t ESP_AD9833::addDevice() {
   devConfig.cs_ena_pretrans = 0;                  // 0 not used
   devConfig.cs_ena_posttrans = 0;                 // 0 not used
   devConfig.clock_speed_hz = SPI_MASTER_FREQ_16M; // 14 000 000;
-  devConfig.spics_io_num = _fsyncPin;
+  devConfig.spics_io_num = _fsyncPin;             // ? or -1?
+  devConfig.flags = 0 | SPI_DEVICE_3WIRE | SPI_DEVICE_HALFDUPLEX; // MSB first
+  devConfig.queue_size = 1;
+  devConfig.pre_cb = NULL;
+  devConfig.post_cb = NULL;
+  return spi_bus_add_device(mHost, &devConfig, &mDeviceHandle);
+}
+
+esp_err_t
+ESP_AD9833::addDeviceMCP41xxx() // TODO: move outside -share host- so it doesn´t
+                                // break encapsulation. This driver should not
+                                // know about the MCP
+{
+  spi_device_interface_config_t devConfig;
+
+  devConfig.command_bits = 0;
+  devConfig.address_bits = 8;
+  devConfig.dummy_bits = 0;
+  devConfig.mode = 2;
+  devConfig.duty_cycle_pos = 128;                 // default 128 = 50%/50% duty
+  devConfig.cs_ena_pretrans = 0;                  // 0 not used
+  devConfig.cs_ena_posttrans = 0;                 // 0 not used
+  devConfig.clock_speed_hz = SPI_MASTER_FREQ_16M; // 14 000 000;
+  devConfig.spics_io_num = _mpuCsPin;             // ? or -1?
   devConfig.flags = 0 | SPI_DEVICE_3WIRE | SPI_DEVICE_HALFDUPLEX; // MSB first
   devConfig.queue_size = 1;
   devConfig.pre_cb = NULL;
@@ -81,21 +108,6 @@ esp_err_t ESP_AD9833::close() {
     return ESP_ERR_NOT_FOUND;
 }
 
-// Class functions
-ESP_AD9833::ESP_AD9833(gpio_num_t fsyncPin)
-    : mHost(HSPI_HOST), _dataPin(0), _clkPin(0), _fsyncPin(fsyncPin),
-      _hardwareSPI(true) {
-  mBusConfig = {.mosi_io_num = SPI2_IOMUX_PIN_NUM_MOSI,
-                .miso_io_num = SPI2_IOMUX_PIN_NUM_MISO,
-                .sclk_io_num = SPI2_IOMUX_PIN_NUM_CLK,
-                .quadwp_io_num = -2,
-                .quadhd_io_num = -2,
-                .max_transfer_sz = SPI_MAX_DMA_LEN,
-                .flags = SPICOMMON_BUSFLAG_MASTER,
-                .intr_flags = ESP_INTR_FLAG_LOWMED}; // TODO: check
-}
-//     https://github.com/natanaeljr/esp31-SPIbus/blob/master/include/SPIbus.hpp
-
 void ESP_AD9833::begin()
 // Initialise the AD9833 and then set up safe values for the AD9833 device
 // Procedure from Figure 27 of in the AD9833 Data Sheet
@@ -109,7 +121,7 @@ void ESP_AD9833::begin()
   gpio_set_direction(_fsyncPin, GPIO_MODE_OUTPUT);
   gpio_set_level(_fsyncPin, 1);
 
-  ESP_ERROR_CHECK(addDevice());
+  ESP_ERROR_CHECK(addDeviceAD9833());
   _regCtl = (1 << AD_B28); // always write 2 words consecutively for frequency
   spiSend(_regCtl);
 

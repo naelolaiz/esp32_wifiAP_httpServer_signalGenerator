@@ -43,7 +43,7 @@ class AD9833FuncGen {
   const gpio_num_t mPinCS;    // CS for MCP41010
 public:
   AD9833FuncGen(gpio_num_t pinFSync, gpio_num_t pinCS = GPIO_NUM_NC)
-      : mDriver9833(pinFSync), mPinFSync(pinFSync), mPinCS(pinCS) {
+      : mDriver9833(pinFSync, pinCS), mPinFSync(pinFSync), mPinCS(pinCS) {
     mDriver9833.begin(); // Initialize base class
                          //    init();
   }
