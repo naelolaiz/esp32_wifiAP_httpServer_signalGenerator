@@ -1,5 +1,6 @@
 #include "ESP_AD9833.h"
 
+#if 0 
 /*
 ESP_AD9833 - Library for controlling an AD9833 Programmable Waveform Generator.
 Adapted from MD_AD9833 Arduino library
@@ -307,3 +308,4 @@ bool ESP_AD9833::setPhase(channel_t chan, uint16_t phase) {
 
   return (true);
 }
+#endif

@@ -1,7 +1,7 @@
 #ifndef __NAEL_TASKS_H__
 #define __NAEL_TASKS_H__
 #include "esp_log.h"
-#include "tcpip_adapter.h"
+#include "esp_netif.h"
 #include <string.h>
 namespace Misc {
 

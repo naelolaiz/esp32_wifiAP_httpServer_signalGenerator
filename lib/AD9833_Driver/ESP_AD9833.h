@@ -1,8 +1,6 @@
 #ifndef __ESP_AD9833_H__
 #define __ESP_AD9833_H__
 
-//#include "freertos/FreeRTOS.h"
-//#include "freertos/task.h"
 #include "driver/gpio.h"
 #include "driver/spi_master.h"
 
@@ -10,15 +8,17 @@
 #include "sdkconfig.h"
 
 // Adapted from MD_AD9833 Arduino library
-/**
- * \file
- * \brief Main header file for the ESP_AD9833 library
- */
 
-/**
- * Core object for the ESP_AD9833 library
- */
 class ESP_AD9833 {
+  spi_bus_config_t mBusConfig = {.mosi_io_num = SPI_IOMUX_PIN_NUM_MOSI,
+                                 .miso_io_num = SPI_IOMUX_PIN_NUM_MISO,
+                                 .sclk_io_num = SPI_IOMUX_PIN_NUM_CLK,
+                                 .quadwp_io_num = -2,
+                                 .quadhd_io_num = -2,
+                                 .max_transfer_sz = SPI_MAX_DMA_LEN};
+  //     esp_err_t begin(int mosi_io_num, int miso_io_num, int sclk_io_num, int
+  //     max_transfer_sz = SPI_MAX_DMA_LEN); // copied from
+  //     https://github.com/natanaeljr/esp31-SPIbus/blob/master/include/SPIbus.hpp
 public:
   /**
    * Channel enumerated type.
@@ -44,7 +44,6 @@ public:
     MODE_SQUARE2,  ///< Set output to a square wave at half selected frequency
     MODE_TRIANGLE, ///< Set output to a triangle wave at selected frequency
   };
-
   /**
    * Class Constructor - arbitrary digital interface.
    *
@@ -247,4 +246,5 @@ private:
   void dumpCmd(uint16_t reg);  // debug routine
   void spiSend(uint16_t data); // do the actual physical communications task
 };
+
 #endif // __ESP_AD9833_H__

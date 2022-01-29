@@ -30,7 +30,7 @@ void AD9833FuncGen::init() {
   mSettings.mSweep.fsweep = mSettings.mChannel0.frequency;
   mSettings.mSweep.freqstep = 1.0;
 
-  activateChannelSettings(ESP_AD9833::CHAN_0)
+  activateChannelSettings(ESP_AD9833::CHAN_0);
 }
 
 /**
@@ -77,4 +77,3 @@ void AD9833FuncGen::MCP41xxxWrite(uint8_t value, uint8_t pinCS) {
   SPI.endTransaction();
   */
 }
-#endif

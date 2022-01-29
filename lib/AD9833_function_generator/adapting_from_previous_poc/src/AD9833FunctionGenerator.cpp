@@ -1,3 +1,4 @@
+#if 0
 /**
  * Sketch     AD9833FunctionGenerator.cpp
  * Author     2019-02-15 Ch.Geiser
@@ -63,9 +64,9 @@
  */
 #include "AD9833FunctionGenerator.h"
 
-
-#include "RemoteXYHandler.h"
 #include "ADHandler.h"
+#include "RemoteXYHandler.h"
+
 
 
 hw_timer_t * timer = NULL;
@@ -147,3 +148,5 @@ void loop()
   
   //cntrlKnob.loop();  // All the functionallity is handled in the control knobs loop
 }
+
+#endif

@@ -1,10 +1,11 @@
+#if 0
 #ifndef __REMOTEXY_HANDLER_H__
 #define __REMOTEXY_HANDLER_H__
 //////////////////////////////////////////////
 //        RemoteXY include library          //
 //////////////////////////////////////////////
 
-// RemoteXY select connection mode and include library 
+// RemoteXY select connection mode and include library
 #define REMOTEXY_MODE__ESP32CORE_BLE
 #include <BLEDevice.h>
 #include <string>
@@ -13,11 +14,11 @@
 
 #include <MD_AD9833.h>
 
-// RemoteXY connection settings 
+// RemoteXY connection settings
 #define REMOTEXY_BLUETOOTH_NAME "RemoteXY"
 
 
-// RemoteXY configurate  
+// RemoteXY configurate
 #pragma pack(push, 1)
 uint8_t RemoteXY_CONF[] =
   { 255,20,0,54,0,31,1,14,31,1,
@@ -71,14 +72,12 @@ struct {
     // other variable
   uint8_t connect_flag;  // =1 if wire connected, else =0 
 
-} RemoteXY; 
+} RemoteXY;
 #pragma pack(pop)
 
 /////////////////////////////////////////////
 //           END RemoteXY include          //
 /////////////////////////////////////////////
-
-
 
 #include <string>
 
@@ -271,3 +270,5 @@ bool areCachedAndCurrentValuesEqual()
 }
 
 #endif // __REMOTEXY_HANDLER_H__
+
+#endif
