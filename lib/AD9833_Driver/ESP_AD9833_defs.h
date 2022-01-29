@@ -14,12 +14,13 @@ See the main header file for full information
 #define SPIBUS_READ (0x80)  /*!< addr | SPIBUS_READ  */
 #define SPIBUS_WRITE (0x7F) /*!< addr & SPIBUS_WRITE */
 
-#define TAG_FOR_AD9833 "AD9833"
-
 #define AD_DEBUG                                                               \
   1 ///< Enable or disable (default) debugging output from the MD_AD9833 library
 
 #if AD_DEBUG
+#include "esp_log.h"
+
+#define TAG_FOR_AD9833 "AD9833"
 #define PRINT(s, v)                                                            \
   {                                                                            \
     ESP_LOGI(TAG_FOR_AD9833, s);                                               \

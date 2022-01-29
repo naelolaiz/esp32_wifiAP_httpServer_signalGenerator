@@ -1,9 +1,7 @@
 #include "ESP_AD9833.h"
 #include "ESP_AD9833_defs.h"
 
-#include "esp_log.h"
 namespace {
-const char TAG[] = "ESP_AD9833";
 bool bitRead(const uint32_t &inputValue, uint8_t bitToCheck) {
   uint32_t mask = 1 << bitToCheck;
   return inputValue & mask;
