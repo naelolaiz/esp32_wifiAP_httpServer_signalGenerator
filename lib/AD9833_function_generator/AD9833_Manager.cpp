@@ -1,24 +1,22 @@
 #include "AD9833Driver.h"
-#if 0 
-
 /**
  * Set initial values of both AD9833 channels
  * and set channel_0 as active
  */
 void AD9833FuncGen::init() {
   // Settings channel 0
-  mSettings.mChannel0.chn = MD_AD9833::CHAN_0;
-  mSettings.mChannel0.mode = MD_AD9833::MODE_OFF;
+  mSettings.mChannel0.chn = ESP_AD9833::CHAN_0;
+  mSettings.mChannel0.mode = ESP_AD9833::MODE_OFF;
   mSettings.mChannel0.frequency = 415.3;
-  mSettings.mChannel0.phase = getPhase(MD_AD9833::CHAN_0);
+  mSettings.mChannel0.phase = getPhase(ESP_AD9833::CHAN_0);
   mSettings.mChannel0.volume = 99; // 1500 mVpp
   mSettings.mChannel0.mVpp = convertVolumeTomVpp(mSettings.mChannel0.volume);
 
   // Settings channel 1
-  mSettings.mChannel1.chn = MD_AD9833::CHAN_1;
-  mSettings.mChannel1.mode = MD_AD9833::MODE_TRIANGLE;
+  mSettings.mChannel1.chn = ESP_AD9833::CHAN_1;
+  mSettings.mChannel1.mode = ESP_AD9833::MODE_TRIANGLE;
   mSettings.mChannel1.frequency = 554.4;
-  mSettings.mChannel1.phase = getPhase(MD_AD9833::CHAN_1);
+  mSettings.mChannel1.phase = getPhase(ESP_AD9833::CHAN_1);
   mSettings.mChannel1.volume = 65; // 1000 mVpp
   mSettings.mChannel1.mVpp = convertVolumeTomVpp(mSettings.mChannel1.volume);
 
@@ -32,15 +30,15 @@ void AD9833FuncGen::init() {
   mSettings.mSweep.fsweep = mSettings.mChannel0.frequency;
   mSettings.mSweep.freqstep = 1.0;
 
-  activateChannelSettings(MD_AD9833::CHAN_0)
+  activateChannelSettings(ESP_AD9833::CHAN_0)
 }
 
 /**
  * Activates stored settings for the selected channel
  */
-void AD9833FuncGen::activateChannelSettings(MD_AD9833::channel_t chn) {
+void AD9833FuncGen::activateChannelSettings(ESP_AD9833::channel_t chn) {
   ChannelSettings &s =
-      (chn == MD_AD9833::CHAN_0) ? mSettings.mChannel0 : mSettings.mChannel1;
+      (chn == ESP_AD9833::CHAN_0) ? mSettings.mChannel0 : mSettings.mChannel1;
   setActiveFrequency(chn);
   setMode(s.mode);
   setFrequency(chn, s.frequency);
