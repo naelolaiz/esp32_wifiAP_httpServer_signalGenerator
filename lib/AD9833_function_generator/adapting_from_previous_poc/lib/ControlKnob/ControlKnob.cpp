@@ -1,4 +1,5 @@
 #include "ControlKnob.h"
+#if 0
 
 /**
  * Shows initial screen
@@ -577,7 +578,7 @@ void ControlKnob::setSettings(ChannelSettings &settings)
  */
 void ControlKnob::showSettings(ChannelSettings &settings)
 {
-  #if 0 
+#if 0 
   uint8_t chnX = (settings.chn == MD_AD9833::CHAN_0 ? 0 : 1);
   _lcd.clear();
   _lcd.noBlink();
@@ -621,7 +622,7 @@ void ControlKnob::showSettings(ChannelSettings &settings)
     break;
   }   
   _lcd.display();
-  #endif
+#endif
 }
 
 /** 
@@ -630,7 +631,7 @@ void ControlKnob::showSettings(ChannelSettings &settings)
  */
 void ControlKnob::showScreen0()
 {
-  #if 0
+#if 0
   //Serial.printf("showScreen0 stateShow=%d, StateSetChn=%d\r\n", static_cast<int>(_stateShow), static_cast<int>(_stateSetChn));
   _lcd.clear();
   _lcd.noBlink();
@@ -719,7 +720,7 @@ void ControlKnob::showScreen0()
     break;
   }  
   _lcd.display();
-  #endif
+#endif
 }
 
 /**
@@ -745,7 +746,7 @@ void ControlKnob::showScreen2()
  */
 void ControlKnob::showScreen3()
 {
-  #if 0 
+#if 0 
   //Serial.printf("showScreen3 stateShow=%d, stateSetChn=%d, stateSetSwp=%d\r\n", (int)_stateShow, (int)_stateSetChn, (int)_stateSetSwp);
   _lcd.clear();
   _lcd.noBlink();
@@ -779,7 +780,7 @@ void ControlKnob::showScreen3()
   _lcd.setCursor(0, 3);
   _lcd.printf("Step   %08.1f Hz", _fGen.settings.swp.freqstep);
   _lcd.display();
-  #endif
+#endif
 }
 
 /**
@@ -970,12 +971,12 @@ void ControlKnob::incrFreqDigit(ChannelSettings &settings, uint8_t digit, double
   digitNew = (digitOld + 1) % 10;
   settings.frequency += (digitNew - digitOld) * multiplier;
   _fGen.setFrequency(settings.chn, settings.frequency);
-  #if 0 
+#if 0 
   _lcd.setCursor(digitPosition, rowLCD);
   _lcd.print(digitNew);
   _lcd.setCursor(digitPosition, rowLCD);
-  _lcd.display();  
-  #endif
+  _lcd.display();
+#endif
 }
 
 /**
@@ -993,12 +994,12 @@ void ControlKnob::decrFreqDigit(ChannelSettings &settings, uint8_t digit, double
   Serial.printf("digitOld = %d, digitNew = %d\r\n", digitOld, digitNew);
   settings.frequency += (digitNew - digitOld) * multiplier;
   _fGen.setFrequency(settings.chn, settings.frequency);
-  #if 0 
+#if 0 
   _lcd.setCursor(digitPosition, rowLCD);
   _lcd.print(digitNew);
   _lcd.setCursor(digitPosition, rowLCD);
-  _lcd.display();  
-  #endif
+  _lcd.display();
+#endif
 }
 
 /**
@@ -1180,12 +1181,12 @@ void ControlKnob::incrSwpTimeDigit(SweepSettings &settings, uint8_t digit, uint3
     digitNew = 1;
     settings.time = digitNew * multiplier;
   }
-  #if 0
+#if 0
   _lcd.setCursor(digitPosition, rowLCD);
   _lcd.print(digitNew);
   _lcd.setCursor(digitPosition, rowLCD);
-  _lcd.display();    
-  #endif
+  _lcd.display();
+#endif
 }
 
 /**
@@ -1206,12 +1207,12 @@ void ControlKnob::decrSwpTimeDigit(SweepSettings &settings, uint8_t digit, uint3
     digitNew = 1;
     settings.time = digitNew * multiplier;
   }
-  #if 0
+#if 0
   _lcd.setCursor(digitPosition, rowLCD);
   _lcd.print(digitNew);
   _lcd.setCursor(digitPosition, rowLCD);
-  _lcd.display(); 
-  #endif
+  _lcd.display();
+#endif
 }
 
 /**
@@ -1294,12 +1295,12 @@ void ControlKnob::incrSwpFreqStepDigit(SweepSettings &settings, uint8_t digit, d
   digitOld = digits[digit] - 48;
   digitNew = (digitOld + 1) % 10;
   settings.freqstep += (digitNew - digitOld) * multiplier;
-  #if 0
+#if 0
   _lcd.setCursor(digitPosition, rowLCD);
   _lcd.print(digitNew);
   _lcd.setCursor(digitPosition, rowLCD);
-  _lcd.display();  
-  #endif
+  _lcd.display();
+#endif
 }
 
 /**
@@ -1315,12 +1316,12 @@ void ControlKnob::decrSwpFreqStepDigit(SweepSettings &settings, uint8_t digit, d
   digitNew = digitOld == 0 ? 9 : digitOld - 1;
   Serial.printf("digitOld = %d, digitNew = %d\r\n", digitOld, digitNew);
   settings.freqstep += (digitNew - digitOld) * multiplier;
-  #if 0
+#if 0
   _lcd.setCursor(digitPosition, rowLCD);
   _lcd.print(digitNew);
   _lcd.setCursor(digitPosition, rowLCD);
   _lcd.display();
-  #endif
+#endif
 }
 
 /**
@@ -1472,3 +1473,4 @@ void ControlKnob::runSweep()
     blinkPosition(0, 0);
   }
 }
+#endif

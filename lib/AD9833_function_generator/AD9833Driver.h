@@ -1,10 +1,10 @@
-//#include <MD_AD9833.h>
-//#include <SPI.h>
-
 #ifndef AD9833FUNCGEN_H
 #define AD9833FUNCGEN_H
 
 #if 0
+//#include <MD_AD9833.h>
+//#include <SPI.h>
+
 
 #define MCP_WRITE 0b00010001
 

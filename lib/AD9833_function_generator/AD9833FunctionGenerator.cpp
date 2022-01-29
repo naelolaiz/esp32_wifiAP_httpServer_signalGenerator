@@ -1,1 +1,1 @@
-#include "AD9883FunctionGenerator.h"
+#include "AD9833FunctionGenerator.h"

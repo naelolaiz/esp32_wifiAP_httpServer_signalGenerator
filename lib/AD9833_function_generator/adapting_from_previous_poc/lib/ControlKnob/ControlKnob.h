@@ -1,3 +1,4 @@
+#if 0
 #include "AD9833FuncGen.h"
 
 #ifndef CONTROLKNOB_H
@@ -101,4 +102,5 @@ class ControlKnob
     StateSetChn _stateSetChn = StateSetChn::SELECT_STATE;
     StateSetSwp _stateSetSwp = StateSetSwp::SELECT_STATE;
 };
+#endif
 #endif
