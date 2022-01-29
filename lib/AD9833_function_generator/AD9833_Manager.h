@@ -37,12 +37,13 @@ typedef struct {
   ESP_AD9833::channel_t mCurrentChannel;
 } AD9833Settings;
 
-class AD9833FuncGen : public ESP_AD9833 {
+class AD9833FuncGen {
+  ESP_AD9833 mDriver;
+
 public:
-  AD9833FuncGen(gpio_num_t pinFsync)
-      : ESP_AD9833(pinFsync), mPinFsync(pinFsync) {
-    ESP_AD9833::begin(); // Initialize base class
-    init();
+  AD9833FuncGen(gpio_num_t pinFsync) : mDriver(pinFsync), mPinFsync(pinFsync) {
+    mDriver.begin(); // Initialize base class
+                     //    init();
   }
   void init();
   void setVolume(uint8_t value);

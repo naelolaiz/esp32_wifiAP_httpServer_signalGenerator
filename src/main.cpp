@@ -26,7 +26,7 @@ void app_main() {
 #define PIN_FSYNC1 8  // Default SPI CHIP SELECT AD9833
 #define PIN_FSYNC2 15 // Default SPI CHIP SELECT AD9833
 #endif
-  AD9833FuncGen signalGenController(GPIO_NUM_8);
+  AD9833FuncGen signalGenController(GPIO_NUM_9);
 
   // start a dummy task monitoring tcpip
   xTaskCreate(&Misc::Tasks::monitor_tcpip_task, "monitor_tcpip_task", 4096,

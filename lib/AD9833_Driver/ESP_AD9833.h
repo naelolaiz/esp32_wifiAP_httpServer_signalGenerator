@@ -12,9 +12,7 @@
 class ESP_AD9833 {
   spi_bus_config_t mBusConfig;
   spi_host_device_t mHost{HSPI_HOST};
-  spi_device_handle_t *mDeviceHandle{nullptr};
-  spi_device_interface_config_t
-      mDevConfig; // if not needed to cache, move to addDevice
+  spi_device_handle_t mDeviceHandle;
 
   /* = {.mosi_io_num = SPI_IOMUX_PIN_NUM_MOSI,
                                  .miso_io_num = SPI_IOMUX_PIN_NUM_MISO,

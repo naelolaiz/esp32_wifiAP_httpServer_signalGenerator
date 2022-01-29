@@ -1,27 +1,32 @@
 #include "ESP_AD9833.h"
 #include "ESP_AD9833_defs.h"
 
+#include "esp_log.h"
+namespace {
+const char TAG[] = "ESP_AD9833";
+}
+
 esp_err_t ESP_AD9833::addDevice() {
-  mDevConfig.command_bits = 0;
-  mDevConfig.address_bits = 8;
-  mDevConfig.dummy_bits = 0;
-  mDevConfig.mode = 2;
-  mDevConfig.duty_cycle_pos = 128; // default 128 = 50%/50% duty
-  mDevConfig.cs_ena_pretrans = 0;  // 0 not used
-  mDevConfig.cs_ena_posttrans = 0; // 0 not used
-  mDevConfig.clock_speed_hz = 14000000;
-  mDevConfig.spics_io_num = _fsyncPin;
-  mDevConfig.flags = 0; // MSB first
-  mDevConfig.queue_size = 1;
-  mDevConfig.pre_cb = NULL;
-  mDevConfig.post_cb = NULL;
-  return spi_bus_add_device(mHost, &mDevConfig, mDeviceHandle);
+  spi_device_interface_config_t devConfig;
+
+  devConfig.command_bits = 0;
+  devConfig.address_bits = 8;
+  devConfig.dummy_bits = 0;
+  devConfig.mode = 2;
+  devConfig.duty_cycle_pos = 128;                 // default 128 = 50%/50% duty
+  devConfig.cs_ena_pretrans = 0;                  // 0 not used
+  devConfig.cs_ena_posttrans = 0;                 // 0 not used
+  devConfig.clock_speed_hz = SPI_MASTER_FREQ_16M; // 14 000 000;
+  devConfig.spics_io_num = _fsyncPin;
+  devConfig.flags = 0 | SPI_DEVICE_3WIRE | SPI_DEVICE_HALFDUPLEX; // MSB first
+  devConfig.queue_size = 1;
+  devConfig.pre_cb = NULL;
+  devConfig.post_cb = NULL;
+  return spi_bus_add_device(mHost, &devConfig, &mDeviceHandle);
 }
 
 esp_err_t ESP_AD9833::removeDevice() {
-  const auto err = spi_bus_remove_device(*mDeviceHandle);
-  mDeviceHandle = nullptr;
-  return err;
+  return spi_bus_remove_device(mDeviceHandle);
 }
 
 esp_err_t ESP_AD9833::write16(uint16_t data) {
@@ -42,7 +47,7 @@ esp_err_t ESP_AD9833::writeBytes(uint8_t regAddr, size_t length,
   transaction.user = NULL;
   transaction.tx_buffer = data;
   transaction.rx_buffer = NULL;
-  esp_err_t err = spi_device_transmit(*mDeviceHandle, &transaction);
+  esp_err_t err = spi_device_transmit(mDeviceHandle, &transaction);
 #if defined CONFIG_SPIBUS_LOG_READWRITES
   if (!err) {
     char str[length * 5 + 1];
@@ -57,9 +62,7 @@ esp_err_t ESP_AD9833::writeBytes(uint8_t regAddr, size_t length,
 }
 
 esp_err_t ESP_AD9833::close() {
-  if (mDeviceHandle) {
-    ESP_ERROR_CHECK(removeDevice());
-  }
+  ESP_ERROR_CHECK(removeDevice());
   if (mHost) {
     return spi_bus_free(mHost);
   } else
@@ -84,8 +87,9 @@ void ESP_AD9833::begin()
 // Initialise the AD9833 and then set up safe values for the AD9833 device
 // Procedure from Figure 27 of in the AD9833 Data Sheet
 {
+
   // initialize SPI (hardware)
-  spi_bus_initialize(mHost, &mBusConfig, 0); // DMA not used
+  ESP_ERROR_CHECK(spi_bus_initialize(mHost, &mBusConfig, 0)); // DMA not used
 
   // initialise our preferred CS pin (could be same as SS)
   gpio_reset_pin(_fsyncPin);
@@ -93,7 +97,6 @@ void ESP_AD9833::begin()
   gpio_set_level(_fsyncPin, 1);
 
   ESP_ERROR_CHECK(addDevice());
-
   _regCtl = (1 << AD_B28); // always write 2 words consecutively for frequency
   spiSend(_regCtl);
 
