@@ -14,28 +14,33 @@ See the main header file for full information
 #define SPIBUS_READ (0x80)  /*!< addr | SPIBUS_READ  */
 #define SPIBUS_WRITE (0x7F) /*!< addr & SPIBUS_WRITE */
 
+#define TAG_FOR_AD9833 "AD9833"
+
 #define AD_DEBUG                                                               \
-  0 ///< Enable or disable (default) debugging output from the MD_AD9833 library
+  1 ///< Enable or disable (default) debugging output from the MD_AD9833 library
 
 #if AD_DEBUG
 #define PRINT(s, v)                                                            \
   {                                                                            \
-    Serial.print(F(s));                                                        \
-    Serial.print(v);                                                           \
+    ESP_LOGI(TAG_FOR_AD9833, s);                                               \
+    ESP_LOGI(TAG_FOR_AD9833, "%f", double(v));                                 \
   } ///< Print a string followed by a value (decimal)
 #define PRINTX(s, v)                                                           \
   {                                                                            \
-    Serial.print(F(s));                                                        \
-    Serial.print(" 0x");                                                       \
-    Serial.print(v, HEX);                                                      \
+    ESP_LOGI(TAG_FOR_AD9833, s);                                               \
+    ESP_LOGI(TAG_FOR_AD9833, "%x", v);                                         \
   } ///< Print a string followed by a value (hex)
+//    Serial.print(F(s));
+//    Serial.print(" 0x");
+// Serial.print(v, HEX);
 #define PRINTB(s, v)                                                           \
   {                                                                            \
-    Serial.print(F(s));                                                        \
-    Serial.print(v, BIN);                                                      \
+    ESP_LOGI(TAG_FOR_AD9833, s);                                               \
+    ESP_LOGI(TAG_FOR_AD9833, "%x", v);                                         \
   } ///< Print a string followed by a value (binary)
-#define PRINTS(s)                                                              \
-  { Serial.print(F(s)); } ///< Print a string
+//    Serial.print(F(s));
+// Serial.print(v, BIN);
+#define PRINTS(s) ESP_LOGI(TAG_FOR_AD9833, s); ///< Print a string
 #else
 #define PRINT(s, v)  ///< Print a string followed by a value (decimal)
 #define PRINTX(s, v) ///< Print a string followed by a value (hex)

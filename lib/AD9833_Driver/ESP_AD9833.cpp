@@ -320,17 +320,12 @@ uint16_t ESP_AD9833::calcPhase(float a)
 {
   return (uint16_t)((512.0 * (a / 10) / 45) + 0.5);
 }
-#if 0 
-/*
-ESP_AD9833 - Library for controlling an AD9833 Programmable Waveform Generator.
-Adapted from MD_AD9833 Arduino library
-
-*/
-
-/**
- * \file
- * \brief Main class definitions for AD_9833 library
- */
+namespace {
+bool bitRead(const uint32_t &inputValue, uint8_t bitToCheck) {
+  uint32_t mask = 1 << bitToCheck;
+  return inputValue & mask;
+}
+} // namespace
 
 // SPI interface functions
 #if AD_DEBUG
@@ -339,26 +334,56 @@ void ESP_AD9833::dumpCmd(uint16_t reg) {
   {
     // print the bits that are on
     PRINTS(" CTL ");
-    if bitRead (reg, AD_B28)
-      PRINTS(" B28") else PRINTS(" ---");
-    if bitRead (reg, AD_HLB)
-      PRINTS(" HLB") else PRINTS(" ---");
-    if bitRead (reg, AD_FSELECT)
-      PRINTS(" FSL") else PRINTS(" ---");
-    if bitRead (reg, AD_PSELECT)
-      PRINTS(" PSL") else PRINTS(" ---");
-    if bitRead (reg, AD_RESET)
-      PRINTS(" RST") else PRINTS(" ---");
-    if bitRead (reg, AD_SLEEP1)
-      PRINTS(" SL1") else PRINTS(" ---");
-    if bitRead (reg, AD_SLEEP12)
-      PRINTS(" SL2") else PRINTS(" ---");
-    if bitRead (reg, AD_OPBITEN)
-      PRINTS(" OPB") else PRINTS(" ---");
-    if bitRead (reg, AD_DIV2)
-      PRINTS(" DIV") else PRINTS(" ---");
-    if bitRead (reg, AD_MODE)
-      PRINTS(" MOD") else PRINTS(" ---");
+    if (bitRead(reg, AD_B28)) {
+      PRINTS(" B28")
+    } else {
+      PRINTS(" ---");
+    }
+    if (bitRead(reg, AD_HLB)) {
+      PRINTS(" HLB")
+    } else {
+      PRINTS(" ---");
+    }
+    if (bitRead(reg, AD_FSELECT)) {
+      PRINTS(" FSL")
+    } else {
+      PRINTS(" ---");
+    }
+    if (bitRead(reg, AD_PSELECT)) {
+      PRINTS(" PSL")
+    } else {
+      PRINTS(" ---");
+    }
+    if (bitRead(reg, AD_RESET)) {
+      PRINTS(" RST")
+    } else {
+      PRINTS(" ---");
+    }
+    if (bitRead(reg, AD_SLEEP1)) {
+      PRINTS(" SL1")
+    } else {
+      PRINTS(" ---");
+    }
+    if (bitRead(reg, AD_SLEEP12)) {
+      PRINTS(" SL2")
+    } else {
+      PRINTS(" ---");
+    }
+    if (bitRead(reg, AD_OPBITEN)) {
+      PRINTS(" OPB")
+    } else {
+      PRINTS(" ---");
+    }
+    if (bitRead(reg, AD_DIV2)) {
+      PRINTS(" DIV")
+    } else {
+      PRINTS(" ---");
+    }
+    if (bitRead(reg, AD_MODE)) {
+      PRINTS(" MOD")
+    } else {
+      PRINTS(" ---");
+    }
   } else if (bitRead(reg, AD_FREQ1) && bitRead(reg, AD_FREQ0)) // Phase register
   {
     PRINT(" PH", bitRead(reg, AD_PHASE));
@@ -373,4 +398,13 @@ void ESP_AD9833::dumpCmd(uint16_t reg) {
 }
 #endif
 
-#endif
+/*
+ESP_AD9833 - Library for controlling an AD9833 Programmable Waveform Generator.
+Adapted from MD_AD9833 Arduino library
+
+*/
+
+/**
+ * \file
+ * \brief Main class definitions for AD_9833 library
+ */
