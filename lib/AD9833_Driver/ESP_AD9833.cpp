@@ -4,7 +4,21 @@
 #include "esp_log.h"
 namespace {
 const char TAG[] = "ESP_AD9833";
+bool bitRead(const uint32_t &inputValue, uint8_t bitToCheck) {
+  uint32_t mask = 1 << bitToCheck;
+  return inputValue & mask;
 }
+
+template <class T> void bitSet(T &data, uint8_t bitToSet) {
+  const T mask = 1 << bitToSet;
+  data |= mask;
+}
+
+template <class T> void bitClear(T &data, uint8_t bitToClear) {
+  const T mask = ~(1 << bitToClear);
+  data &= mask;
+}
+} // namespace
 
 esp_err_t ESP_AD9833::addDevice() {
   spi_device_interface_config_t devConfig;
@@ -179,12 +193,10 @@ void ESP_AD9833::spiSend(uint16_t data)
 void ESP_AD9833::reset(bool hold)
 // Reset is done on a 1 to 0 transition
 {
-  // bitSet(_regCtl, AD_RESET);
-  _regCtl |= (1 << AD_RESET);
+  bitSet(_regCtl, AD_RESET);
   spiSend(_regCtl);
   if (!hold) {
-    //    bitClear(_regCtl, AD_RESET);
-    _regCtl &= ~(1 << AD_RESET);
+    bitClear(_regCtl, AD_RESET);
     spiSend(_regCtl);
   }
 }
@@ -194,12 +206,10 @@ bool ESP_AD9833::setActiveFrequency(channel_t chan) {
 
   switch (chan) {
   case CHAN_0:
-    // bitClear(_regCtl, AD_FSELECT);
-    _regCtl &= ~(1 << AD_FSELECT);
+    bitClear(_regCtl, AD_FSELECT);
     break;
   case CHAN_1:
-    //    bitSet(_regCtl, AD_FSELECT);
-    _regCtl |= (1 << AD_FSELECT);
+    bitSet(_regCtl, AD_FSELECT);
     break;
   }
 
@@ -218,12 +228,10 @@ bool ESP_AD9833::setActivePhase(channel_t chan) {
 
   switch (chan) {
   case CHAN_0:
-    // bitClear(_regCtl, AD_PSELECT);
-    _regCtl &= ~(1 << AD_PSELECT);
+    bitClear(_regCtl, AD_PSELECT);
     break;
   case CHAN_1:
-    //    bitSet(_regCtl, AD_PSELECT);
-    _regCtl |= (1 << AD_PSELECT);
+    bitSet(_regCtl, AD_PSELECT);
     break;
   }
 
@@ -244,62 +252,41 @@ bool ESP_AD9833::setMode(mode_t mode) {
   switch (mode) {
   case MODE_OFF:
     PRINTS("OFF");
-    // bitClear(_regCtl, AD_OPBITEN);
-    _regCtl &= ~(1 << AD_OPBITEN);
-    //    bitClear(_regCtl, AD_MODE);
-    _regCtl &= ~(1 << AD_MODE);
-    //  bitSet(_regCtl, AD_SLEEP1);
-    _regCtl |= (1 << AD_SLEEP1);
-    //    bitSet(_regCtl, AD_SLEEP12);
-    _regCtl |= (1 << AD_SLEEP12);
+    bitClear(_regCtl, AD_OPBITEN);
+    bitClear(_regCtl, AD_MODE);
+    bitSet(_regCtl, AD_SLEEP1);
+    bitSet(_regCtl, AD_SLEEP12);
     break;
   case MODE_SINE:
     PRINTS("SINE");
-    // bitClear(_regCtl, AD_OPBITEN);
-    _regCtl &= ~(1 << AD_OPBITEN);
-    // bitClear(_regCtl, AD_MODE);
-    _regCtl &= ~(1 << AD_MODE);
-    // bitClear(_regCtl, AD_SLEEP1);
-    _regCtl &= ~(1 << AD_SLEEP1);
-    // bitClear(_regCtl, AD_SLEEP12);
-    _regCtl &= ~(1 << AD_SLEEP12);
+    bitClear(_regCtl, AD_OPBITEN);
+    bitClear(_regCtl, AD_MODE);
+    bitClear(_regCtl, AD_SLEEP1);
+    bitClear(_regCtl, AD_SLEEP12);
     break;
   case MODE_SQUARE1:
     PRINTS("SQ1");
-    // bitSet(_regCtl, AD_OPBITEN);
-    _regCtl |= (1 << AD_OPBITEN);
-    // bitClear(_regCtl, AD_MODE);
-    _regCtl &= ~(1 << AD_MODE);
-    // bitSet(_regCtl, AD_DIV2);
-    _regCtl |= (1 << AD_DIV2);
-    // bitClear(_regCtl, AD_SLEEP1);
-    _regCtl &= ~(1 << AD_SLEEP1);
-    // bitClear(_regCtl, AD_SLEEP12);
+    bitSet(_regCtl, AD_OPBITEN);
+    bitClear(_regCtl, AD_MODE);
+    bitSet(_regCtl, AD_DIV2);
+    bitClear(_regCtl, AD_SLEEP1);
+    bitClear(_regCtl, AD_SLEEP12);
     _regCtl &= ~(1 << AD_SLEEP12);
     break;
   case MODE_SQUARE2:
     PRINTS("SQ2");
-    //    bitSet(_regCtl, AD_OPBITEN);
-    _regCtl |= (1 << AD_OPBITEN);
-    //  bitClear(_regCtl, AD_MODE);
-    _regCtl &= ~(1 << AD_MODE);
-    //    bitClear(_regCtl, AD_DIV2);
-    _regCtl &= ~(1 << AD_DIV2);
-    //    bitClear(_regCtl, AD_SLEEP1);
-    _regCtl &= ~(1 << AD_SLEEP1);
-    //    bitClear(_regCtl, AD_SLEEP12);
-    _regCtl &= ~(1 << AD_SLEEP12);
+    bitSet(_regCtl, AD_OPBITEN);
+    bitClear(_regCtl, AD_MODE);
+    bitClear(_regCtl, AD_DIV2);
+    bitClear(_regCtl, AD_SLEEP1);
+    bitClear(_regCtl, AD_SLEEP12);
     break;
   case MODE_TRIANGLE:
     PRINTS("TRNG");
-    //    bitClear(_regCtl, AD_OPBITEN);
-    _regCtl &= ~(1 << AD_OPBITEN);
-    //  bitSet(_regCtl, AD_MODE);
-    _regCtl |= (1 << AD_MODE);
-    //    bitClear(_regCtl, AD_SLEEP1);
-    _regCtl &= ~(1 << AD_SLEEP1);
-    //  bitClear(_regCtl, AD_SLEEP12);
-    _regCtl &= ~(1 << AD_SLEEP12);
+    bitClear(_regCtl, AD_OPBITEN);
+    bitSet(_regCtl, AD_MODE);
+    bitClear(_regCtl, AD_SLEEP1);
+    bitClear(_regCtl, AD_SLEEP12);
     break;
   }
 
@@ -320,13 +307,6 @@ uint16_t ESP_AD9833::calcPhase(float a)
 {
   return (uint16_t)((512.0 * (a / 10) / 45) + 0.5);
 }
-namespace {
-bool bitRead(const uint32_t &inputValue, uint8_t bitToCheck) {
-  uint32_t mask = 1 << bitToCheck;
-  return inputValue & mask;
-}
-} // namespace
-
 // SPI interface functions
 #if AD_DEBUG
 void ESP_AD9833::dumpCmd(uint16_t reg) {
