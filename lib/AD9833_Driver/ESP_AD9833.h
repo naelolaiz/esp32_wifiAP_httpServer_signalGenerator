@@ -10,15 +10,23 @@
 // Adapted from MD_AD9833 Arduino library
 
 class ESP_AD9833 {
-  spi_bus_config_t mBusConfig = {.mosi_io_num = SPI_IOMUX_PIN_NUM_MOSI,
+  spi_bus_config_t mBusConfig;
+  spi_host_device_t mHost{HSPI_HOST};
+  spi_device_handle_t *mDeviceHandle{nullptr};
+  spi_device_interface_config_t
+      mDevConfig; // if not needed to cache, move to addDevice
+
+  /* = {.mosi_io_num = SPI_IOMUX_PIN_NUM_MOSI,
                                  .miso_io_num = SPI_IOMUX_PIN_NUM_MISO,
                                  .sclk_io_num = SPI_IOMUX_PIN_NUM_CLK,
                                  .quadwp_io_num = -2,
                                  .quadhd_io_num = -2,
-                                 .max_transfer_sz = SPI_MAX_DMA_LEN};
+                                 .max_transfer_sz = SPI_MAX_DMA_LEN};*/
   //     esp_err_t begin(int mosi_io_num, int miso_io_num, int sclk_io_num, int
   //     max_transfer_sz = SPI_MAX_DMA_LEN); // copied from
   //     https://github.com/natanaeljr/esp31-SPIbus/blob/master/include/SPIbus.hpp
+  //  esp_err_t addAD9833Device() {}
+
 public:
   /**
    * Channel enumerated type.
@@ -44,6 +52,31 @@ public:
     MODE_SQUARE2,  ///< Set output to a square wave at half selected frequency
     MODE_TRIANGLE, ///< Set output to a triangle wave at selected frequency
   };
+
+  // NEW API
+private:
+  esp_err_t addDevice();
+  esp_err_t write16(uint16_t data);
+  esp_err_t writeBytes(uint8_t regAddr, size_t length, const uint8_t *data);
+
+#if 0
+  // explicit ESP_AD9833(spi_host_device_t host) : mHost(host) {}
+  esp_err_t begin(int mosi_io_num, int miso_io_num, int sclk_io_num,
+                  int max_transfer_sz = SPI_MAX_DMA_LEN) {
+    mBusConfig = {.mosi_io_num = mosi_io_num,
+                  .miso_io_num = miso_io_num,
+                  .sclk_io_num = sclk_io_num,
+                  .quadwp_io_num = -2,
+                  .quadhd_io_num = -2,
+                  .max_transfer_sz = max_transfer_sz,
+                  .flags = SPICOMMON_BUSFLAG_MASTER,
+                  .intr_flags = ESP_INTR_FLAG_LOWMED}; // TODO: check
+    return spi_bus_initialize(mHost, &mBusConfig, 0);  // 0 DMA not used
+  }
+#endif
+public:
+  esp_err_t close();
+
   /**
    * Class Constructor - arbitrary digital interface.
    *
@@ -55,7 +88,7 @@ public:
    * out. \param clkPin		  output for the clock signal. \param fsyncPin
    * output for selecting the device.
    */
-  ESP_AD9833(uint8_t dataPin, uint8_t clkPin, uint8_t fsyncPin);
+  //  explicit ESP_AD9833(uint8_t dataPin, uint8_t clkPin, uint8_t fsyncPin);
 
   /**
    * Class Constructor - Hardware SPI interface.
@@ -67,7 +100,7 @@ public:
    *
    * \param fsyncPin		output for selecting the device.
    */
-  ESP_AD9833(uint8_t fsyncPin);
+  explicit ESP_AD9833(gpio_num_t fsyncPin);
 
   /**
    * Initialize the object.
@@ -81,7 +114,7 @@ public:
    * output.
    *
    */
-  void begin(void);
+  void begin();
 
   /**
    * Reset the AD9833 hardware output
@@ -232,9 +265,10 @@ private:
   uint16_t _phase[2]; // last phase setting
 
   // SPI interface data
-  uint8_t _dataPin;  // DATA is shifted out of this pin ...
-  uint8_t _clkPin;   // ... signaled by a CLOCK on this pin ...
-  uint8_t _fsyncPin; // ... and LOADed when the fsync pin is driven HIGH to LOW
+  uint8_t _dataPin; // DATA is shifted out of this pin ...
+  uint8_t _clkPin;  // ... signaled by a CLOCK on this pin ...
+  gpio_num_t
+      _fsyncPin;     // ... and LOADed when the fsync pin is driven HIGH to LOW
   bool _hardwareSPI; // true if SPI interface is the hardware interface
 
   // Convenience calculations

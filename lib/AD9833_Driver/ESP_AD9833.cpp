@@ -1,4 +1,130 @@
 #include "ESP_AD9833.h"
+#include "ESP_AD9833_defs.h"
+
+esp_err_t ESP_AD9833::addDevice() {
+  mDevConfig.command_bits = 0;
+  mDevConfig.address_bits = 8;
+  mDevConfig.dummy_bits = 0;
+  mDevConfig.mode = 2;
+  mDevConfig.duty_cycle_pos = 128; // default 128 = 50%/50% duty
+  mDevConfig.cs_ena_pretrans = 0;  // 0 not used
+  mDevConfig.cs_ena_posttrans = 0; // 0 not used
+  mDevConfig.clock_speed_hz = 14000000;
+  mDevConfig.spics_io_num = _fsyncPin;
+  mDevConfig.flags = 0; // MSB first
+  mDevConfig.queue_size = 1;
+  mDevConfig.pre_cb = NULL;
+  mDevConfig.post_cb = NULL;
+  return spi_bus_add_device(mHost, &mDevConfig, mDeviceHandle);
+}
+
+esp_err_t ESP_AD9833::write16(uint16_t data) {
+  uint8_t buffer[2];
+  buffer[0] = data && 0xFF;
+  buffer[1] = (data && 0xFF00) >> 8;
+  return writeBytes(0 /* ? */, 2, buffer);
+}
+
+esp_err_t ESP_AD9833::writeBytes(uint8_t regAddr, size_t length,
+                                 const uint8_t *data) {
+  spi_transaction_t transaction;
+  transaction.flags = 0;
+  transaction.cmd = 0;
+  transaction.addr = regAddr & SPIBUS_WRITE;
+  transaction.length = length * 8;
+  transaction.rxlength = 0;
+  transaction.user = NULL;
+  transaction.tx_buffer = data;
+  transaction.rx_buffer = NULL;
+  esp_err_t err = spi_device_transmit(*mDeviceHandle, &transaction);
+#if defined CONFIG_SPIBUS_LOG_READWRITES
+  if (!err) {
+    char str[length * 5 + 1];
+    for (size_t i = 0; i < length; i++)
+      sprintf(str + i * 5, "0x%s%X ", (data[i] < 0x10 ? "0" : ""), data[i]);
+    SPIBUS_LOG_RW(
+        "[%s, handle:0x%X] Write %d bytes to__ register 0x%X, data: %s",
+        (host == 1 ? "HSPI" : "VSPI"), (uint32_t)handle, length, regAddr, str);
+  }
+#endif
+  return err;
+}
+
+esp_err_t ESP_AD9833::close() {
+  if (mHost) {
+    return spi_bus_free(mHost);
+  } else
+    return ESP_ERR_NOT_FOUND;
+}
+
+// Class functions
+ESP_AD9833::ESP_AD9833(gpio_num_t fsyncPin)
+    : mHost(HSPI_HOST), _dataPin(0), _clkPin(0), _fsyncPin(fsyncPin),
+      _hardwareSPI(true) {
+  mBusConfig = {.mosi_io_num = SPI2_IOMUX_PIN_NUM_MOSI,
+                .miso_io_num = SPI2_IOMUX_PIN_NUM_MISO,
+                .sclk_io_num = SPI2_IOMUX_PIN_NUM_CLK,
+                .quadwp_io_num = -2,
+                .quadhd_io_num = -2,
+                .max_transfer_sz = SPI_MAX_DMA_LEN,
+                .flags = SPICOMMON_BUSFLAG_MASTER,
+                .intr_flags = ESP_INTR_FLAG_LOWMED}; // TODO: check
+}
+
+void ESP_AD9833::begin()
+// Initialise the AD9833 and then set up safe values for the AD9833 device
+// Procedure from Figure 27 of in the AD9833 Data Sheet
+{
+  // initialize SPI (hardware)
+  spi_bus_initialize(mHost, &mBusConfig, 0); // DMA not used
+
+  // initialise our preferred CS pin (could be same as SS)
+  gpio_reset_pin(_fsyncPin);
+  gpio_set_direction(_fsyncPin, GPIO_MODE_OUTPUT);
+  gpio_set_level(_fsyncPin, 1);
+
+  ESP_ERROR_CHECK(addDevice());
+
+  _regCtl = (1 << AD_B28); // always write 2 words consecutively for frequency
+  spiSend(_regCtl);
+
+  reset(true); // Reset and hold
+  setFrequency(CHAN_0, AD_DEFAULT_FREQ);
+  setFrequency(CHAN_1, AD_DEFAULT_FREQ);
+  setPhase(CHAN_0, AD_DEFAULT_PHASE);
+  setPhase(CHAN_1, AD_DEFAULT_PHASE);
+  reset(); // full transition
+
+  setMode(MODE_SINE);
+  setActiveFrequency(CHAN_0);
+  setActivePhase(CHAN_0);
+}
+
+ESP_AD9833::~ESP_AD9833() { close(); }
+
+void ESP_AD9833::spiSend(uint16_t data)
+// Either use SPI.h or a dedicated shifting function.
+// Sometimes the hardware shift does not appear to work reliably with the
+// hardware - similar problems also reported on the internet. The dedicated
+// routine below is modelled on the flow and timing on the datasheet and seems
+// to works reliably, but is much slower than the hardware interface.
+{
+
+#if AD_DEBUG
+  PRINTX("\nspiSend", data);
+  dumpCmd(data);
+#endif // AD_DEBUG
+       // spi_bus_add_device ??
+       // maximum speed in Hz, order, dataMode (0 )
+       //  SPI.beginTransaction(SPISettings(14000000, MSBFIRST, SPI_MODE2));
+  //  digitalWrite(_fsyncPin, LOW);
+  gpio_set_level(_fsyncPin, 0);
+  //      SPI.transfer16(data);
+  write16(data);
+  //  digitalWrite(_fsyncPin, HIGH);
+  gpio_set_level(_fsyncPin, 1);
+  //  SPI.endTransaction();
+}
 
 #if 0 
 /*
@@ -53,49 +179,7 @@ void ESP_AD9833::dumpCmd(uint16_t reg) {
 }
 #endif
 
-void ESP_AD9833::spiSend(uint16_t data)
-// Either use SPI.h or a dedicated shifting function.
-// Sometimes the hardware shift does not appear to work reliably with the
-// hardware - similar problems also reported on the internet. The dedicated
-// routine below is modelled on the flow and timing on the datasheet and seems
-// to works reliably, but is much slower than the hardware interface.
-{
-#if AD_DEBUG
-  PRINTX("\nspiSend", data);
-  dumpCmd(data);
-#endif // AD_DEBUG
 
-  if (_hardwareSPI) {
-    SPI.beginTransaction(SPISettings(14000000, MSBFIRST, SPI_MODE2));
-    digitalWrite(_fsyncPin, LOW);
-    SPI.transfer16(data);
-    digitalWrite(_fsyncPin, HIGH);
-    SPI.endTransaction();
-  } else {
-    digitalWrite(_fsyncPin, LOW);
-    for (uint8_t i = 0; i < 16; i++) {
-      digitalWrite(_dataPin, (data & 0x8000) ? HIGH : LOW);
-      digitalWrite(_clkPin, LOW); // data is valid on falling edge
-      digitalWrite(_clkPin, HIGH);
-      data <<= 1; // one less bit to do
-    }
-    digitalWrite(_dataPin, LOW); // idle low
-    digitalWrite(_fsyncPin, HIGH);
-  }
-}
-
-// Class functions
-ESP_AD9833::ESP_AD9833(uint8_t fsyncPin)
-    : _dataPin(0), _clkPin(0), _fsyncPin(fsyncPin), _hardwareSPI(true) {}
-
-ESP_AD9833::ESP_AD9833(uint8_t dataPin, uint8_t clkPin, uint8_t fsyncPin)
-    : _dataPin(dataPin), _clkPin(clkPin), _fsyncPin(fsyncPin),
-      _hardwareSPI(false) {}
-
-ESP_AD9833::~ESP_AD9833(void) {
-  if (_hardwareSPI)
-    SPI.end();
-};
 
 void ESP_AD9833::reset(bool hold)
 // Reset is done on a 1 to 0 transition
@@ -108,41 +192,6 @@ void ESP_AD9833::reset(bool hold)
   }
 }
 
-void ESP_AD9833::begin(void)
-// Initialise the AD9833 and then set up safe values for the AD9833 device
-// Procedure from Figure 27 of in the AD9833 Data Sheet
-{
-  // initialize the SPI interface
-  if (_hardwareSPI) {
-    PRINTS("\nHardware SPI");
-    SPI.begin();
-  } else {
-    PRINTS("\nSoftware SPI");
-    pinMode(_dataPin, OUTPUT);
-    digitalWrite(_clkPin, LOW);
-    pinMode(_clkPin, OUTPUT);
-  }
-
-  // initialise our preferred CS pin (could be same as SS)
-  pinMode(_fsyncPin, OUTPUT);
-  digitalWrite(_fsyncPin, HIGH);
-
-  _regCtl = 0;
-
-  bitSet(_regCtl, AD_B28); // always write 2 words consecutively for frequency
-  spiSend(_regCtl);
-
-  reset(true); // Reset and hold
-  setFrequency(CHAN_0, AD_DEFAULT_FREQ);
-  setFrequency(CHAN_1, AD_DEFAULT_FREQ);
-  setPhase(CHAN_0, AD_DEFAULT_PHASE);
-  setPhase(CHAN_1, AD_DEFAULT_PHASE);
-  reset(); // full transition
-
-  setMode(MODE_SINE);
-  setActiveFrequency(CHAN_0);
-  setActivePhase(CHAN_0);
-}
 
 bool ESP_AD9833::setActiveFrequency(channel_t chan) {
   PRINT("\nsetActiveFreq CHAN_", chan);

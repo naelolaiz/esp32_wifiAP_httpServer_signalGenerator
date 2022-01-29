@@ -39,7 +39,8 @@ typedef struct {
 
 class AD9833FuncGen : public ESP_AD9833 {
 public:
-  AD9833FuncGen(uint8_t pinFsync) : ESP_AD9833(pinFsync), mPinFsync(pinFsync) {
+  AD9833FuncGen(gpio_num_t pinFsync)
+      : ESP_AD9833(pinFsync), mPinFsync(pinFsync) {
     ESP_AD9833::begin(); // Initialize base class
     init();
   }
