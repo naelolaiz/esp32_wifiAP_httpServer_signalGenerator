@@ -38,12 +38,14 @@ typedef struct {
 } AD9833Settings;
 
 class AD9833FuncGen {
-  ESP_AD9833 mDriver;
-
+  ESP_AD9833 mDriver9833;
+  const gpio_num_t mPinFSync; // CS/FSYNC for AD9833
+  const gpio_num_t mPinCS;    // CS for MCP41010
 public:
-  AD9833FuncGen(gpio_num_t pinFsync) : mDriver(pinFsync), mPinFsync(pinFsync) {
-    mDriver.begin(); // Initialize base class
-                     //    init();
+  AD9833FuncGen(gpio_num_t pinFSync, gpio_num_t pinCS = GPIO_NUM_NC)
+      : mDriver9833(pinFSync), mPinFSync(pinFSync), mPinCS(pinCS) {
+    mDriver9833.begin(); // Initialize base class
+                         //    init();
   }
   void init();
   void setVolume(uint8_t value);
@@ -51,10 +53,8 @@ public:
   void activateChannelSettings(ESP_AD9833::channel_t chn);
 
   AD9833Settings mSettings; // Allow direct access to settings
-
 private:
-  void MCP41xxxWrite(uint8_t value, uint8_t pinCsDpot);
-  uint8_t mPinFsync;
+  void MCP41xxxWrite(uint8_t value);
 };
 
 #endif // __AD9833_DRIVER_H__

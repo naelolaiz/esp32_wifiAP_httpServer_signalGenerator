@@ -23,8 +23,15 @@ void app_main() {
 #if 0                 // from previous tests
 #define PIN_CLK 18    // Default SPI CLK
 #define PIN_DATA 23   // Default SPI DATA (MOSI)
-#define PIN_FSYNC1 8  // Default SPI CHIP SELECT AD9833
+#define PIN_FSYNC1 8  // Default SPI CHIP SELECT AD9833 // 8 crashes!
 #define PIN_FSYNC2 15 // Default SPI CHIP SELECT AD9833
+
+///////
+// using HSPI, default pins are: 
+// MISO = SPI2_IOMUX_PIN_NUM_MISO = 12
+// ->>>> MOSI = SPI2_IOMUX_PIN_NUM_MOSI = 13
+// ->>>> SCLK = SPI2_IOMUX_PIN_NUM_CLK = 14
+// ->>>> FSYNC = 9
 #endif
   AD9833FuncGen signalGenController(GPIO_NUM_9);
 

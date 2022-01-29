@@ -14,17 +14,6 @@ class ESP_AD9833 {
   spi_host_device_t mHost{HSPI_HOST};
   spi_device_handle_t mDeviceHandle;
 
-  /* = {.mosi_io_num = SPI_IOMUX_PIN_NUM_MOSI,
-                                 .miso_io_num = SPI_IOMUX_PIN_NUM_MISO,
-                                 .sclk_io_num = SPI_IOMUX_PIN_NUM_CLK,
-                                 .quadwp_io_num = -2,
-                                 .quadhd_io_num = -2,
-                                 .max_transfer_sz = SPI_MAX_DMA_LEN};*/
-  //     esp_err_t begin(int mosi_io_num, int miso_io_num, int sclk_io_num, int
-  //     max_transfer_sz = SPI_MAX_DMA_LEN); // copied from
-  //     https://github.com/natanaeljr/esp31-SPIbus/blob/master/include/SPIbus.hpp
-  //  esp_err_t addAD9833Device() {}
-
 public:
   /**
    * Channel enumerated type.
@@ -58,21 +47,6 @@ private:
   esp_err_t write16(uint16_t data);
   esp_err_t writeBytes(uint8_t regAddr, size_t length, const uint8_t *data);
 
-#if 0
-  // explicit ESP_AD9833(spi_host_device_t host) : mHost(host) {}
-  esp_err_t begin(int mosi_io_num, int miso_io_num, int sclk_io_num,
-                  int max_transfer_sz = SPI_MAX_DMA_LEN) {
-    mBusConfig = {.mosi_io_num = mosi_io_num,
-                  .miso_io_num = miso_io_num,
-                  .sclk_io_num = sclk_io_num,
-                  .quadwp_io_num = -2,
-                  .quadhd_io_num = -2,
-                  .max_transfer_sz = max_transfer_sz,
-                  .flags = SPICOMMON_BUSFLAG_MASTER,
-                  .intr_flags = ESP_INTR_FLAG_LOWMED}; // TODO: check
-    return spi_bus_initialize(mHost, &mBusConfig, 0);  // 0 DMA not used
-  }
-#endif
 public:
   esp_err_t close();
 

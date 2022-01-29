@@ -94,6 +94,7 @@ ESP_AD9833::ESP_AD9833(gpio_num_t fsyncPin)
                 .flags = SPICOMMON_BUSFLAG_MASTER,
                 .intr_flags = ESP_INTR_FLAG_LOWMED}; // TODO: check
 }
+//     https://github.com/natanaeljr/esp31-SPIbus/blob/master/include/SPIbus.hpp
 
 void ESP_AD9833::begin()
 // Initialise the AD9833 and then set up safe values for the AD9833 device

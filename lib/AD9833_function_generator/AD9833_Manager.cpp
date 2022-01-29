@@ -8,7 +8,7 @@ void AD9833FuncGen::init() {
   mSettings.mChannel0.chn = ESP_AD9833::CHAN_0;
   mSettings.mChannel0.mode = ESP_AD9833::MODE_OFF;
   mSettings.mChannel0.frequency = 415.3;
-  mSettings.mChannel0.phase = mDriver.getPhase(ESP_AD9833::CHAN_0);
+  mSettings.mChannel0.phase = mDriver9833.getPhase(ESP_AD9833::CHAN_0);
   mSettings.mChannel0.volume = 99; // 1500 mVpp
   mSettings.mChannel0.mVpp = convertVolumeTomVpp(mSettings.mChannel0.volume);
 
@@ -16,7 +16,7 @@ void AD9833FuncGen::init() {
   mSettings.mChannel1.chn = ESP_AD9833::CHAN_1;
   mSettings.mChannel1.mode = ESP_AD9833::MODE_TRIANGLE;
   mSettings.mChannel1.frequency = 554.4;
-  mSettings.mChannel1.phase = mDriver.getPhase(ESP_AD9833::CHAN_1);
+  mSettings.mChannel1.phase = mDriver9833.getPhase(ESP_AD9833::CHAN_1);
   mSettings.mChannel1.volume = 65; // 1000 mVpp
   mSettings.mChannel1.mVpp = convertVolumeTomVpp(mSettings.mChannel1.volume);
 
@@ -39,18 +39,16 @@ void AD9833FuncGen::init() {
 void AD9833FuncGen::activateChannelSettings(ESP_AD9833::channel_t chn) {
   ChannelSettings &s =
       (chn == ESP_AD9833::CHAN_0) ? mSettings.mChannel0 : mSettings.mChannel1;
-  mDriver.setActiveFrequency(chn);
-  mDriver.setMode(s.mode);
-  mDriver.setFrequency(chn, s.frequency);
+  mDriver9833.setActiveFrequency(chn);
+  mDriver9833.setMode(s.mode);
+  mDriver9833.setFrequency(chn, s.frequency);
   setVolume(s.volume);
 }
 
 /**
  * Sets output amplitude by setting the value of the digital potentiometer
  */
-void AD9833FuncGen::setVolume(uint8_t value) {
-  // MCP41xxxWrite(value, _pinCsDpot);
-}
+void AD9833FuncGen::setVolume(uint8_t value) { MCP41xxxWrite(value); }
 
 /**
  * Converts the value 0..255 of the digital potentiometer
@@ -65,7 +63,7 @@ float AD9833FuncGen::convertVolumeTomVpp(uint8_t volume) {
 /**
  * Write a value (0..255) to the digital potentiometer MCP41xxx
  */
-void AD9833FuncGen::MCP41xxxWrite(uint8_t value, uint8_t pinCS) {
+void AD9833FuncGen::MCP41xxxWrite(uint8_t value) {
   /*
   SPI.beginTransaction(SPISettings(14000000, MSBFIRST, SPI_MODE0)); //
   communicated by Timothy Corcoran
