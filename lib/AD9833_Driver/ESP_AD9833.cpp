@@ -186,6 +186,137 @@ void ESP_AD9833::reset(bool hold)
   }
 }
 
+bool ESP_AD9833::setActiveFrequency(channel_t chan) {
+  PRINT("\nsetActiveFreq CHAN_", chan);
+
+  switch (chan) {
+  case CHAN_0:
+    // bitClear(_regCtl, AD_FSELECT);
+    _regCtl &= ~(1 << AD_FSELECT);
+    break;
+  case CHAN_1:
+    //    bitSet(_regCtl, AD_FSELECT);
+    _regCtl |= (1 << AD_FSELECT);
+    break;
+  }
+
+  spiSend(_regCtl);
+
+  return true;
+}
+
+ESP_AD9833::channel_t ESP_AD9833::getActiveFrequency(void) {
+  // return bitRead(_regCtl, AD_FSELECT) ? CHAN_1 : CHAN_0;
+  return (((1 << AD_FSELECT) & _regCtl) == 0 ? CHAN_0 : CHAN_1);
+};
+
+bool ESP_AD9833::setActivePhase(channel_t chan) {
+  PRINT("\nsetActivePhase CHAN_", chan);
+
+  switch (chan) {
+  case CHAN_0:
+    // bitClear(_regCtl, AD_PSELECT);
+    _regCtl &= ~(1 << AD_PSELECT);
+    break;
+  case CHAN_1:
+    //    bitSet(_regCtl, AD_PSELECT);
+    _regCtl |= (1 << AD_PSELECT);
+    break;
+  }
+
+  spiSend(_regCtl);
+
+  return true;
+}
+
+ESP_AD9833::channel_t ESP_AD9833::getActivePhase(void) {
+  // return bitRead(_regCtl, AD_PSELECT) ? CHAN_1 : CHAN_0;
+  return (((1 << AD_PSELECT) & _regCtl) == 0 ? CHAN_0 : CHAN_1);
+};
+
+bool ESP_AD9833::setMode(mode_t mode) {
+  PRINTS("\nsetWave ");
+  _modeLast = mode;
+
+  switch (mode) {
+  case MODE_OFF:
+    PRINTS("OFF");
+    // bitClear(_regCtl, AD_OPBITEN);
+    _regCtl &= ~(1 << AD_OPBITEN);
+    //    bitClear(_regCtl, AD_MODE);
+    _regCtl &= ~(1 << AD_MODE);
+    //  bitSet(_regCtl, AD_SLEEP1);
+    _regCtl |= (1 << AD_SLEEP1);
+    //    bitSet(_regCtl, AD_SLEEP12);
+    _regCtl |= (1 << AD_SLEEP12);
+    break;
+  case MODE_SINE:
+    PRINTS("SINE");
+    // bitClear(_regCtl, AD_OPBITEN);
+    _regCtl &= ~(1 << AD_OPBITEN);
+    // bitClear(_regCtl, AD_MODE);
+    _regCtl &= ~(1 << AD_MODE);
+    // bitClear(_regCtl, AD_SLEEP1);
+    _regCtl &= ~(1 << AD_SLEEP1);
+    // bitClear(_regCtl, AD_SLEEP12);
+    _regCtl &= ~(1 << AD_SLEEP12);
+    break;
+  case MODE_SQUARE1:
+    PRINTS("SQ1");
+    // bitSet(_regCtl, AD_OPBITEN);
+    _regCtl |= (1 << AD_OPBITEN);
+    // bitClear(_regCtl, AD_MODE);
+    _regCtl &= ~(1 << AD_MODE);
+    // bitSet(_regCtl, AD_DIV2);
+    _regCtl |= (1 << AD_DIV2);
+    // bitClear(_regCtl, AD_SLEEP1);
+    _regCtl &= ~(1 << AD_SLEEP1);
+    // bitClear(_regCtl, AD_SLEEP12);
+    _regCtl &= ~(1 << AD_SLEEP12);
+    break;
+  case MODE_SQUARE2:
+    PRINTS("SQ2");
+    //    bitSet(_regCtl, AD_OPBITEN);
+    _regCtl |= (1 << AD_OPBITEN);
+    //  bitClear(_regCtl, AD_MODE);
+    _regCtl &= ~(1 << AD_MODE);
+    //    bitClear(_regCtl, AD_DIV2);
+    _regCtl &= ~(1 << AD_DIV2);
+    //    bitClear(_regCtl, AD_SLEEP1);
+    _regCtl &= ~(1 << AD_SLEEP1);
+    //    bitClear(_regCtl, AD_SLEEP12);
+    _regCtl &= ~(1 << AD_SLEEP12);
+    break;
+  case MODE_TRIANGLE:
+    PRINTS("TRNG");
+    //    bitClear(_regCtl, AD_OPBITEN);
+    _regCtl &= ~(1 << AD_OPBITEN);
+    //  bitSet(_regCtl, AD_MODE);
+    _regCtl |= (1 << AD_MODE);
+    //    bitClear(_regCtl, AD_SLEEP1);
+    _regCtl &= ~(1 << AD_SLEEP1);
+    //  bitClear(_regCtl, AD_SLEEP12);
+    _regCtl &= ~(1 << AD_SLEEP12);
+    break;
+  }
+
+  spiSend(_regCtl);
+
+  return true;
+}
+
+uint32_t ESP_AD9833::calcFreq(float f)
+// Calculate register value for AD9833 frequency register from a frequency
+{
+  return (uint32_t)((f * AD_2POW28 / AD_MCLK) + 0.5);
+}
+
+uint16_t ESP_AD9833::calcPhase(float a)
+// Calculate the value for AD9833 phase register from given phase in tenths of a
+// degree
+{
+  return (uint16_t)((512.0 * (a / 10) / 45) + 0.5);
+}
 #if 0 
 /*
 ESP_AD9833 - Library for controlling an AD9833 Programmable Waveform Generator.
@@ -238,111 +369,5 @@ void ESP_AD9833::dumpCmd(uint16_t reg) {
   return;
 }
 #endif
-
-
-
-bool ESP_AD9833::setActiveFrequency(channel_t chan) {
-  PRINT("\nsetActiveFreq CHAN_", chan);
-
-  switch (chan) {
-  case CHAN_0:
-    bitClear(_regCtl, AD_FSELECT);
-    break;
-  case CHAN_1:
-    bitSet(_regCtl, AD_FSELECT);
-    break;
-  }
-
-  spiSend(_regCtl);
-
-  return (true);
-}
-
-ESP_AD9833::channel_t ESP_AD9833::getActiveFrequency(void) {
-  return bitRead(_regCtl, AD_FSELECT) ? CHAN_1 : CHAN_0;
-};
-
-bool ESP_AD9833::setActivePhase(channel_t chan) {
-  PRINT("\nsetActivePhase CHAN_", chan);
-
-  switch (chan) {
-  case CHAN_0:
-    bitClear(_regCtl, AD_PSELECT);
-    break;
-  case CHAN_1:
-    bitSet(_regCtl, AD_PSELECT);
-    break;
-  }
-
-  spiSend(_regCtl);
-
-  return (true);
-}
-
-ESP_AD9833::channel_t ESP_AD9833::getActivePhase(void) {
-  return bitRead(_regCtl, AD_PSELECT) ? CHAN_1 : CHAN_0;
-};
-
-bool ESP_AD9833::setMode(mode_t mode) {
-  PRINTS("\nsetWave ");
-  _modeLast = mode;
-
-  switch (mode) {
-  case MODE_OFF:
-    PRINTS("OFF");
-    bitClear(_regCtl, AD_OPBITEN);
-    bitClear(_regCtl, AD_MODE);
-    bitSet(_regCtl, AD_SLEEP1);
-    bitSet(_regCtl, AD_SLEEP12);
-    break;
-  case MODE_SINE:
-    PRINTS("SINE");
-    bitClear(_regCtl, AD_OPBITEN);
-    bitClear(_regCtl, AD_MODE);
-    bitClear(_regCtl, AD_SLEEP1);
-    bitClear(_regCtl, AD_SLEEP12);
-    break;
-  case MODE_SQUARE1:
-    PRINTS("SQ1");
-    bitSet(_regCtl, AD_OPBITEN);
-    bitClear(_regCtl, AD_MODE);
-    bitSet(_regCtl, AD_DIV2);
-    bitClear(_regCtl, AD_SLEEP1);
-    bitClear(_regCtl, AD_SLEEP12);
-    break;
-  case MODE_SQUARE2:
-    PRINTS("SQ2");
-    bitSet(_regCtl, AD_OPBITEN);
-    bitClear(_regCtl, AD_MODE);
-    bitClear(_regCtl, AD_DIV2);
-    bitClear(_regCtl, AD_SLEEP1);
-    bitClear(_regCtl, AD_SLEEP12);
-    break;
-  case MODE_TRIANGLE:
-    PRINTS("TRNG");
-    bitClear(_regCtl, AD_OPBITEN);
-    bitSet(_regCtl, AD_MODE);
-    bitClear(_regCtl, AD_SLEEP1);
-    bitClear(_regCtl, AD_SLEEP12);
-    break;
-  }
-
-  spiSend(_regCtl);
-
-  return (true);
-}
-
-uint32_t ESP_AD9833::calcFreq(float f)
-// Calculate register value for AD9833 frequency register from a frequency
-{
-  return (uint32_t)((f * AD_2POW28 / AD_MCLK) + 0.5);
-}
-
-uint16_t ESP_AD9833::calcPhase(float a)
-// Calculate the value for AD9833 phase register from given phase in tenths of a
-// degree
-{
-  return (uint16_t)((512.0 * (a / 10) / 45) + 0.5);
-}
 
 #endif
