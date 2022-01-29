@@ -109,6 +109,45 @@ void ESP_AD9833::begin()
   setActivePhase(CHAN_0);
 }
 
+bool ESP_AD9833::setFrequency(channel_t chan, float freq) {
+  const uint16_t freq_select = (chan == CHAN_0 ? SEL_FREQ0 : SEL_FREQ1);
+
+  PRINT("\nsetFreq CHAN_", chan);
+
+  _freq[chan] = freq;
+  _regFreq[chan] = calcFreq(freq);
+
+  PRINT(" - freq ", _freq[chan]);
+  PRINTX(" =", _regFreq[chan]);
+
+  // Assumes B28 is on so we can send consecutive words
+  // B28 is set by default for the library, so just send it here
+  // Now send the two parts of the frequency 14 bits at a time,
+  // LSBs first
+
+  spiSend(_regCtl); // set B28
+  spiSend(freq_select | (uint16_t)(_regFreq[chan] & 0x3fff));
+  spiSend(freq_select | (uint16_t)((_regFreq[chan] >> 14) & 0x3fff));
+
+  return true;
+}
+
+bool ESP_AD9833::setPhase(channel_t chan, uint16_t phase) {
+  const uint16_t phase_select = (chan == CHAN_0 ? SEL_PHASE0 : SEL_PHASE1);
+
+  PRINT("\nsetPhase CHAN_", chan);
+
+  _phase[chan] = phase;
+  _regPhase[chan] = calcPhase(phase);
+
+  PRINT(" - phase ", _phase[chan]);
+  PRINTX(" =", _regPhase[chan]);
+
+  // Now send the phase as 12 bits with appropriate address bits
+  spiSend(phase_select | (0xfff & _regPhase[chan]));
+
+  return true;
+}
 ESP_AD9833::~ESP_AD9833() { close(); }
 
 void ESP_AD9833::spiSend(uint16_t data)
@@ -132,6 +171,19 @@ void ESP_AD9833::spiSend(uint16_t data)
   //  digitalWrite(_fsyncPin, HIGH);
   gpio_set_level(_fsyncPin, 1);
   //  SPI.endTransaction();
+}
+
+void ESP_AD9833::reset(bool hold)
+// Reset is done on a 1 to 0 transition
+{
+  // bitSet(_regCtl, AD_RESET);
+  _regCtl |= (1 << AD_RESET);
+  spiSend(_regCtl);
+  if (!hold) {
+    //    bitClear(_regCtl, AD_RESET);
+    _regCtl &= ~(1 << AD_RESET);
+    spiSend(_regCtl);
+  }
 }
 
 #if 0 
@@ -187,18 +239,6 @@ void ESP_AD9833::dumpCmd(uint16_t reg) {
 }
 #endif
 
-
-
-void ESP_AD9833::reset(bool hold)
-// Reset is done on a 1 to 0 transition
-{
-  bitSet(_regCtl, AD_RESET);
-  spiSend(_regCtl);
-  if (!hold) {
-    bitClear(_regCtl, AD_RESET);
-    spiSend(_regCtl);
-  }
-}
 
 
 bool ESP_AD9833::setActiveFrequency(channel_t chan) {
@@ -305,64 +345,4 @@ uint16_t ESP_AD9833::calcPhase(float a)
   return (uint16_t)((512.0 * (a / 10) / 45) + 0.5);
 }
 
-bool ESP_AD9833::setFrequency(channel_t chan, float freq) {
-  uint16_t freq_select;
-
-  PRINT("\nsetFreq CHAN_", chan);
-
-  _freq[chan] = freq;
-
-  _regFreq[chan] = calcFreq(freq);
-
-  PRINT(" - freq ", _freq[chan]);
-  PRINTX(" =", _regFreq[chan]);
-
-  // select the address mask
-  switch (chan) {
-  case CHAN_0:
-    freq_select = SEL_FREQ0;
-    break;
-  case CHAN_1:
-    freq_select = SEL_FREQ1;
-    break;
-  }
-
-  // Assumes B28 is on so we can send consecutive words
-  // B28 is set by default for the library, so just send it here
-  // Now send the two parts of the frequency 14 bits at a time,
-  // LSBs first
-
-  spiSend(_regCtl); // set B28
-  spiSend(freq_select | (uint16_t)(_regFreq[chan] & 0x3fff));
-  spiSend(freq_select | (uint16_t)((_regFreq[chan] >> 14) & 0x3fff));
-
-  return (true);
-}
-
-bool ESP_AD9833::setPhase(channel_t chan, uint16_t phase) {
-  uint16_t phase_select;
-
-  PRINT("\nsetPhase CHAN_", chan);
-
-  _phase[chan] = phase;
-  _regPhase[chan] = calcPhase(phase);
-
-  PRINT(" - phase ", _phase[chan]);
-  PRINTX(" =", _regPhase[chan]);
-
-  // select the address mask
-  switch (chan) {
-  case CHAN_0:
-    phase_select = SEL_PHASE0;
-    break;
-  case CHAN_1:
-    phase_select = SEL_PHASE1;
-    break;
-  }
-
-  // Now send the phase as 12 bits with appropriate address bits
-  spiSend(phase_select | (0xfff & _regPhase[chan]));
-
-  return (true);
-}
 #endif
