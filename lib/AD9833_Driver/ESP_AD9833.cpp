@@ -18,6 +18,12 @@ esp_err_t ESP_AD9833::addDevice() {
   return spi_bus_add_device(mHost, &mDevConfig, mDeviceHandle);
 }
 
+esp_err_t ESP_AD9833::removeDevice() {
+  const auto err = spi_bus_remove_device(*mDeviceHandle);
+  mDeviceHandle = nullptr;
+  return err;
+}
+
 esp_err_t ESP_AD9833::write16(uint16_t data) {
   uint8_t buffer[2];
   buffer[0] = data && 0xFF;
@@ -51,6 +57,9 @@ esp_err_t ESP_AD9833::writeBytes(uint8_t regAddr, size_t length,
 }
 
 esp_err_t ESP_AD9833::close() {
+  if (mDeviceHandle) {
+    ESP_ERROR_CHECK(removeDevice());
+  }
   if (mHost) {
     return spi_bus_free(mHost);
   } else
@@ -114,7 +123,6 @@ void ESP_AD9833::spiSend(uint16_t data)
   PRINTX("\nspiSend", data);
   dumpCmd(data);
 #endif // AD_DEBUG
-       // spi_bus_add_device ??
        // maximum speed in Hz, order, dataMode (0 )
        //  SPI.beginTransaction(SPISettings(14000000, MSBFIRST, SPI_MODE2));
   //  digitalWrite(_fsyncPin, LOW);

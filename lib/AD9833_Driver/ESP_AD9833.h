@@ -56,6 +56,7 @@ public:
   // NEW API
 private:
   esp_err_t addDevice();
+  esp_err_t removeDevice();
   esp_err_t write16(uint16_t data);
   esp_err_t writeBytes(uint8_t regAddr, size_t length, const uint8_t *data);
 
