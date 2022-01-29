@@ -20,6 +20,14 @@ void app_main() {
   Server server;
   ESP_ERROR_CHECK(server.start_webserver());
 
+#if 0                 // from previous tests
+#define PIN_CLK 18    // Default SPI CLK
+#define PIN_DATA 23   // Default SPI DATA (MOSI)
+#define PIN_FSYNC1 8  // Default SPI CHIP SELECT AD9833
+#define PIN_FSYNC2 15 // Default SPI CHIP SELECT AD9833
+#endif
+  AD9833FuncGen signalGenController(GPIO_NUM_8);
+
   // start a dummy task monitoring tcpip
   xTaskCreate(&Misc::Tasks::monitor_tcpip_task, "monitor_tcpip_task", 4096,
               NULL, 5, NULL);
