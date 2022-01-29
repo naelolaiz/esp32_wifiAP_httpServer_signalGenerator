@@ -1,8 +1,10 @@
-#include <MD_AD9833.h>
-#include <SPI.h>
+//#include <MD_AD9833.h>
+//#include <SPI.h>
 
 #ifndef AD9833FUNCGEN_H
 #define AD9833FUNCGEN_H
+
+#if 0
 
 #define MCP_WRITE 0b00010001
 
@@ -54,5 +56,6 @@ private:
   void MCP41xxxWrite(uint8_t value, uint8_t pinCsDpot);
   uint8_t mPinFsync;
 };
+#endif
 
 #endif

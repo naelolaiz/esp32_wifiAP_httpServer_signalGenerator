@@ -2,6 +2,8 @@
 #include "MiscTasksAndHelpers.h"
 #include "Wifi_AP.h"
 
+#include "AD9833Driver.h"
+
 extern "C" {
 void app_main();
 }

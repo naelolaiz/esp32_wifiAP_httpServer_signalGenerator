@@ -1,4 +1,5 @@
 #include "AD9833Driver.h"
+#if 0 
 
 /**
  * Set initial values of both AD9833 channels
@@ -78,3 +79,4 @@ void AD9833FuncGen::MCP41xxxWrite(uint8_t value, uint8_t pinCS) {
   SPI.endTransaction();
   */
 }
+#endif
