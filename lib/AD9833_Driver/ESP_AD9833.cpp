@@ -125,6 +125,11 @@ void ESP_AD9833::begin()
   gpio_set_direction(_fsyncPin, GPIO_MODE_OUTPUT);
   gpio_set_level(_fsyncPin, 1);
 
+  // initialise our preferred CS pin (could be same as SS)
+  gpio_reset_pin(_mpuCsPin);
+  gpio_set_direction(_mpuCsPin, GPIO_MODE_OUTPUT);
+  gpio_set_level(_mpuCsPin, 1);
+
   ESP_ERROR_CHECK(addDeviceAD9833());
   _regCtl = (1 << AD_B28); // always write 2 words consecutively for frequency
   spiSend(_regCtl);
