@@ -8,6 +8,41 @@ extern "C" {
 void app_main();
 }
 
+class SigGenOrchestrator {
+private:
+  std::atomic<std::optional<AD9833Manager::ChannelSettings>>
+      mChannelSettings; // TODO: queue
+  std::shared_ptr<ESP_AD9833> mDriverAD9833;
+
+public:
+  SigGenOrchestrator(std::shared_ptr<ESP_AD9833> driverAD9833)
+      : mDriverAD9833(driverAD9833) {}
+  void pushRequest(const AD9833Manager::ChannelSettings &channelSettings) {
+    mChannelSettings.store(std::make_optional(channelSettings));
+  }
+  void checkAndApplyPendingChanges() {
+    auto storedChannelSettings = mChannelSettings.load();
+    if (!storedChannelSettings.has_value()) {
+      return;
+    }
+#if 0
+      currentFrequency = atoi(RemoteXY.edit_final_frequency);
+      strcpy(RemoteXY.text_current_frequency, RemoteXY.edit_final_frequency);
+     	//AD.setFrequency(MD_AD9833::CHAN_0, currentFrequency);
+      ad9833FuncGen1.setFrequency(MD_AD9833::CHAN_0, currentFrequency);
+      ad9833FuncGen1.setPhase(MD_AD9833::CHAN_0, getMode(cachedValues.select_phase));
+      ad9833FuncGen1.setMode(getMode(cachedValues.select_waveform));
+      ad9833FuncGen1.setActiveFrequency(MD_AD9833::CHAN_0);
+      //ad9833FuncGen.activateChannelSettings(MD_AD9833::CHAN_0); //ad9833FuncGen.getActiveFrequency());
+      ad9833FuncGen2.setFrequency(MD_AD9833::CHAN_0, currentFrequency);
+      ad9833FuncGen2.setPhase(MD_AD9833::CHAN_0, getMode((cachedValues.select_phase+1)%4));
+      ad9833FuncGen2.setMode(getMode(cachedValues.select_waveform));
+      ad9833FuncGen2.setActiveFrequency(MD_AD9833::CHAN_0);
+      Serial.println(currentFrequency);
+#endif
+  }
+};
+
 void app_main() {
   // init an instance of the on board led manager and set pin as output
   Misc::OnBoardLedManager ledManager;
@@ -35,7 +70,8 @@ void app_main() {
 #endif
   constexpr gpio_num_t gpioForAD9883 = GPIO_NUM_26;
   constexpr gpio_num_t gpioForMPU = GPIO_NUM_27;
-  AD9833FuncGen signalGenController(gpioForAD9883, gpioForMPU);
+  AD9833Manager::AD9833FuncGen signalGenController(gpioForAD9883, gpioForMPU);
+  SigGenOrchestrator sg(signalGenController.getDriver());
 
   // start a dummy task monitoring tcpip
   xTaskCreate(&Misc::Tasks::monitor_tcpip_task, "monitor_tcpip_task", 4096,
