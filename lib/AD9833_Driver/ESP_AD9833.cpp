@@ -199,7 +199,7 @@ void ESP_AD9833::spiSend(uint16_t data)
   //  digitalWrite(_fsyncPin, LOW);
   gpio_set_level(_fsyncPin, 0);
   //      SPI.transfer16(data);
-  write16(data);
+  ESP_ERROR_CHECK(write16(data));
   //  digitalWrite(_fsyncPin, HIGH);
   gpio_set_level(_fsyncPin, 1);
   //  SPI.endTransaction();
@@ -215,19 +215,24 @@ void ESP_AD9833::setMpuPot(uint8_t value) // 0-255
        //  SPI.beginTransaction(SPISettings(14000000, MSBFIRST, SPI_MODE2));
   gpio_set_level(_mpuCsPin, 0);
 
-#if 0
-  write16(data);
-
-  constexpr uint8_t MCP_WRITE 0b00010001;
-  uint8_t buffer[2] = {{MCP_WRITE}};
-
-  buffer[0] = data && 0xFF;
-  buffer[1] = (data && 0xFF00) >> 8;
-  return writeBytes(0 /* ? */, 2, buffer);
-#endif
+  constexpr uint8_t MCP_WRITE = 0b00010001;
+  uint8_t buffer[2] = {MCP_WRITE, value}; // TODO: or inverted
+  ESP_ERROR_CHECK(writeBytes(0 /* ? */, 2, buffer));
 
   gpio_set_level(_mpuCsPin, 1);
-  //  SPI.endTransaction();
+
+#if 0
+// reference:
+  SPI.beginTransaction(SPISettings(
+      14000000, MSBFIRST, SPI_MODE0)); //  communicated by Timothy Corcoran
+  // SPI.beginTransaction(SPISettings(3500000, MSBFIRST, SPI_MODE3));  //
+  // communicated by Stephen Avis
+  digitalWrite(mPinCS, LOW); // Begin transfer
+  SPI.transfer(MCP_WRITE);   // Write the command
+  SPI.transfer(value);       // Write the potentiometer value
+  digitalWrite(pinCS, HIGH); // End transfer
+  SPI.endTransaction();
+#endif
 }
 
 void ESP_AD9833::reset(bool hold)
