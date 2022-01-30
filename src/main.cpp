@@ -33,8 +33,8 @@ void app_main() {
 // ->>>> SCLK = SPI2_IOMUX_PIN_NUM_CLK = 14
 // ->>>> FSYNC = 9
 #endif
-  constexpr gpio_num_t gpioForAD9883 = GPIO_NUM_9;
-  constexpr gpio_num_t gpioForMPU = GPIO_NUM_10;
+  constexpr gpio_num_t gpioForAD9883 = GPIO_NUM_26;
+  constexpr gpio_num_t gpioForMPU = GPIO_NUM_27;
   AD9833FuncGen signalGenController(gpioForAD9883, gpioForMPU);
 
   // start a dummy task monitoring tcpip

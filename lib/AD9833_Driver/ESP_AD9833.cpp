@@ -57,7 +57,7 @@ ESP_AD9833::addDeviceMCP41xxx() // TODO: move outside -share host- so it doesn´
   devConfig.cs_ena_posttrans = 0;                 // 0 not used
   devConfig.clock_speed_hz = SPI_MASTER_FREQ_16M; // 14 000 000;
   devConfig.spics_io_num = _mpuCsPin;             // ? or -1?
-  devConfig.flags = 0 | SPI_DEVICE_3WIRE | SPI_DEVICE_HALFDUPLEX; // MSB first
+  devConfig.flags = SPI_DEVICE_3WIRE | SPI_DEVICE_HALFDUPLEX; // MSB first
   devConfig.queue_size = 1;
   devConfig.pre_cb = NULL;
   devConfig.post_cb = NULL;
