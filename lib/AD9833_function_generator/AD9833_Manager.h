@@ -62,8 +62,9 @@ public:
   SigGenOrchestrator(
       std::shared_ptr<AD9833Manager::AD9833FuncGen> ad9833FuncGen);
   void pushRequest(const AD9833Manager::ChannelSettings &channelSettings);
-  void pushRequest(ESP_AD9833::channel_t channel, double frequency,
-                   size_t phase, ESP_AD9833::mode_t mode, float volume);
+  void pushRequest(
+    ESP_AD9833::channel_t channel, double frequency, float phase,
+    ESP_AD9833::mode_t mode, float volume);
   void checkAndApplyPendingChanges();
 };
 

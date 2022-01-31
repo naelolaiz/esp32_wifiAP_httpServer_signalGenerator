@@ -52,6 +52,7 @@ void AD9833Manager::AD9833FuncGen::activateChannelSettings(
   mDriver9833.setMode(s.mode);
   mDriver9833.setFrequency(chn, s.frequency);
   mDriver9833.setActiveFrequency(chn);
+  mDriver9833.setPhase(chn, s.phase);
   setVolume(s.volume);
 }
 
@@ -74,14 +75,6 @@ float AD9833Manager::AD9833FuncGen::convertVolumeTomVpp(uint8_t volume) {
 
 void AD9833Manager::AD9833FuncGen::setSettings(
     const ChannelSettings &channelSettings) {
-#if 0
-  mDriver9833.setFrequency(channelSettings.chn, channelSettings.frequency);
-  mDriver9833.setPhase(channelSettings.chn, channelSettings.phase);
-  mDriver9833.setMode(channelSettings.mode);
-  mDriver9833.setMpuPot(channelSettings.mVpp);
-  mDriver9833.setActiveFrequency(channelSettings.chn);
-#endif
-
   // TODO =() operator
   auto &attributeChannelSettings =
       (channelSettings.chn == ESP_AD9833::channel_t::CHAN_0
@@ -110,7 +103,7 @@ void AD9833Manager::SigGenOrchestrator::pushRequest(
 }
 
 void AD9833Manager::SigGenOrchestrator::pushRequest(
-    ESP_AD9833::channel_t channel, double frequency, size_t phase,
+    ESP_AD9833::channel_t channel, double frequency, float phase,
     ESP_AD9833::mode_t mode, float volume) {
   if (mChannelSettings.has_value()) {
     return; // TODO: queue
@@ -120,7 +113,7 @@ void AD9833Manager::SigGenOrchestrator::pushRequest(
   AD9833Manager::ChannelSettings channelSettingsToPush;
   channelSettingsToPush.chn = channel;
   channelSettingsToPush.frequency = frequency;
-  channelSettingsToPush.phase = phase;
+  channelSettingsToPush.phase = phase * 10;
   channelSettingsToPush.mode = mode;
   channelSettingsToPush.volume = volume;
   mChannelSettings = std::make_optional(channelSettingsToPush);
