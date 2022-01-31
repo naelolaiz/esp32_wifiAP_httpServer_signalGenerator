@@ -1,6 +1,8 @@
 #include "ESP_AD9833.h"
 #include "ESP_AD9833_defs.h"
 
+#include "esp_log.h"
+
 namespace {
 bool bitRead(const uint32_t &inputValue, uint8_t bitToCheck) {
   uint32_t mask = 1 << bitToCheck;
@@ -33,8 +35,8 @@ esp_err_t ESP_AD9833::addDeviceAD9833() {
   devConfig.cs_ena_pretrans = 0;                  // 0 not used
   devConfig.cs_ena_posttrans = 0;                 // 0 not used
   devConfig.clock_speed_hz = SPI_MASTER_FREQ_16M; // 14 000 000;
-  devConfig.spics_io_num = _fsyncPin;             // ? or -1?
-  devConfig.flags = 0 | SPI_DEVICE_3WIRE | SPI_DEVICE_HALFDUPLEX; // MSB first
+  devConfig.spics_io_num = _fsyncPin;
+  devConfig.flags = SPI_DEVICE_3WIRE; // | SPI_DEVICE_HALFDUPLEX; // MSB first
   devConfig.queue_size = 1;
   devConfig.pre_cb = NULL;
   devConfig.post_cb = NULL;
@@ -56,7 +58,7 @@ ESP_AD9833::addDeviceMCP41xxx() // TODO: move outside -share host- so it doesn´
   devConfig.cs_ena_pretrans = 0;                  // 0 not used
   devConfig.cs_ena_posttrans = 0;                 // 0 not used
   devConfig.clock_speed_hz = SPI_MASTER_FREQ_16M; // 14 000 000;
-  devConfig.spics_io_num = _mpuCsPin;             // ? or -1?
+  devConfig.spics_io_num = _mpuCsPin;
   devConfig.flags = SPI_DEVICE_3WIRE | SPI_DEVICE_HALFDUPLEX; // MSB first
   devConfig.queue_size = 1;
   devConfig.pre_cb = NULL;
@@ -74,8 +76,8 @@ esp_err_t ESP_AD9833::removeDeviceMCP41xx() {
 
 esp_err_t ESP_AD9833::write16AD9833(uint16_t data) {
   uint8_t buffer[2];
-  buffer[0] = data && 0xFF;
-  buffer[1] = (data && 0xFF00) >> 8;
+  buffer[0] = (data >> 8) & 0xFF;
+  buffer[1] = data & 0xFF;
   return writeBytes(0 /* ? */, 2, buffer, mDeviceHandleAD9833);
 }
 
@@ -125,12 +127,12 @@ void ESP_AD9833::begin()
   // initialise our preferred CS pin (could be same as SS)
   gpio_reset_pin(_fsyncPin);
   gpio_set_direction(_fsyncPin, GPIO_MODE_OUTPUT);
-  gpio_set_level(_fsyncPin, 1);
+  // gpio_set_level(_fsyncPin, 1);
 
   // initialise our preferred CS pin (could be same as SS)
   gpio_reset_pin(_mpuCsPin);
   gpio_set_direction(_mpuCsPin, GPIO_MODE_OUTPUT);
-  gpio_set_level(_mpuCsPin, 1);
+  // gpio_set_level(_mpuCsPin, 1);
 
   ESP_ERROR_CHECK(addDeviceAD9833());
   ESP_ERROR_CHECK(addDeviceMCP41xxx());
@@ -201,7 +203,7 @@ void ESP_AD9833::spiSend(uint16_t data)
 // routine below is modelled on the flow and timing on the datasheet and seems
 // to works reliably, but is much slower than the hardware interface.
 {
-
+  ESP_LOGI("lslslsl", "data: %x", data);
 #if AD_DEBUG
   PRINTX("\nspiSend", data);
   dumpCmd(data);

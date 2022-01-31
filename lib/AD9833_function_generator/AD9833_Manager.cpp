@@ -49,9 +49,9 @@ void AD9833Manager::AD9833FuncGen::activateChannelSettings(
   ChannelSettings &s = (chn == ESP_AD9833::channel_t::CHAN_0)
                            ? mSettings.mChannel0
                            : mSettings.mChannel1;
-  mDriver9833.setActiveFrequency(chn);
   mDriver9833.setMode(s.mode);
   mDriver9833.setFrequency(chn, s.frequency);
+  mDriver9833.setActiveFrequency(chn);
   setVolume(s.volume);
 }
 
