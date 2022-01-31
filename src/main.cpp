@@ -3,6 +3,7 @@
 #include "Wifi_AP.h"
 
 #include "AD9833_Manager.h"
+#include <memory>
 
 extern "C" {
 void app_main();
@@ -12,19 +13,39 @@ class SigGenOrchestrator {
 private:
   std::atomic<std::optional<AD9833Manager::ChannelSettings>>
       mChannelSettings; // TODO: queue
-  std::shared_ptr<ESP_AD9833> mDriverAD9833;
+  std::shared_ptr<AD9833Manager::AD9833FuncGen> mAD9833FuncGen;
 
 public:
-  SigGenOrchestrator(std::shared_ptr<ESP_AD9833> driverAD9833)
-      : mDriverAD9833(driverAD9833) {}
+  SigGenOrchestrator(
+      std::shared_ptr<AD9833Manager::AD9833FuncGen> ad9833FuncGen)
+      : mAD9833FuncGen(ad9833FuncGen) {}
   void pushRequest(const AD9833Manager::ChannelSettings &channelSettings) {
+    if (mChannelSettings.load().has_value()) {
+      return; // TODO: queue
+    }
     mChannelSettings.store(std::make_optional(channelSettings));
+  }
+  void pushRequest(ESP_AD9833::channel_t channel, double frequency,
+                   size_t phase, ESP_AD9833::mode_t mode, float volume) {
+    if (mChannelSettings.load().has_value()) {
+      return; // TODO: queue
+    }
+    // TODO: mutex
+    AD9833Manager::ChannelSettings channelSettingsToPush;
+    channelSettingsToPush.chn = channel;
+    channelSettingsToPush.frequency = frequency;
+    channelSettingsToPush.phase = phase;
+    channelSettingsToPush.mode = mode;
+    channelSettingsToPush.volume = volume;
+    mChannelSettings.store(std::make_optional(channelSettingsToPush));
   }
   void checkAndApplyPendingChanges() {
     auto storedChannelSettings = mChannelSettings.load();
     if (!storedChannelSettings.has_value()) {
       return;
     }
+    mAD9833FuncGen->setSettings(mChannelSettings.load().value());
+    mChannelSettings.store(std::nullopt);
 #if 0
       currentFrequency = atoi(RemoteXY.edit_final_frequency);
       strcpy(RemoteXY.text_current_frequency, RemoteXY.edit_final_frequency);
@@ -70,8 +91,9 @@ void app_main() {
 #endif
   constexpr gpio_num_t gpioForAD9883 = GPIO_NUM_26;
   constexpr gpio_num_t gpioForMPU = GPIO_NUM_27;
-  AD9833Manager::AD9833FuncGen signalGenController(gpioForAD9883, gpioForMPU);
-  SigGenOrchestrator sg(signalGenController.getDriver());
+  std::shared_ptr<AD9833Manager::AD9833FuncGen> signalGenController(
+      new AD9833Manager::AD9833FuncGen(gpioForAD9883, gpioForMPU));
+  SigGenOrchestrator sg(signalGenController);
 
   // start a dummy task monitoring tcpip
   xTaskCreate(&Misc::Tasks::monitor_tcpip_task, "monitor_tcpip_task", 4096,

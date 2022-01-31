@@ -2,7 +2,6 @@
 #define __AD9833_DRIVER_H__
 
 #include <ESP_AD9833.h>
-#include <memory>
 
 #define MCP_WRITE 0b00010001
 namespace AD9833Manager {
@@ -38,21 +37,20 @@ typedef struct {
 } AD9833Settings;
 
 class AD9833FuncGen {
-  std::shared_ptr<ESP_AD9833> mDriver9833;
+  ESP_AD9833 mDriver9833;
   const gpio_num_t mPinFSync; // CS/FSYNC for AD9833
   const gpio_num_t mPinCS;    // CS for MCP41010
 public:
   AD9833FuncGen(gpio_num_t pinFSync, gpio_num_t pinCS = GPIO_NUM_NC)
-      : mDriver9833(new ESP_AD9833(pinFSync, pinCS)), mPinFSync(pinFSync),
-        mPinCS(pinCS) {
-    mDriver9833->begin(); // Initialize base class
-                          //    init();
+      : mDriver9833(pinFSync, pinCS), mPinFSync(pinFSync), mPinCS(pinCS) {
+    mDriver9833.begin(); // Initialize base class
+                         //    init();
   }
   void init();
   void setVolume(uint8_t value);
   float convertVolumeTomVpp(uint8_t volume);
   void activateChannelSettings(ESP_AD9833::channel_t chn);
-  std::shared_ptr<ESP_AD9833> getDriver() const;
+  void setSettings(const ChannelSettings &channelSettings);
   AD9833Settings mSettings; // Allow direct access to settings
 };
 } // namespace AD9833Manager
