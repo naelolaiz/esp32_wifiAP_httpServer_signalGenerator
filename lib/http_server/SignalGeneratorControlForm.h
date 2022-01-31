@@ -53,7 +53,7 @@ display: table-cell;\n \
     <div class=\"formbuilder-number form-group field-number-gain-osc1\">\n \
     <p>\n \
         <label for=\"number-gain-osc1\" class=\"formbuilder-number-label\">Gain</label>\n \
-        <input type=\"number\" name=\"number-gain-osc1\" value=\"1.0\" min=\"0\" max=\"1\" step=\"0.1\" id=\"number-gain-osc1\" required=\"required\" aria-required=\"true\">\n \
+        <input type=\"number\" name=\"number-gain-osc1\" value=\"1.0\" min=\"0\" max=\"2\" step=\"0.01\" id=\"number-gain-osc1\" required=\"required\" aria-required=\"true\">\n \
     </p>\n \
     </div>\n \
     <div class=\"formbuilder-button form-group field-button-submit-osc1\">\n \
