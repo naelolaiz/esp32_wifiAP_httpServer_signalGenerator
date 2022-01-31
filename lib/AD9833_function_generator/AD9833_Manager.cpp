@@ -1,4 +1,9 @@
 #include "AD9833_Manager.h"
+AD9833Manager::AD9833FuncGen::AD9833FuncGen(gpio_num_t pinFSync, gpio_num_t pinCS)
+    : mDriver9833(pinFSync, pinCS), mPinFSync(pinFSync), mPinCS(pinCS) {
+  mDriver9833.begin(); // Initialize base class
+                       //    init();
+}
 /**
  * Set initial values of both AD9833 channels
  * and set channel_0 as active
@@ -90,4 +95,40 @@ void AD9833Manager::AD9833FuncGen::setSettings(
   attributeChannelSettings.mVpp = convertVolumeTomVpp(channelSettings.volume);
 
   activateChannelSettings(channelSettings.chn);
+}
+AD9833Manager::SigGenOrchestrator::SigGenOrchestrator(
+                                       std::shared_ptr<AD9833Manager::AD9833FuncGen> ad9833FuncGen)
+    : mAD9833FuncGen(ad9833FuncGen) {}
+
+void AD9833Manager::SigGenOrchestrator::pushRequest(const AD9833Manager::ChannelSettings &channelSettings) {
+  if (mChannelSettings.has_value()) {
+    return; // TODO: queue
+  }
+  mChannelSettings = std::make_optional(channelSettings);
+}
+
+void AD9833Manager::SigGenOrchestrator::pushRequest(ESP_AD9833::channel_t channel, double frequency,
+                                                    size_t phase, ESP_AD9833::mode_t mode, float volume) {
+  if (mChannelSettings.has_value()) {
+    return; // TODO: queue
+  }
+  // TODO: mutex
+  AD9833Manager::ChannelSettings channelSettingsToPush;
+  channelSettingsToPush.chn = channel;
+  channelSettingsToPush.frequency = frequency;
+  channelSettingsToPush.phase = phase;
+  channelSettingsToPush.mode = mode;
+  channelSettingsToPush.volume = volume;
+  mChannelSettings = std::make_optional(channelSettingsToPush);
+  // TODO
+  checkAndApplyPendingChanges();
+}
+
+void AD9833Manager::SigGenOrchestrator::checkAndApplyPendingChanges() {
+  auto storedChannelSettings = mChannelSettings;
+  if (!storedChannelSettings.has_value()) {
+    return;
+  }
+  mAD9833FuncGen->setSettings(mChannelSettings.value());
+  mChannelSettings.reset();
 }

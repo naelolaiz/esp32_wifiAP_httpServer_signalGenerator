@@ -2,7 +2,6 @@
 #define __AD9833_DRIVER_H__
 
 #include <ESP_AD9833.h>
-#include <atomic>
 #include <memory>
 #include <optional>
 
@@ -44,11 +43,7 @@ class AD9833FuncGen {
   const gpio_num_t mPinFSync; // CS/FSYNC for AD9833
   const gpio_num_t mPinCS;    // CS for MCP41010
 public:
-  AD9833FuncGen(gpio_num_t pinFSync, gpio_num_t pinCS = GPIO_NUM_NC)
-      : mDriver9833(pinFSync, pinCS), mPinFSync(pinFSync), mPinCS(pinCS) {
-    mDriver9833.begin(); // Initialize base class
-                         //    init();
-  }
+  AD9833FuncGen(gpio_num_t pinFSync, gpio_num_t pinCS = GPIO_NUM_NC);
   void init();
   void setVolume(uint8_t value);
   float convertVolumeTomVpp(uint8_t volume);
@@ -59,44 +54,17 @@ public:
 
 class SigGenOrchestrator {
 private:
-  std::atomic<std::optional<AD9833Manager::ChannelSettings>>
-      mChannelSettings; // TODO: queue
+  // std::atomic<std::optional<AD9833Manager::ChannelSettings>>
+  std::optional<AD9833Manager::ChannelSettings> mChannelSettings; // TODO: queue
   std::shared_ptr<AD9833Manager::AD9833FuncGen> mAD9833FuncGen;
 
 public:
   SigGenOrchestrator(
-      std::shared_ptr<AD9833Manager::AD9833FuncGen> ad9833FuncGen)
-      : mAD9833FuncGen(ad9833FuncGen) {}
-  void pushRequest(const AD9833Manager::ChannelSettings &channelSettings) {
-    if (mChannelSettings.load().has_value()) {
-      return; // TODO: queue
-    }
-    mChannelSettings.store(std::make_optional(channelSettings));
-  }
+      std::shared_ptr<AD9833Manager::AD9833FuncGen> ad9833FuncGen);
+  void pushRequest(const AD9833Manager::ChannelSettings &channelSettings);
   void pushRequest(ESP_AD9833::channel_t channel, double frequency,
-                   size_t phase, ESP_AD9833::mode_t mode, float volume) {
-    if (mChannelSettings.load().has_value()) {
-      return; // TODO: queue
-    }
-    // TODO: mutex
-    AD9833Manager::ChannelSettings channelSettingsToPush;
-    channelSettingsToPush.chn = channel;
-    channelSettingsToPush.frequency = frequency;
-    channelSettingsToPush.phase = phase;
-    channelSettingsToPush.mode = mode;
-    channelSettingsToPush.volume = volume;
-    mChannelSettings.store(std::make_optional(channelSettingsToPush));
-    // TODO
-    checkAndApplyPendingChanges();
-  }
-  void checkAndApplyPendingChanges() {
-    auto storedChannelSettings = mChannelSettings.load();
-    if (!storedChannelSettings.has_value()) {
-      return;
-    }
-    mAD9833FuncGen->setSettings(mChannelSettings.load().value());
-    mChannelSettings.store(std::nullopt);
-  }
+                   size_t phase, ESP_AD9833::mode_t mode, float volume);
+  void checkAndApplyPendingChanges();
 };
 
 } // namespace AD9833Manager
