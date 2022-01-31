@@ -22,7 +22,7 @@ public:
    * This enumerated type is used with the to specify which channel
    * is being invoked on operations that could be channel related.
    */
-  enum channel_t {
+  enum class channel_t : uint8_t {
     CHAN_0 = 0, ///< Channel 0 definition
     CHAN_1 = 1, ///< Channel 1 definition
   };
@@ -33,7 +33,7 @@ public:
    * This enumerated type is used with the \ref setMode() methods to identify
    * the mode request.
    */
-  enum mode_t {
+  enum class mode_t : uint8_t {
     MODE_OFF,      ///< Set output all off
     MODE_SINE,     ///< Set output to a sine wave at selected frequency
     MODE_SQUARE1,  ///< Set output to a square wave at selected frequency
@@ -178,7 +178,9 @@ public:
    * \param chan output channel identifier (channel_t)
    * \return the last frequency setting for the specified channel
    */
-  inline float getFrequency(channel_t chan) const { return _freq[chan]; };
+  inline float getFrequency(channel_t chan) const {
+    return _freq[static_cast<uint8_t>(chan)];
+  };
 
   /**
    * Set channel frequency
@@ -224,7 +226,9 @@ public:
    * \return the last phase setting in degrees [0..3600] for the specified
    * channel
    */
-  inline uint16_t getPhase(channel_t chan) { return _phase[chan]; };
+  inline uint16_t getPhase(channel_t chan) {
+    return _phase[static_cast<uint8_t>(chan)];
+  };
 
   /**
    * Set channel phase

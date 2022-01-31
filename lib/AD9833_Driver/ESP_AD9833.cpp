@@ -135,27 +135,28 @@ void ESP_AD9833::begin()
   spiSend(_regCtl);
 
   reset(true); // Reset and hold
-  setFrequency(CHAN_0, AD_DEFAULT_FREQ);
-  setFrequency(CHAN_1, AD_DEFAULT_FREQ);
-  setPhase(CHAN_0, AD_DEFAULT_PHASE);
-  setPhase(CHAN_1, AD_DEFAULT_PHASE);
+  setFrequency(channel_t::CHAN_0, AD_DEFAULT_FREQ);
+  setFrequency(channel_t::CHAN_1, AD_DEFAULT_FREQ);
+  setPhase(channel_t::CHAN_0, AD_DEFAULT_PHASE);
+  setPhase(channel_t::CHAN_1, AD_DEFAULT_PHASE);
   reset(); // full transition
 
-  setMode(MODE_SINE);
-  setActiveFrequency(CHAN_0);
-  setActivePhase(CHAN_0);
+  setMode(mode_t::MODE_SINE);
+  setActiveFrequency(channel_t::CHAN_0);
+  setActivePhase(channel_t::CHAN_0);
 }
 
 bool ESP_AD9833::setFrequency(channel_t chan, float freq) {
-  const uint16_t freq_select = (chan == CHAN_0 ? SEL_FREQ0 : SEL_FREQ1);
+  const uint16_t freq_select =
+      (chan == channel_t::CHAN_0 ? SEL_FREQ0 : SEL_FREQ1);
 
   PRINT("\nsetFreq CHAN_", chan);
 
-  _freq[chan] = freq;
-  _regFreq[chan] = calcFreq(freq);
+  _freq[static_cast<uint8_t>(chan)] = freq;
+  _regFreq[static_cast<uint8_t>(chan)] = calcFreq(freq);
 
-  PRINT(" - freq ", _freq[chan]);
-  PRINTX(" =", _regFreq[chan]);
+  PRINT(" - freq ", _freq[static_cast<uint8_t>(chan)]);
+  PRINTX(" =", _regFreq[static_cast<uint8_t>(chan)]);
 
   // Assumes B28 is on so we can send consecutive words
   // B28 is set by default for the library, so just send it here
@@ -163,25 +164,28 @@ bool ESP_AD9833::setFrequency(channel_t chan, float freq) {
   // LSBs first
 
   spiSend(_regCtl); // set B28
-  spiSend(freq_select | (uint16_t)(_regFreq[chan] & 0x3fff));
-  spiSend(freq_select | (uint16_t)((_regFreq[chan] >> 14) & 0x3fff));
+  spiSend(freq_select |
+          (uint16_t)(_regFreq[static_cast<uint8_t>(chan)] & 0x3fff));
+  spiSend(freq_select |
+          (uint16_t)((_regFreq[static_cast<uint8_t>(chan)] >> 14) & 0x3fff));
 
   return true;
 }
 
 bool ESP_AD9833::setPhase(channel_t chan, uint16_t phase) {
-  const uint16_t phase_select = (chan == CHAN_0 ? SEL_PHASE0 : SEL_PHASE1);
+  const uint16_t phase_select =
+      (chan == channel_t::CHAN_0 ? SEL_PHASE0 : SEL_PHASE1);
 
   PRINT("\nsetPhase CHAN_", chan);
 
-  _phase[chan] = phase;
-  _regPhase[chan] = calcPhase(phase);
+  _phase[static_cast<uint8_t>(chan)] = phase;
+  _regPhase[static_cast<uint8_t>(chan)] = calcPhase(phase);
 
-  PRINT(" - phase ", _phase[chan]);
-  PRINTX(" =", _regPhase[chan]);
+  PRINT(" - phase ", _phase[static_cast<uint8_t>(chan)]);
+  PRINTX(" =", _regPhase[static_cast<uint8_t>(chan)]);
 
   // Now send the phase as 12 bits with appropriate address bits
-  spiSend(phase_select | (0xfff & _regPhase[chan]));
+  spiSend(phase_select | (0xfff & _regPhase[static_cast<uint8_t>(chan)]));
 
   return true;
 }
@@ -255,10 +259,10 @@ bool ESP_AD9833::setActiveFrequency(channel_t chan) {
   PRINT("\nsetActiveFreq CHAN_", chan);
 
   switch (chan) {
-  case CHAN_0:
+  case channel_t::CHAN_0:
     bitClear(_regCtl, AD_FSELECT);
     break;
-  case CHAN_1:
+  case channel_t::CHAN_1:
     bitSet(_regCtl, AD_FSELECT);
     break;
   }
@@ -269,17 +273,17 @@ bool ESP_AD9833::setActiveFrequency(channel_t chan) {
 }
 
 ESP_AD9833::channel_t ESP_AD9833::getActiveFrequency(void) {
-  return bitRead(_regCtl, AD_FSELECT) ? CHAN_1 : CHAN_0;
+  return bitRead(_regCtl, AD_FSELECT) ? channel_t::CHAN_1 : channel_t::CHAN_0;
 };
 
 bool ESP_AD9833::setActivePhase(channel_t chan) {
   PRINT("\nsetActivePhase CHAN_", chan);
 
   switch (chan) {
-  case CHAN_0:
+  case channel_t::CHAN_0:
     bitClear(_regCtl, AD_PSELECT);
     break;
-  case CHAN_1:
+  case channel_t::CHAN_1:
     bitSet(_regCtl, AD_PSELECT);
     break;
   }
@@ -290,7 +294,7 @@ bool ESP_AD9833::setActivePhase(channel_t chan) {
 }
 
 ESP_AD9833::channel_t ESP_AD9833::getActivePhase(void) {
-  return bitRead(_regCtl, AD_PSELECT) ? CHAN_1 : CHAN_0;
+  return bitRead(_regCtl, AD_PSELECT) ? channel_t::CHAN_1 : channel_t::CHAN_0;
 };
 
 bool ESP_AD9833::setMode(mode_t mode) {
@@ -298,21 +302,21 @@ bool ESP_AD9833::setMode(mode_t mode) {
   _modeLast = mode;
 
   switch (mode) {
-  case MODE_OFF:
+  case mode_t::MODE_OFF:
     PRINTS("OFF");
     bitClear(_regCtl, AD_OPBITEN);
     bitClear(_regCtl, AD_MODE);
     bitSet(_regCtl, AD_SLEEP1);
     bitSet(_regCtl, AD_SLEEP12);
     break;
-  case MODE_SINE:
+  case mode_t::MODE_SINE:
     PRINTS("SINE");
     bitClear(_regCtl, AD_OPBITEN);
     bitClear(_regCtl, AD_MODE);
     bitClear(_regCtl, AD_SLEEP1);
     bitClear(_regCtl, AD_SLEEP12);
     break;
-  case MODE_SQUARE1:
+  case mode_t::MODE_SQUARE1:
     PRINTS("SQ1");
     bitSet(_regCtl, AD_OPBITEN);
     bitClear(_regCtl, AD_MODE);
@@ -320,7 +324,7 @@ bool ESP_AD9833::setMode(mode_t mode) {
     bitClear(_regCtl, AD_SLEEP1);
     bitClear(_regCtl, AD_SLEEP12);
     break;
-  case MODE_SQUARE2:
+  case mode_t::MODE_SQUARE2:
     PRINTS("SQ2");
     bitSet(_regCtl, AD_OPBITEN);
     bitClear(_regCtl, AD_MODE);
@@ -328,7 +332,7 @@ bool ESP_AD9833::setMode(mode_t mode) {
     bitClear(_regCtl, AD_SLEEP1);
     bitClear(_regCtl, AD_SLEEP12);
     break;
-  case MODE_TRIANGLE:
+  case mode_t::MODE_TRIANGLE:
     PRINTS("TRNG");
     bitClear(_regCtl, AD_OPBITEN);
     bitSet(_regCtl, AD_MODE);

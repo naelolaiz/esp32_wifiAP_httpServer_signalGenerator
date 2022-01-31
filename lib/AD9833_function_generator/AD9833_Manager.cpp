@@ -5,18 +5,20 @@
  */
 void AD9833Manager::AD9833FuncGen::init() {
   // Settings channel 0
-  mSettings.mChannel0.chn = ESP_AD9833::CHAN_0;
-  mSettings.mChannel0.mode = ESP_AD9833::MODE_OFF;
+  mSettings.mChannel0.chn = ESP_AD9833::channel_t::CHAN_0;
+  mSettings.mChannel0.mode = ESP_AD9833::mode_t::MODE_OFF;
   mSettings.mChannel0.frequency = 415.3;
-  mSettings.mChannel0.phase = mDriver9833.getPhase(ESP_AD9833::CHAN_0);
+  mSettings.mChannel0.phase =
+      mDriver9833.getPhase(ESP_AD9833::channel_t::CHAN_0);
   mSettings.mChannel0.volume = 99; // 1500 mVpp
   mSettings.mChannel0.mVpp = convertVolumeTomVpp(mSettings.mChannel0.volume);
 
   // Settings channel 1
-  mSettings.mChannel1.chn = ESP_AD9833::CHAN_1;
-  mSettings.mChannel1.mode = ESP_AD9833::MODE_TRIANGLE;
+  mSettings.mChannel1.chn = ESP_AD9833::channel_t::CHAN_1;
+  mSettings.mChannel1.mode = ESP_AD9833::mode_t::MODE_TRIANGLE;
   mSettings.mChannel1.frequency = 554.4;
-  mSettings.mChannel1.phase = mDriver9833.getPhase(ESP_AD9833::CHAN_1);
+  mSettings.mChannel1.phase =
+      mDriver9833.getPhase(ESP_AD9833::channel_t::CHAN_1);
   mSettings.mChannel1.volume = 65; // 1000 mVpp
   mSettings.mChannel1.mVpp = convertVolumeTomVpp(mSettings.mChannel1.volume);
 
@@ -30,7 +32,7 @@ void AD9833Manager::AD9833FuncGen::init() {
   mSettings.mSweep.fsweep = mSettings.mChannel0.frequency;
   mSettings.mSweep.freqstep = 1.0;
 
-  activateChannelSettings(ESP_AD9833::CHAN_0);
+  activateChannelSettings(ESP_AD9833::channel_t::CHAN_0);
 }
 
 /**
@@ -38,8 +40,9 @@ void AD9833Manager::AD9833FuncGen::init() {
  */
 void AD9833Manager::AD9833FuncGen::activateChannelSettings(
     ESP_AD9833::channel_t chn) {
-  ChannelSettings &s =
-      (chn == ESP_AD9833::CHAN_0) ? mSettings.mChannel0 : mSettings.mChannel1;
+  ChannelSettings &s = (chn == ESP_AD9833::channel_t::CHAN_0)
+                           ? mSettings.mChannel0
+                           : mSettings.mChannel1;
   mDriver9833.setActiveFrequency(chn);
   mDriver9833.setMode(s.mode);
   mDriver9833.setFrequency(chn, s.frequency);
@@ -75,8 +78,9 @@ void AD9833Manager::AD9833FuncGen::setSettings(
 
   // TODO =() operator
   auto &attributeChannelSettings =
-      (channelSettings.chn == ESP_AD9833::CHAN_0 ? mSettings.mChannel0
-                                                 : mSettings.mChannel1);
+      (channelSettings.chn == ESP_AD9833::channel_t::CHAN_0
+           ? mSettings.mChannel0
+           : mSettings.mChannel1);
   attributeChannelSettings.chn = channelSettings.chn;
   attributeChannelSettings.mode = channelSettings.mode;
   attributeChannelSettings.frequency = channelSettings.frequency;

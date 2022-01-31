@@ -39,6 +39,10 @@ public:
     return getFloat(content, id.c_str());
   }
 
+  static float getGain(const char *content) {
+    static const std::string id = "number-gain-osc1";
+    return getFloat(content, id.c_str());
+  }
   // static std::string getStdString(httpd_req_t *req, const char *id) {
   static std::string getStdString(const char *content, const char *id) {
     char buffer[255];
@@ -50,6 +54,24 @@ public:
       return "";
     }
     return std::string(buffer);
+  }
+
+  static ESP_AD9833::mode_t getWaveForm(const char *content) {
+    static const std::string id = "select-waveform-osc1";
+    const auto modeStr = getStdString(content, id.c_str());
+    if (modeStr.compare("off") == 0) {
+      return ESP_AD9833::mode_t::MODE_OFF;
+    } else if (modeStr.compare("sine")) {
+      return ESP_AD9833::mode_t::MODE_SINE;
+    } else if (modeStr.compare("triangular")) {
+      return ESP_AD9833::mode_t::MODE_TRIANGLE;
+    } else if (modeStr.compare("square1")) {
+      return ESP_AD9833::mode_t::MODE_SQUARE1;
+    } else if (modeStr.compare("square2")) {
+      return ESP_AD9833::mode_t::MODE_SQUARE2;
+    } else {
+      throw std::runtime_error("WTF?");
+    }
   }
 };
 } // namespace
@@ -121,17 +143,20 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
 
     // ESP_LOGI(TAG, "%s", mFormForLed.parseToUart(content.data()).c_str());
   } else if (strcmp(req->uri, "/siggen") == 0) {
-    const size_t frequency = ParseRequests::getFrequency(content.data());
-    const std::string waveform =
-        ParseRequests::getStdString(content.data(), "select-waveform-osc1") +
-        " - " + std::to_string(frequency) + " - " +
-        std::to_string(ParseRequests::getPhase(content.data()));
-    if (waveform.compare("off0") == 0) {
-      Misc::OnBoardLedManager::setRequestedValue(1);
+
+    auto *serverInstance = static_cast<Server *>(req->user_ctx);
+
+    if (serverInstance->mSigGenOrchestrator) {
+      serverInstance->mSigGenOrchestrator.value()->pushRequest(
+          ESP_AD9833::ESP_AD9833::channel_t::CHAN_0 /*TODO*/,
+          ParseRequests::getFrequency(content.data()),
+          ParseRequests::getPhase(content.data()),
+          ParseRequests::getWaveForm(content.data()),
+          ParseRequests::getGain(content.data()));
     }
 
     // httpd_resp_send(req, content.data(), HTTPD_RESP_USE_STRLEN);
-    httpd_resp_send(req, waveform.c_str(), HTTPD_RESP_USE_STRLEN);
+    // httpd_resp_send(req, waveform.c_str(), HTTPD_RESP_USE_STRLEN);
     httpd_resp_send(req, mFormForLed.getOscControlPage().c_str(),
                     HTTPD_RESP_USE_STRLEN);
   } else {

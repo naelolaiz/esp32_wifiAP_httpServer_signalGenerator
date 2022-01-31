@@ -2,14 +2,15 @@
 #define __AD9833_DRIVER_H__
 
 #include <ESP_AD9833.h>
+#include <atomic>
 #include <memory>
 #include <optional>
 
 #define MCP_WRITE 0b00010001
 namespace AD9833Manager {
 typedef struct {
-  ESP_AD9833::channel_t chn = ESP_AD9833::CHAN_0;
-  ESP_AD9833::mode_t mode = ESP_AD9833::MODE_OFF;
+  ESP_AD9833::channel_t chn = ESP_AD9833::channel_t::CHAN_0;
+  ESP_AD9833::mode_t mode = ESP_AD9833::mode_t::MODE_OFF;
   double frequency = 1000.;
   uint16_t phase = 0;  // 0-3600
   uint8_t volume = 99; // 0..255, range of digital potentiometer. Beyond 210
@@ -85,6 +86,8 @@ public:
     channelSettingsToPush.mode = mode;
     channelSettingsToPush.volume = volume;
     mChannelSettings.store(std::make_optional(channelSettingsToPush));
+    // TODO
+    checkAndApplyPendingChanges();
   }
   void checkAndApplyPendingChanges() {
     auto storedChannelSettings = mChannelSettings.load();
