@@ -81,7 +81,7 @@ esp_err_t ESP_AD9833::write16AD9833(uint16_t data) {
 
 esp_err_t ESP_AD9833::writeBytes(uint8_t regAddr, size_t length,
                                  const uint8_t *data,
-                                 spi_device_handle_t &handle) {
+                                 spi_device_handle_t handle) {
   spi_transaction_t transaction;
   transaction.flags = 0;
   transaction.cmd = 0;
@@ -107,6 +107,7 @@ esp_err_t ESP_AD9833::writeBytes(uint8_t regAddr, size_t length,
 
 esp_err_t ESP_AD9833::close() {
   ESP_ERROR_CHECK(removeDeviceAD9833());
+  ESP_ERROR_CHECK(removeDeviceMCP41xx());
   if (mHost) {
     return spi_bus_free(mHost);
   } else
@@ -132,6 +133,7 @@ void ESP_AD9833::begin()
   gpio_set_level(_mpuCsPin, 1);
 
   ESP_ERROR_CHECK(addDeviceAD9833());
+  ESP_ERROR_CHECK(addDeviceMCP41xxx());
   _regCtl = (1 << AD_B28); // always write 2 words consecutively for frequency
   spiSend(_regCtl);
 
@@ -207,29 +209,30 @@ void ESP_AD9833::spiSend(uint16_t data)
        // maximum speed in Hz, order, dataMode (0 )
        //  SPI.beginTransaction(SPISettings(14000000, MSBFIRST, SPI_MODE2));
   //  digitalWrite(_fsyncPin, LOW);
-  gpio_set_level(_fsyncPin, 0);
+  // gpio_set_level(_fsyncPin, 0);
   //      SPI.transfer16(data);
   ESP_ERROR_CHECK(write16AD9833(data));
   //  digitalWrite(_fsyncPin, HIGH);
-  gpio_set_level(_fsyncPin, 1);
+  // gpio_set_level(_fsyncPin, 1);
   //  SPI.endTransaction();
 }
 
 void ESP_AD9833::setMpuPot(uint8_t value) // 0-255
 {
+  ESP_LOGI("loloe", "about to send %u", value);
 #if AD_DEBUG
   PRINTX("\nspiSend", data);
   dumpCmd(data);
 #endif // AD_DEBUG
        // maximum speed in Hz, order, dataMode (0 )
        //  SPI.beginTransaction(SPISettings(14000000, MSBFIRST, SPI_MODE2));
-  gpio_set_level(_mpuCsPin, 0);
+  // gpio_set_level(_mpuCsPin, 0);
 
   constexpr uint8_t MCP_WRITE = 0b00010001;
   uint8_t buffer[2] = {MCP_WRITE, value}; // TODO: or inverted
   ESP_ERROR_CHECK(writeBytes(0 /* ? */, 2, buffer, mDeviceHandleMCP41xxx));
 
-  gpio_set_level(_mpuCsPin, 1);
+  // gpio_set_level(_mpuCsPin, 1);
 
 #if 0
 // reference:

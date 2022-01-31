@@ -159,7 +159,7 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
           ParseRequests::getFrequency(content.data()),
           ParseRequests::getPhase(content.data()),
           ParseRequests::getWaveForm(content.data()),
-          ParseRequests::getGain(content.data()));
+          ParseRequests::getGain(content.data()) * 100);
     }
 
     // httpd_resp_send(req, content.data(), HTTPD_RESP_USE_STRLEN);
