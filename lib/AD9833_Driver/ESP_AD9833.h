@@ -47,8 +47,9 @@ private:
   esp_err_t addDeviceMCP41xxx();
   esp_err_t removeDeviceAD9833();
   esp_err_t removeDeviceMCP41xx();
-  esp_err_t write16(uint16_t data);
-  esp_err_t writeBytes(uint8_t regAddr, size_t length, const uint8_t *data);
+  esp_err_t write16AD9833(uint16_t data);
+  esp_err_t writeBytes(uint8_t regAddr, size_t length, const uint8_t *data,
+                       spi_device_handle_t &handle);
 
 public:
   esp_err_t close();

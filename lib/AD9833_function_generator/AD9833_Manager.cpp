@@ -1,8 +1,9 @@
 #include "AD9833_Manager.h"
-AD9833Manager::AD9833FuncGen::AD9833FuncGen(gpio_num_t pinFSync, gpio_num_t pinCS)
+AD9833Manager::AD9833FuncGen::AD9833FuncGen(gpio_num_t pinFSync,
+                                            gpio_num_t pinCS)
     : mDriver9833(pinFSync, pinCS), mPinFSync(pinFSync), mPinCS(pinCS) {
   mDriver9833.begin(); // Initialize base class
-                       //    init();
+  init();
 }
 /**
  * Set initial values of both AD9833 channels
@@ -97,22 +98,25 @@ void AD9833Manager::AD9833FuncGen::setSettings(
   activateChannelSettings(channelSettings.chn);
 }
 AD9833Manager::SigGenOrchestrator::SigGenOrchestrator(
-                                       std::shared_ptr<AD9833Manager::AD9833FuncGen> ad9833FuncGen)
+    std::shared_ptr<AD9833Manager::AD9833FuncGen> ad9833FuncGen)
     : mAD9833FuncGen(ad9833FuncGen) {}
 
-void AD9833Manager::SigGenOrchestrator::pushRequest(const AD9833Manager::ChannelSettings &channelSettings) {
+void AD9833Manager::SigGenOrchestrator::pushRequest(
+    const AD9833Manager::ChannelSettings &channelSettings) {
   if (mChannelSettings.has_value()) {
     return; // TODO: queue
   }
   mChannelSettings = std::make_optional(channelSettings);
 }
 
-void AD9833Manager::SigGenOrchestrator::pushRequest(ESP_AD9833::channel_t channel, double frequency,
-                                                    size_t phase, ESP_AD9833::mode_t mode, float volume) {
+void AD9833Manager::SigGenOrchestrator::pushRequest(
+    ESP_AD9833::channel_t channel, double frequency, size_t phase,
+    ESP_AD9833::mode_t mode, float volume) {
   if (mChannelSettings.has_value()) {
     return; // TODO: queue
   }
   // TODO: mutex
+  ESP_LOGI("lalala", "filling channel settings struct");
   AD9833Manager::ChannelSettings channelSettingsToPush;
   channelSettingsToPush.chn = channel;
   channelSettingsToPush.frequency = frequency;
@@ -121,7 +125,9 @@ void AD9833Manager::SigGenOrchestrator::pushRequest(ESP_AD9833::channel_t channe
   channelSettingsToPush.volume = volume;
   mChannelSettings = std::make_optional(channelSettingsToPush);
   // TODO
+  ESP_LOGI("lalala", "about to apply changes");
   checkAndApplyPendingChanges();
+  ESP_LOGI("lalala", "applied changes");
 }
 
 void AD9833Manager::SigGenOrchestrator::checkAndApplyPendingChanges() {

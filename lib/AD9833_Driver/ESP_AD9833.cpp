@@ -72,15 +72,16 @@ esp_err_t ESP_AD9833::removeDeviceMCP41xx() {
   return spi_bus_remove_device(mDeviceHandleMCP41xxx);
 }
 
-esp_err_t ESP_AD9833::write16(uint16_t data) {
+esp_err_t ESP_AD9833::write16AD9833(uint16_t data) {
   uint8_t buffer[2];
   buffer[0] = data && 0xFF;
   buffer[1] = (data && 0xFF00) >> 8;
-  return writeBytes(0 /* ? */, 2, buffer);
+  return writeBytes(0 /* ? */, 2, buffer, mDeviceHandleAD9833);
 }
 
 esp_err_t ESP_AD9833::writeBytes(uint8_t regAddr, size_t length,
-                                 const uint8_t *data) {
+                                 const uint8_t *data,
+                                 spi_device_handle_t &handle) {
   spi_transaction_t transaction;
   transaction.flags = 0;
   transaction.cmd = 0;
@@ -90,7 +91,7 @@ esp_err_t ESP_AD9833::writeBytes(uint8_t regAddr, size_t length,
   transaction.user = NULL;
   transaction.tx_buffer = data;
   transaction.rx_buffer = NULL;
-  esp_err_t err = spi_device_transmit(mDeviceHandleAD9833, &transaction);
+  esp_err_t err = spi_device_transmit(handle, &transaction);
 #if defined CONFIG_SPIBUS_LOG_READWRITES
   if (!err) {
     char str[length * 5 + 1];
@@ -208,7 +209,7 @@ void ESP_AD9833::spiSend(uint16_t data)
   //  digitalWrite(_fsyncPin, LOW);
   gpio_set_level(_fsyncPin, 0);
   //      SPI.transfer16(data);
-  ESP_ERROR_CHECK(write16(data));
+  ESP_ERROR_CHECK(write16AD9833(data));
   //  digitalWrite(_fsyncPin, HIGH);
   gpio_set_level(_fsyncPin, 1);
   //  SPI.endTransaction();
@@ -226,7 +227,7 @@ void ESP_AD9833::setMpuPot(uint8_t value) // 0-255
 
   constexpr uint8_t MCP_WRITE = 0b00010001;
   uint8_t buffer[2] = {MCP_WRITE, value}; // TODO: or inverted
-  ESP_ERROR_CHECK(writeBytes(0 /* ? */, 2, buffer));
+  ESP_ERROR_CHECK(writeBytes(0 /* ? */, 2, buffer, mDeviceHandleMCP41xxx));
 
   gpio_set_level(_mpuCsPin, 1);
 

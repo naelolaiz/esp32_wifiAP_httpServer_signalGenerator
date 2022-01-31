@@ -76,6 +76,12 @@ public:
 };
 } // namespace
 
+Server::Server(std::optional<std::shared_ptr<AD9833Manager::SigGenOrchestrator>>
+                   sigGenOrchestrator)
+    : mSigGenOrchestrator(sigGenOrchestrator) {
+  ESP_LOGI("loloele", "this: %p", this);
+}
+
 /* Our URI handler function to be called during GET /uri request */
 esp_err_t Server::Server::get_handler(httpd_req_t *req) {
   FormForLed &formForLed = static_cast<Server *>(req->user_ctx)->mFormForLed;
@@ -144,9 +150,10 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
     // ESP_LOGI(TAG, "%s", mFormForLed.parseToUart(content.data()).c_str());
   } else if (strcmp(req->uri, "/siggen") == 0) {
 
-    auto *serverInstance = static_cast<Server *>(req->user_ctx);
+    ESP_LOGI("lololo", "before cast , %p", req->user_ctx);
+    auto serverInstance = static_cast<Server *>(req->user_ctx);
 
-    if (serverInstance->mSigGenOrchestrator) {
+    if (serverInstance->mSigGenOrchestrator.has_value()) {
       serverInstance->mSigGenOrchestrator.value()->pushRequest(
           ESP_AD9833::ESP_AD9833::channel_t::CHAN_0 /*TODO*/,
           ParseRequests::getFrequency(content.data()),

@@ -34,10 +34,11 @@ void app_main() {
   constexpr gpio_num_t gpioForMPU = GPIO_NUM_27;
   std::shared_ptr<AD9833Manager::AD9833FuncGen> signalGenController(
       new AD9833Manager::AD9833FuncGen(gpioForAD9883, gpioForMPU));
-  AD9833Manager::SigGenOrchestrator sg(signalGenController);
+  std::optional<std::shared_ptr<AD9833Manager::SigGenOrchestrator>> sg(
+      new AD9833Manager::SigGenOrchestrator(signalGenController));
 
   // start the http server
-  Server server;
+  Server server(sg);
   ESP_ERROR_CHECK(server.start_webserver());
 
   // start a dummy task monitoring tcpip

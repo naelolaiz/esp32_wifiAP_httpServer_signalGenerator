@@ -61,8 +61,7 @@ private:
 
 public:
   Server(std::optional<std::shared_ptr<AD9833Manager::SigGenOrchestrator>>
-             sigGenOrchestrator = nullptr)
-      : mSigGenOrchestrator(sigGenOrchestrator) {}
+             sigGenOrchestrator = nullptr);
   static esp_err_t get_handler(httpd_req_t *req);
   static esp_err_t post_handler(httpd_req_t *req);
   esp_err_t start_webserver();
