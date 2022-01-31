@@ -2,6 +2,8 @@
 #define __AD9833_DRIVER_H__
 
 #include <ESP_AD9833.h>
+#include <memory>
+#include <optional>
 
 #define MCP_WRITE 0b00010001
 namespace AD9833Manager {
@@ -53,6 +55,47 @@ public:
   void setSettings(const ChannelSettings &channelSettings);
   AD9833Settings mSettings; // Allow direct access to settings
 };
+
+class SigGenOrchestrator {
+private:
+  std::atomic<std::optional<AD9833Manager::ChannelSettings>>
+      mChannelSettings; // TODO: queue
+  std::shared_ptr<AD9833Manager::AD9833FuncGen> mAD9833FuncGen;
+
+public:
+  SigGenOrchestrator(
+      std::shared_ptr<AD9833Manager::AD9833FuncGen> ad9833FuncGen)
+      : mAD9833FuncGen(ad9833FuncGen) {}
+  void pushRequest(const AD9833Manager::ChannelSettings &channelSettings) {
+    if (mChannelSettings.load().has_value()) {
+      return; // TODO: queue
+    }
+    mChannelSettings.store(std::make_optional(channelSettings));
+  }
+  void pushRequest(ESP_AD9833::channel_t channel, double frequency,
+                   size_t phase, ESP_AD9833::mode_t mode, float volume) {
+    if (mChannelSettings.load().has_value()) {
+      return; // TODO: queue
+    }
+    // TODO: mutex
+    AD9833Manager::ChannelSettings channelSettingsToPush;
+    channelSettingsToPush.chn = channel;
+    channelSettingsToPush.frequency = frequency;
+    channelSettingsToPush.phase = phase;
+    channelSettingsToPush.mode = mode;
+    channelSettingsToPush.volume = volume;
+    mChannelSettings.store(std::make_optional(channelSettingsToPush));
+  }
+  void checkAndApplyPendingChanges() {
+    auto storedChannelSettings = mChannelSettings.load();
+    if (!storedChannelSettings.has_value()) {
+      return;
+    }
+    mAD9833FuncGen->setSettings(mChannelSettings.load().value());
+    mChannelSettings.store(std::nullopt);
+  }
+};
+
 } // namespace AD9833Manager
 
 #endif // __AD9833_DRIVER_H__

@@ -8,6 +8,10 @@ extern "C" {
 
 // for led setting
 #include "OnBoardLedManager.h"
+// for controlling the signal generator
+#include "AD9833_Manager.h"
+#include <memory>
+#include <optional>
 
 class FormForLed;
 // based on
@@ -56,11 +60,17 @@ private:
                                 .user_ctx = this};
 
 public:
-  Server() = default;
+  Server(std::optional<std::shared_ptr<AD9833Manager::SigGenOrchestrator>>
+             sigGenOrchestrator = nullptr)
+      : mSigGenOrchestrator(sigGenOrchestrator) {}
   static esp_err_t get_handler(httpd_req_t *req);
   static esp_err_t post_handler(httpd_req_t *req);
   esp_err_t start_webserver();
   esp_err_t stop_webserver();
+
+private:
+  std::optional<std::shared_ptr<AD9833Manager::SigGenOrchestrator>>
+      mSigGenOrchestrator;
 };
 
 #endif // __NAEL_SERVER_H__
