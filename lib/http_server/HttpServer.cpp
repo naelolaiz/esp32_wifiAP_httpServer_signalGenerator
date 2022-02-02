@@ -61,13 +61,13 @@ public:
     const auto modeStr = getStdString(content, id.c_str());
     if (modeStr.compare("off") == 0) {
       return ESP_AD9833::mode_t::MODE_OFF;
-    } else if (modeStr.compare("sine")) {
+    } else if (modeStr.compare("sine") == 0) {
       return ESP_AD9833::mode_t::MODE_SINE;
-    } else if (modeStr.compare("triangular")) {
+    } else if (modeStr.compare("triangular") == 0) {
       return ESP_AD9833::mode_t::MODE_TRIANGLE;
-    } else if (modeStr.compare("square1")) {
+    } else if (modeStr.compare("square1") == 0) {
       return ESP_AD9833::mode_t::MODE_SQUARE1;
-    } else if (modeStr.compare("square2")) {
+    } else if (modeStr.compare("square2") == 0) {
       return ESP_AD9833::mode_t::MODE_SQUARE2;
     } else {
       throw std::runtime_error("WTF?");

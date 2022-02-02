@@ -12,7 +12,7 @@ AD9833Manager::AD9833FuncGen::AD9833FuncGen(gpio_num_t pinFSync,
 void AD9833Manager::AD9833FuncGen::init() {
   // Settings channel 0
   mSettings.mChannel0.chn = ESP_AD9833::channel_t::CHAN_0;
-  mSettings.mChannel0.mode = ESP_AD9833::mode_t::MODE_OFF;
+  mSettings.mChannel0.mode = ESP_AD9833::mode_t::MODE_TRIANGLE;
   mSettings.mChannel0.frequency = 415.3;
   mSettings.mChannel0.phase =
       mDriver9833.getPhase(ESP_AD9833::channel_t::CHAN_0);
@@ -49,10 +49,11 @@ void AD9833Manager::AD9833FuncGen::activateChannelSettings(
   ChannelSettings &s = (chn == ESP_AD9833::channel_t::CHAN_0)
                            ? mSettings.mChannel0
                            : mSettings.mChannel1;
-  mDriver9833.setMode(s.mode);
   mDriver9833.setFrequency(chn, s.frequency);
   mDriver9833.setActiveFrequency(chn);
   mDriver9833.setPhase(chn, s.phase);
+  mDriver9833.setActivePhase(chn);
+  mDriver9833.setMode(s.mode);
   setVolume(s.volume);
 }
 

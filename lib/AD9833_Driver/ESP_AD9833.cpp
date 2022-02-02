@@ -28,15 +28,16 @@ esp_err_t ESP_AD9833::addDeviceAD9833() {
   spi_device_interface_config_t devConfig;
 
   devConfig.command_bits = 0;
-  devConfig.address_bits = 8;
+  devConfig.address_bits = 0;
   devConfig.dummy_bits = 0;
   devConfig.mode = 2;
-  devConfig.duty_cycle_pos = 128;                 // default 128 = 50%/50% duty
-  devConfig.cs_ena_pretrans = 0;                  // 0 not used
-  devConfig.cs_ena_posttrans = 0;                 // 0 not used
-  devConfig.clock_speed_hz = SPI_MASTER_FREQ_16M; // 14 000 000;
+  devConfig.duty_cycle_pos = 128; // default 128 = 50%/50% duty
+  devConfig.cs_ena_pretrans = 3;
+  devConfig.cs_ena_posttrans = 0; // 0 not used
+  devConfig.clock_speed_hz =
+      SPI_MASTER_FREQ_13M; // SPI_MASTER_FREQ_16M; // 14 000 000;
   devConfig.spics_io_num = _fsyncPin;
-  devConfig.flags = SPI_DEVICE_3WIRE; // | SPI_DEVICE_HALFDUPLEX; // MSB first
+  devConfig.flags = SPI_DEVICE_3WIRE | SPI_DEVICE_HALFDUPLEX; // MSB first
   devConfig.queue_size = 1;
   devConfig.pre_cb = NULL;
   devConfig.post_cb = NULL;
@@ -50,20 +51,34 @@ ESP_AD9833::addDeviceMCP41xxx() // TODO: move outside -share host- so it doesn´
 {
   spi_device_interface_config_t devConfig;
 
-  devConfig.command_bits = 0;
-  devConfig.address_bits = 8;
+  devConfig.command_bits = 8;
+  devConfig.address_bits = 0;
   devConfig.dummy_bits = 0;
   devConfig.mode = 0;
-  devConfig.duty_cycle_pos = 128;                 // default 128 = 50%/50% duty
-  devConfig.cs_ena_pretrans = 0;                  // 0 not used
-  devConfig.cs_ena_posttrans = 0;                 // 0 not used
-  devConfig.clock_speed_hz = SPI_MASTER_FREQ_16M; // 14 000 000;
+  devConfig.duty_cycle_pos = 128; // default 128 = 50%/50% duty
+  devConfig.cs_ena_pretrans = 3;  // 0-16 for pre CS (only in half duplex)
+  devConfig.cs_ena_posttrans = 0; // 0 not used
+  devConfig.clock_speed_hz =
+      SPI_MASTER_FREQ_13M; // MSPI_MASTER_FREQ_16M; // 14 000 000;
   devConfig.spics_io_num = _mpuCsPin;
   devConfig.flags = SPI_DEVICE_3WIRE | SPI_DEVICE_HALFDUPLEX; // MSB first
   devConfig.queue_size = 1;
   devConfig.pre_cb = NULL;
   devConfig.post_cb = NULL;
   return spi_bus_add_device(mHost, &devConfig, &mDeviceHandleMCP41xxx);
+
+#if 0
+// reference:
+  SPI.beginTransaction(SPISettings(
+      14000000, MSBFIRST, SPI_MODE0)); //  communicated by Timothy Corcoran
+  // SPI.beginTransaction(SPISettings(3500000, MSBFIRST, SPI_MODE3));  //
+  // communicated by Stephen Avis
+  digitalWrite(mPinCS, LOW); // Begin transfer
+  SPI.transfer(MCP_WRITE);   // Write the command
+  SPI.transfer(value);       // Write the potentiometer value
+  digitalWrite(pinCS, HIGH); // End transfer
+  SPI.endTransaction();
+#endif
 }
 
 esp_err_t ESP_AD9833::removeDeviceAD9833() {
@@ -74,10 +89,10 @@ esp_err_t ESP_AD9833::removeDeviceMCP41xx() {
   return spi_bus_remove_device(mDeviceHandleMCP41xxx);
 }
 
-esp_err_t ESP_AD9833::write16AD9833(uint16_t data) {
+esp_err_t ESP_AD9833::write16AD9833(uint16_t value) {
   uint8_t buffer[2];
-  buffer[0] = (data >> 8) & 0xFF;
-  buffer[1] = data & 0xFF;
+  buffer[0] = (value >> 8) & 0xFF;
+  buffer[1] = value & 0xFF;
   return writeBytes(0 /* ? */, 2, buffer, mDeviceHandleAD9833);
 }
 
@@ -127,12 +142,12 @@ void ESP_AD9833::begin()
   // initialise our preferred CS pin (could be same as SS)
   gpio_reset_pin(_fsyncPin);
   gpio_set_direction(_fsyncPin, GPIO_MODE_OUTPUT);
-  // gpio_set_level(_fsyncPin, 1);
+  gpio_set_level(_fsyncPin, 1);
 
   // initialise our preferred CS pin (could be same as SS)
   gpio_reset_pin(_mpuCsPin);
   gpio_set_direction(_mpuCsPin, GPIO_MODE_OUTPUT);
-  // gpio_set_level(_mpuCsPin, 1);
+  gpio_set_level(_mpuCsPin, 1);
 
   ESP_ERROR_CHECK(addDeviceAD9833());
   ESP_ERROR_CHECK(addDeviceMCP41xxx());
@@ -231,22 +246,30 @@ void ESP_AD9833::setMpuPot(uint8_t value) // 0-255
   // gpio_set_level(_mpuCsPin, 0);
 
   constexpr uint8_t MCP_WRITE = 0b00010001;
-  uint8_t buffer[2] = {MCP_WRITE, value}; // TODO: or inverted
-  ESP_ERROR_CHECK(writeBytes(0 /* ? */, 2, buffer, mDeviceHandleMCP41xxx));
+  // uint8_t buffer[2] = {MCP_WRITE, value}; // TODO: or inverted
+  //   uint8_t buffer[2] = {MCP_WRITE, value}; // TODO: or inverted
+  // ESP_ERROR_CHECK(writeBytes(0 /* ? */, 2, buffer, mDeviceHandleMCP41xxx));
 
   // gpio_set_level(_mpuCsPin, 1);
-
-#if 0
-// reference:
-  SPI.beginTransaction(SPISettings(
-      14000000, MSBFIRST, SPI_MODE0)); //  communicated by Timothy Corcoran
-  // SPI.beginTransaction(SPISettings(3500000, MSBFIRST, SPI_MODE3));  //
-  // communicated by Stephen Avis
-  digitalWrite(mPinCS, LOW); // Begin transfer
-  SPI.transfer(MCP_WRITE);   // Write the command
-  SPI.transfer(value);       // Write the potentiometer value
-  digitalWrite(pinCS, HIGH); // End transfer
-  SPI.endTransaction();
+  spi_transaction_t transaction;
+  transaction.flags = 0;
+  transaction.cmd = MCP_WRITE; // MCP_WRITE;
+  transaction.addr = 0;        // regAddr & SPIBUS_WRITE;
+  transaction.length = 8;
+  transaction.rxlength = 0;
+  transaction.user = NULL;
+  transaction.tx_buffer = &value;
+  transaction.rx_buffer = NULL;
+  ESP_ERROR_CHECK(spi_device_transmit(mDeviceHandleMCP41xxx, &transaction));
+#if defined CONFIG_SPIBUS_LOG_READWRITES
+  if (!err) {
+    char str[length * 5 + 1];
+    for (size_t i = 0; i < length; i++)
+      sprintf(str + i * 5, "0x%s%X ", (data[i] < 0x10 ? "0" : ""), data[i]);
+    SPIBUS_LOG_RW(
+        "[%s, handle:0x%X] Write %d bytes to__ register 0x%X, data: %s",
+        (host == 1 ? "HSPI" : "VSPI"), (uint32_t)handle, length, regAddr, str);
+  }
 #endif
 }
 
