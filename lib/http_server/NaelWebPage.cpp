@@ -1,5 +1,4 @@
 #include "NaelWebPage.h"
-#include "SignalGeneratorControlForm.h"
 #include <regex>
 
 const char *NaelCppLibrary::getForm() { return nullptr; }
@@ -70,8 +69,4 @@ const std::string &FormForLed::getHtmlPage() {
       std::regex_replace(mHtmlEmptyBody, std::regex("TITLE"), mTitle),
       std::regex("BODY"), body);
   return mTemporalStringToReturnHtml;
-}
-
-const std::string &FormForLed::getOscControlPage() {
-  return SignalGeneratorForm;
 }

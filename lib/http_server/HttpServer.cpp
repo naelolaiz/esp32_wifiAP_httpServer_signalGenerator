@@ -2,6 +2,11 @@
 #include "NaelWebPage.h"
 #include <array>
 
+extern const uint8_t src_http_server_siggen_form_html_start[] asm(
+    "_binary_siggen_form_html_start");
+extern const uint8_t
+    src_http_server_siggen_form_html_end[] asm("_binary_siggen_form_html_end");
+
 namespace {
 
 class ParseRequests {
@@ -91,8 +96,10 @@ esp_err_t Server::Server::get_handler(httpd_req_t *req) {
                     HTTPD_RESP_USE_STRLEN);
   }
   if (strcmp(req->uri, "/siggen") == 0) {
-    httpd_resp_send(req, mFormForLed.getOscControlPage().c_str(),
-                    HTTPD_RESP_USE_STRLEN);
+    httpd_resp_send(
+        req,
+        reinterpret_cast<const char *>(src_http_server_siggen_form_html_start),
+        HTTPD_RESP_USE_STRLEN);
   } else {
     /* Send a simple response */
     const char resp[] = "URI GET Response";
@@ -109,7 +116,7 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
    * In case of string data, null termination will be absent, and
    * content length would give length of string */
   // char content[100];
-  std::array<char, 100> content;
+  std::array<char, 200> content;
   content.fill(0);
 
   /* Truncate if content length larger than the buffer */
@@ -162,8 +169,10 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
           ParseRequests::getGain(content.data()) * 100);
     }
 
-    httpd_resp_send(req, mFormForLed.getOscControlPage().c_str(),
-                    HTTPD_RESP_USE_STRLEN);
+    httpd_resp_send(
+        req,
+        reinterpret_cast<const char *>(src_http_server_siggen_form_html_start),
+        HTTPD_RESP_USE_STRLEN);
   } else {
     const char resp[] = "WTF?";
     httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
