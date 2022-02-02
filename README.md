@@ -10,4 +10,5 @@ Control the signal generator - TODO
 ### HTML:
 ![](https://github.com/naelolaiz/esp32_wifiAP_httpServer_signalGenerator/blob/master/doc/Screenshot_20220202_094609.png)
 ### Output signals in scope:
-![](https://github.com/naelolaiz/esp32_wifiAP_httpServer_signalGenerator/blob/master/doc/scope_sine_1khz.png)
+![](https://github.com/naelolaiz/esp32_wifiAP_httpServer_signalGenerator/blob/master/doc/scope_default_triangle_415Hz.png)
+![](https://github.com/naelolaiz/esp32_wifiAP_httpServer_signalGenerator/blob/master/doc/scope_sine_1Khz.png)
