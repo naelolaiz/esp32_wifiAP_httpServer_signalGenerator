@@ -12,5 +12,6 @@ Control the signal generator - TODO
 ### Output signals in scope:
 * PGA (amplified signal): Yellow
 * VOUT: Pink
+
 ![](https://github.com/naelolaiz/esp32_wifiAP_httpServer_signalGenerator/blob/master/doc/scope_default_triangle_415Hz.png)
 ![](https://github.com/naelolaiz/esp32_wifiAP_httpServer_signalGenerator/blob/master/doc/scope_sine_1Khz.png)
