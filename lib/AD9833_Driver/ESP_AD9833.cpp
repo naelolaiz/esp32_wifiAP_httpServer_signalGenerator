@@ -32,7 +32,7 @@ esp_err_t ESP_AD9833::addDeviceAD9833() {
   devConfig.dummy_bits = 0;
   devConfig.mode = 2;
   devConfig.duty_cycle_pos = 128; // default 128 = 50%/50% duty
-  devConfig.cs_ena_pretrans = 3;
+  devConfig.cs_ena_pretrans = 1;
   devConfig.cs_ena_posttrans = 0; // 0 not used
   devConfig.clock_speed_hz =
       SPI_MASTER_FREQ_13M; // SPI_MASTER_FREQ_16M; // 14 000 000;
@@ -56,7 +56,7 @@ ESP_AD9833::addDeviceMCP41xxx() // TODO: move outside -share host- so it doesn´
   devConfig.dummy_bits = 0;
   devConfig.mode = 0;
   devConfig.duty_cycle_pos = 128; // default 128 = 50%/50% duty
-  devConfig.cs_ena_pretrans = 3;  // 0-16 for pre CS (only in half duplex)
+  devConfig.cs_ena_pretrans = 1;  // 0-16 for pre CS (only in half duplex)
   devConfig.cs_ena_posttrans = 0; // 0 not used
   devConfig.clock_speed_hz =
       SPI_MASTER_FREQ_13M; // MSPI_MASTER_FREQ_16M; // 14 000 000;
