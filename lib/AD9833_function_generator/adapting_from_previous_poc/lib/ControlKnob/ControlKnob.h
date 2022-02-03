@@ -60,26 +60,26 @@ class ControlKnob
     void onDoubleClick();
 
   private:
-    void blinkPosition(uint8_t col, uint8_t row);
-    void nextScreen();
-    void prevScreen();
-    void switchChannel();
+//    void blinkPosition(uint8_t col, uint8_t row);
+//    void nextScreen();
+//    void prevScreen();
+//    void switchChannel();
 
-    void showScreen0();
-    void showScreen1();
-    void showScreen2();
-    void showScreen3();
-    void showSettings(ChannelSettings &settings);
+    //void showScreen0();
+    //void showScreen1();
+    //void showScreen2();
+    //void showScreen3();
+    //void showSettings(ChannelSettings &settings);
     void setSettings(ChannelSettings &settings);
 
-    void nextMode(ChannelSettings &settings);
-    void prevMode(ChannelSettings &settings);
-    void incrVolume(ChannelSettings &settings);
-    void decrVolume(ChannelSettings &settings);
-    void incrFreq(ChannelSettings &settings);
-    void decrFreq(ChannelSettings &settings);
-    void incrFreqDigit(ChannelSettings &settings, uint8_t digit, double multiplier, uint8_t rowLCD);
-    void decrFreqDigit(ChannelSettings &settings, uint8_t digit, double multiplier, uint8_t rowLCD);
+    //void nextMode(ChannelSettings &settings);
+    //void prevMode(ChannelSettings &settings);
+    //void incrVolume(ChannelSettings &settings);
+    //void decrVolume(ChannelSettings &settings);
+    //void incrFreq(ChannelSettings &settings);
+    //void decrFreq(ChannelSettings &settings);
+    //void incrFreqDigit(ChannelSettings &settings, uint8_t digit, double multiplier, uint8_t rowLCD);
+    //void decrFreqDigit(ChannelSettings &settings, uint8_t digit, double multiplier, uint8_t rowLCD);
 
     void nextSweepMode(SweepSettings &settings);
     void prevSweepMode(SweepSettings &settings);
@@ -96,7 +96,7 @@ class ControlKnob
     void incrSwpFreqStepDigit(SweepSettings &settings, uint8_t digit, double multiplier, uint8_t rowLCD);
     void decrSwpFreqStepDigit(SweepSettings &settings, uint8_t digit, double multiplier, uint8_t rowLCD);
 
-    ScreenFunc screenFunc[4];
+//    ScreenFunc screenFunc[4];
     AD9833FuncGen &_fGen;
     StateShow _stateShow = StateShow::BOTH_SETTINGS;
     StateSetChn _stateSetChn = StateSetChn::SELECT_STATE;

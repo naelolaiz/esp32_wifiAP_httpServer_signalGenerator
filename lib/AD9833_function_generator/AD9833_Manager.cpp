@@ -1,4 +1,6 @@
 #include "AD9833_Manager.h"
+#include "SweepManager.h"
+
 AD9833Manager::AD9833FuncGen::AD9833FuncGen(gpio_num_t pinFSync,
                                             gpio_num_t pinCS)
     : mDriver9833(pinFSync, pinCS), mPinFSync(pinFSync), mPinCS(pinCS) {
@@ -93,7 +95,8 @@ void AD9833Manager::AD9833FuncGen::setSettings(
 }
 AD9833Manager::SigGenOrchestrator::SigGenOrchestrator(
     std::shared_ptr<AD9833Manager::AD9833FuncGen> ad9833FuncGen)
-    : mAD9833FuncGen(ad9833FuncGen) {}
+    : mAD9833FuncGen(ad9833FuncGen),
+      mSweepManager(new SweepManager(mAD9833FuncGen)) {}
 
 void AD9833Manager::SigGenOrchestrator::pushRequest(
     const AD9833Manager::ChannelSettings &channelSettings) {

@@ -3,6 +3,7 @@
 #include "Wifi_AP.h"
 
 #include "AD9833_Manager.h"
+#include "SweepManager.h"
 #include <memory>
 
 extern "C" {

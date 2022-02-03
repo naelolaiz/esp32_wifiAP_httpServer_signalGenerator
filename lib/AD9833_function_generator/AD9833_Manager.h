@@ -50,21 +50,23 @@ public:
   void activateChannelSettings(ESP_AD9833::channel_t chn);
   void setSettings(const ChannelSettings &channelSettings);
   AD9833Settings mSettings; // Allow direct access to settings
+  ESP_AD9833 &getDriver() { return mDriver9833; }
 };
+class SweepManager;
 
 class SigGenOrchestrator {
 private:
   // std::atomic<std::optional<AD9833Manager::ChannelSettings>>
   std::optional<AD9833Manager::ChannelSettings> mChannelSettings; // TODO: queue
   std::shared_ptr<AD9833Manager::AD9833FuncGen> mAD9833FuncGen;
+  std::unique_ptr<AD9833Manager::SweepManager> mSweepManager;
 
 public:
   SigGenOrchestrator(
       std::shared_ptr<AD9833Manager::AD9833FuncGen> ad9833FuncGen);
   void pushRequest(const AD9833Manager::ChannelSettings &channelSettings);
-  void pushRequest(
-    ESP_AD9833::channel_t channel, double frequency, float phase,
-    ESP_AD9833::mode_t mode, float volume);
+  void pushRequest(ESP_AD9833::channel_t channel, double frequency, float phase,
+                   ESP_AD9833::mode_t mode, float volume);
   void checkAndApplyPendingChanges();
 };
 

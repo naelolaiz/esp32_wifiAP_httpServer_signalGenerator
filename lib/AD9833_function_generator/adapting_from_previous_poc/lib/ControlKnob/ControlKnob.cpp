@@ -573,6 +573,7 @@ void ControlKnob::setSettings(ChannelSettings &settings)
   _fGen.setVolume(settings.volume);
 }
 
+#if 0 // commented unused functions
 /**
  * Shows settings of selected channel
  */
@@ -802,7 +803,9 @@ void ControlKnob::switchChannel()
   }
   showScreen0();
 }
+#endif
 
+#if 0 // start block commented functions
 /**
  * Switches to next wave form for selected channel
  */
@@ -1001,6 +1004,7 @@ void ControlKnob::decrFreqDigit(ChannelSettings &settings, uint8_t digit, double
   _lcd.display();
 #endif
 }
+#endif // commented block unused functions
 
 /**
  * Selects next sweep mode and wrappes around
