@@ -7,6 +7,7 @@ HTML code for the signal generator - TODO
 Control the signal generator - TODO
 
 ## Working!
+### ![Mini Demo](https://github.com/naelolaiz/esp32_wifiAP_httpServer_signalGenerator/blob/master/doc/output.gif)
 ### HTML:
 ![](https://github.com/naelolaiz/esp32_wifiAP_httpServer_signalGenerator/blob/master/doc/Screenshot_20220202_094609.png)
 ### Output signals in scope:
