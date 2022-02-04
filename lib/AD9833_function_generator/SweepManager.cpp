@@ -1,5 +1,8 @@
 #include "SweepManager.h"
 
+namespace {
+const char *TAG = "SweepManager\0";
+}
 using namespace AD9833Manager;
 /**
  * Runs loop of base class and runs sweep if enabled
@@ -16,8 +19,8 @@ void SweepManager::loop() {
  * Handles clockwise rotation of rotary encoder shaft
  */
 void SweepManager::onCW() {
-  // Serial.printf("onCW stateShow=%d, stateSetChn=%d, stateSetSwp=%d\r\n",
-  // (int)_stateShow, (int)_stateSetChn, (int)_stateSetSwp);
+  ESP_LOGI(TAG ,"onCW stateShow=%d, stateSetChn=%d, stateSetSwp=%d\r\n",
+   (int)_stateShow, (int)_stateSetChn, (int)_stateSetSwp);
 
   if (_stateSetChn == StateSetChn::SELECT_STATE &&
       _stateSetSwp == StateSetSwp::SELECT_STATE) {
@@ -259,8 +262,8 @@ void SweepManager::onCCW() {
  * Handles click of rotary encoders push button
  */
 void SweepManager::onClick() {
-  // Serial.printf("onClick stateShow=%d, stateSetChn=%d, stateSetSwp=%d\r\n",
-  // (int)_stateShow, (int)_stateSetChn, (int)_stateSetSwp);
+  ESP_LOGI(TAG, "onClick stateShow=%d, stateSetChn=%d, stateSetSwp=%d\r\n",
+   (int)_stateShow, (int)_stateSetChn, (int)_stateSetSwp);
   switch (_stateShow) {
   case StateShow::BOTH_SETTINGS:
     switchChannel();
@@ -460,9 +463,7 @@ void SweepManager::onClick() {
  * Handles long click of rotary encoders push button
  */
 void SweepManager::onLongClick() {
-  // Serial.printf("onLongClick stateShow=%d, stateSetChn=%d,
-  // stateSetSwp=%d\r\n", (int)_stateShow, (int)_stateSetChn,
-  // (int)_stateSetSwp);
+  ESP_LOGI("SweepManager\0", "onLongClick stateShow=%d, stateSetChn=%d, stateSetSwp=%d\r\n", (int)_stateShow, (int)_stateSetChn, (int)_stateSetSwp);
   ESP_AD9833::channel_t::channel_t chn = mAD9833FuncGen->getActiveFrequency();
   ChannelSettings chnSettings = (chn == ESP_AD9833::channel_t::CHAN_0)
                                     ? mAD9833FuncGen->mSettings.mChannel0
@@ -529,11 +530,10 @@ void SweepManager::onLongClick() {
  * Not used
  */
 void SweepManager::onDoubleClick() {
-  // Serial.printf("onDoubleClick stateShow=%d, stateSetChn=%d,
-  // stateSetSwp=%d\r\n", (int)_stateShow, (int)_stateSetChn,
-  // (int)_stateSetSwp);
+  ESP_LOGI(TAG, "onDoubleClick stateShow=%d, stateSetChn=%d, stateSetSwp=%d\r\n", (int)_stateShow, (int)_stateSetChn, (int)_stateSetSwp);
 }
 #endif
+
 /**
  * Activates settings of the selected channel for output
  */
@@ -747,7 +747,7 @@ void SweepManager::decrSwpTimeDigit(SweepSettings &settings, uint8_t digit,
  * Increments sweep frequency step
  */
 void SweepManager::incrSwpFreqStep(SweepSettings &settings) {
-  // Serial.printf("incrSweepFreqStep stateSwp=%d\r\n", (int)_stateSetSwp );
+  ESP_LOGI(TAG, "incrSweepFreqStep stateSwp=%d\r\n", (int)_stateSetSwp);
   switch (_stateSetSwp) {
   case StateSetSwp::SET_F100K:
     incrSwpFreqStepDigit(settings, 0, 100000, 3);
@@ -779,7 +779,7 @@ void SweepManager::incrSwpFreqStep(SweepSettings &settings) {
  * Decrements sweep frequency step
  */
 void SweepManager::decrSwpFreqStep(SweepSettings &settings) {
-  // Serial.printf("decrSweepFreqStep stateSwp=%d\r\n", (int)_stateSetSwp );
+  ESP_LOGI(TAG, "decrSweepFreqStep stateSwp=%d\r\n", (int)_stateSetSwp);
   switch (_stateSetSwp) {
   case StateSetSwp::SET_F100K:
     decrSwpFreqStepDigit(settings, 0, 100000, 3);
@@ -832,7 +832,7 @@ void SweepManager::decrSwpFreqStepDigit(SweepSettings &settings, uint8_t digit,
   sprintf(digits, "%08.1f", settings.freqstep);
   digitOld = digits[digit] - 48;
   digitNew = digitOld == 0 ? 9 : digitOld - 1;
-  // Serial.printf("digitOld = %d, digitNew = %d\r\n", digitOld, digitNew);
+  ESP_LOGI(TAG, "digitOld = %d, digitNew = %d\r\n", digitOld, digitNew);
   settings.freqstep += (digitNew - digitOld) * multiplier;
 }
 
@@ -842,10 +842,10 @@ void SweepManager::decrSwpFreqStepDigit(SweepSettings &settings, uint8_t digit,
 void SweepManager::runSweep() {
   switch (mAD9833FuncGen->mSettings.mSweep.mode) {
   case SweepMode::CH_0_1:
-    // Serial.printf("/ fsweep=%f, f0=%f, f1=%f\r\n",
-    // mAD9833FuncGen->mSettings.mSweep.fsweep,
-    // mAD9833FuncGen->mSettings.mChannel0.frequency,
-    // mAD9833FuncGen->mSettings.mChannel1.frequency);
+    ESP_LOGI(TAG, "/ fsweep=%f, f0=%f, f1=%f\r\n",
+             mAD9833FuncGen->mSettings.mSweep.fsweep,
+             mAD9833FuncGen->mSettings.mChannel0.frequency,
+             mAD9833FuncGen->mSettings.mChannel1.frequency);
     if (mAD9833FuncGen->mSettings.mSweep.fsweep <=
         mAD9833FuncGen->mSettings.mChannel1.frequency) {
       // if timer has fired
@@ -874,10 +874,10 @@ void SweepManager::runSweep() {
     break;
 
   case SweepMode::CH_1_0:
-    // Serial.printf("\\ fsweep=%f, f0=%f, f1=%f\r\n",
-    // mAD9833FuncGen->mSettings.mSweep.fsweep,
-    // mAD9833FuncGen->mSettings.mChannel0.frequency,
-    // mAD9833FuncGen->mSettings.mChannel1.frequency);
+    ESP_LOGI(TAG, "\\ fsweep=%f, f0=%f, f1=%f\r\n",
+             mAD9833FuncGen->mSettings.mSweep.fsweep,
+             mAD9833FuncGen->mSettings.mChannel0.frequency,
+             mAD9833FuncGen->mSettings.mChannel1.frequency);
     if (mAD9833FuncGen->mSettings.mSweep.fsweep >=
         mAD9833FuncGen->mSettings.mChannel0.frequency) {
       // if timer has fired
@@ -905,10 +905,10 @@ void SweepManager::runSweep() {
     break;
 
   case SweepMode::CH_0_1_0:
-    // Serial.printf("/\\ fsweep=%f, f0=%f, f1=%f\r\n",
-    // mAD9833FuncGen->mSettings.mSweep.fsweep,
-    // mAD9833FuncGen->mSettings.mChannel0.frequency,
-    // mAD9833FuncGen->mSettings.mChannel1.frequency);
+    ESP_LOGI(TAG, "/\\ fsweep=%f, f0=%f, f1=%f\r\n",
+             mAD9833FuncGen->mSettings.mSweep.fsweep,
+             mAD9833FuncGen->mSettings.mChannel0.frequency,
+             mAD9833FuncGen->mSettings.mChannel1.frequency);
     if (mAD9833FuncGen->mSettings.mSweep.fsweep <=
             mAD9833FuncGen->mSettings.mChannel1.frequency &&
         mAD9833FuncGen->mSettings.mSweep.firstslope) {
@@ -961,10 +961,10 @@ void SweepManager::runSweep() {
     }
     break;
   case SweepMode::CH_1_0_1:
-    // Serial.printf("\\/\\ fsweep=%f, f0=%f, f1=%f\r\n",
-    // mAD9833FuncGen->mSettings.mSweep.fsweep,
-    // mAD9833FuncGen->mSettings.mChannel0.frequency,
-    // mAD9833FuncGen->mSettings.mChannel1.frequency);
+    ESP_LOGI(TAG, "\\/\\ fsweep=%f, f0=%f, f1=%f\r\n",
+             mAD9833FuncGen->mSettings.mSweep.fsweep,
+             mAD9833FuncGen->mSettings.mChannel0.frequency,
+             mAD9833FuncGen->mSettings.mChannel1.frequency);
     if (mAD9833FuncGen->mSettings.mSweep.fsweep >=
             mAD9833FuncGen->mSettings.mChannel0.frequency &&
         mAD9833FuncGen->mSettings.mSweep.firstslope) {
