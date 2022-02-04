@@ -8,7 +8,6 @@
 // extern hw_timer_t *timer;
 extern portMUX_TYPE timerMux;
 extern volatile SemaphoreHandle_t timerSemaphore;
-
 namespace AD9833Manager {
 
 class AD9833FuncGen;
@@ -39,17 +38,7 @@ class SweepManager {
 
 public:
   SweepManager(std::shared_ptr<AD9833Manager::AD9833FuncGen> fgen);
-
   void loop();
-
-protected:
-#if 0
-  void onCW();
-  void onCCW();
-  void onClick();
-  void onLongClick();
-  void onDoubleClick();
-#endif
 
 private:
   void setSettings(AD9833Manager::ChannelSettings &settings);

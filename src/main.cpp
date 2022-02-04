@@ -4,7 +4,129 @@
 
 #include "AD9833_Manager.h"
 #include "SweepManager.h"
+#include "driver/timer.h"
 #include <memory>
+
+// hw_timer_t *timer = NULL;
+timer_config_t timerConfig;
+volatile SemaphoreHandle_t timerSemaphore;
+portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
+
+void IRAM_ATTR onTimer() {
+  portENTER_CRITICAL_ISR(&timerMux);
+  //  Critical code here
+  portEXIT_CRITICAL_ISR(&timerMux);
+  //  Give a semaphore that we can check in the loop
+  TIMERG0.hw_timer[0].config.alarm_en = 1;
+  xSemaphoreGiveFromISR(timerSemaphore, nullptr);
+}
+#if 0
+typedef struct hw_timer_s {
+  uint8_t group;
+  uint8_t num;
+} hw_timer_t;
+
+// Works for all chips
+static hw_timer_t timer_dev[4] = {{0, 0}, {1, 0}, {1, 0}, {1, 1}};
+typedef struct apb_change_cb_s {
+  struct apb_change_cb_s *prev;
+  struct apb_change_cb_s *next;
+  void *arg;
+  apb_change_cb_t cb;
+} apb_change_t;
+
+bool addApbChangeCallback(void *arg, apb_change_cb_t cb) {
+  initApbChangeCallback();
+  apb_change_t *c = (apb_change_t *)malloc(sizeof(apb_change_t));
+  if (!c) {
+    log_e("Callback Object Malloc Failed");
+    return false;
+  }
+  c->next = NULL;
+  c->prev = NULL;
+  c->arg = arg;
+  c->cb = cb;
+  xSemaphoreTake(apb_change_lock, portMAX_DELAY);
+  if (apb_change_callbacks == NULL) {
+    apb_change_callbacks = c;
+  } else {
+    apb_change_t *r = apb_change_callbacks;
+    // look for duplicate callbacks
+    while ((r != NULL) && !((r->cb == cb) && (r->arg == arg)))
+      r = r->next;
+    if (r) {
+      log_e("duplicate func=%08X arg=%08X", c->cb, c->arg);
+      free(c);
+      xSemaphoreGive(apb_change_lock);
+      return false;
+    } else {
+      c->next = apb_change_callbacks;
+      apb_change_callbacks->prev = c;
+      apb_change_callbacks = c;
+    }
+  }
+  xSemaphoreGive(apb_change_lock);
+  return true;
+}
+#endif
+
+void initTimer() {
+  // hw_timer_t * timerBegin
+  auto timerBegin = [](uint8_t num, uint16_t divider,
+                       timer_count_dir_t countDir) {
+    if (num >= SOC_TIMER_GROUP_TOTAL_TIMERS) {
+      ESP_LOGI("timer", "Timer dont have that timer number.");
+      return NULL;
+    }
+
+    // hw_timer_t *timer = &timer_dev[num]; // Get Timer group/num from 0-3
+    // number
+
+    timer_config_t config = {.alarm_en = TIMER_ALARM_DIS,
+                             .counter_en = TIMER_PAUSE,
+                             .intr_type = TIMER_INTR_LEVEL,
+                             .counter_dir = countDir,
+                             .auto_reload = TIMER_AUTORELOAD_DIS,
+                             .divider = divider};
+
+    // timer_init(timer->group, timer->num, &config);
+    // timer_set_counter_value(timer->group, timer->num, 0);
+    // timerStart(timer);
+    // addApbChangeCallback(timer, _on_apb_change);
+    // return timer;
+  };
+#if 0
+  timerSemaphore = xSemaphoreCreateBinary();
+  timerConfig.divider = 80; // Set prescaler for 1 MHz clock
+  timerConfig.counter_dir = TIMER_COUNT_UP;
+  timerConfig.alarm_en = 1;
+  timerConfig.intr_type = TIMER_INTR_LEVEL;
+  timerConfig.auto_reload =
+      TIMER_AUTORELOAD_EN; // Reset timer to 0 when end condition is triggered
+  timerConfig.counter_en = TIMER_PAUSE;
+  timer_init(TIMER_GROUP_0, 0, &timerConfig);   // start timer 0 at group 0
+  timer_set_counter_value(TIMER_GROUP_0, 0, 0); // set timer for 0
+  timer_isr_register(TIMER_GROUP_0, 0, &timer_group0_isr, &spkr_pin,
+                     ESP_INTR_FLAG_IRAM, NULL);
+  timer_set_alarm_value(TIMER_GROUP_0, 0, 5000000);
+  timer_enable_intr(TIMER_GROUP_0, 0);
+
+  timer_start(TIMER_GROUP_0, 0);
+#endif
+
+#if 0
+  timer = timerBegin(0, 8000,
+                     true); // Use 1st timer of 4 (counted from zero).
+                            // Set 80 divider for prescaler (see ESP32 Technical
+                            // Reference Manual for more info) 80   --> clock
+                            // = 1.0 usec 8000 --> clock = 0.1 msec
+
+  timerAttachInterrupt(timer, &onTimer,
+                       true); // Attach onTimer function to our timer
+                              // Set alarm to call onTimer function every 0.1 ms
+                              // Repeat the alarm (third parameter)
+#endif
+}
 
 extern "C" {
 void app_main();
