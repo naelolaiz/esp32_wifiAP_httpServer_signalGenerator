@@ -69,6 +69,13 @@ public:
     }
     return std::string(buffer);
   }
+  static void checkOscEnabled(ESP_AD9833::channel_t channel,
+                              const char *content) {
+    static const char idCh0[] = "checkbox-selected-osc0";
+    static const char idCh1[] = "checkbox-selected-osc1";
+    ESP_LOGI("checkbox", "checkbox: %u, %s", static_cast<uint8_t>(channel),
+             selectId(channel, idCh0, idCh1));
+  }
 
   static ESP_AD9833::mode_t getWaveForm(ESP_AD9833::channel_t channel,
                                         const char *content) {
@@ -188,6 +195,10 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
     const auto gainCh1 =
         ParseRequests::getGain(ESP_AD9833::channel_t::CHAN_1, content.data());
 
+    ParseRequests::checkOscEnabled(ESP_AD9833::channel_t::CHAN_0,
+                                   content.data());
+    ParseRequests::checkOscEnabled(ESP_AD9833::channel_t::CHAN_1,
+                                   content.data());
     if (serverInstance->mSigGenOrchestrator.has_value()) {
       serverInstance->mSigGenOrchestrator.value()->pushRequest(
           ESP_AD9833::channel_t::CHAN_0 /*TODO*/, freqCh0, phaseCh0,
