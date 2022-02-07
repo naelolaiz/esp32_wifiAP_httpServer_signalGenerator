@@ -9,6 +9,10 @@ extern const uint8_t
 
 namespace {
 
+auto selectId = [](ESP_AD9833::channel_t channel, const char *idCh0,
+                   const char *idCh1) {
+  return (channel == ESP_AD9833::channel_t::CHAN_0 ? idCh0 : idCh1);
+};
 class ParseRequests {
 public:
   // static size_t getSizeT(httpd_req_t *req, const char *id) {
@@ -23,9 +27,12 @@ public:
     }
     return std::atoi(buffer);
   }
-  static size_t getFrequency(const char *content) {
-    static const std::string id = "number-frequency-osc1";
-    return getSizeT(content, id.c_str());
+
+  static size_t getFrequency(ESP_AD9833::channel_t channel,
+                             const char *content) {
+    static const char idCh0[] = "number-frequency-osc0";
+    static const char idCh1[] = "number-frequency-osc1";
+    return getSizeT(content, selectId(channel, idCh0, idCh1));
   }
   static float getFloat(const char *content, const char *id) {
     char buffer[30];
@@ -39,14 +46,16 @@ public:
     return std::atof(buffer);
   }
 
-  static float getPhase(const char *content) {
-    static const std::string id = "number-phase-osc1";
-    return getFloat(content, id.c_str());
+  static float getPhase(ESP_AD9833::channel_t channel, const char *content) {
+    static const char idCh0[] = "number-phase-osc0";
+    static const char idCh1[] = "number-phase-osc1";
+    return getFloat(content, selectId(channel, idCh0, idCh1));
   }
 
-  static float getGain(const char *content) {
-    static const std::string id = "number-gain-osc1";
-    return getFloat(content, id.c_str());
+  static float getGain(ESP_AD9833::channel_t channel, const char *content) {
+    static const char idCh0[] = "number-gain-osc0";
+    static const char idCh1[] = "number-gain-osc1";
+    return getFloat(content, selectId(channel, idCh0, idCh1));
   }
   // static std::string getStdString(httpd_req_t *req, const char *id) {
   static std::string getStdString(const char *content, const char *id) {
@@ -61,9 +70,11 @@ public:
     return std::string(buffer);
   }
 
-  static ESP_AD9833::mode_t getWaveForm(const char *content) {
-    static const std::string id = "select-waveform-osc1";
-    const auto modeStr = getStdString(content, id.c_str());
+  static ESP_AD9833::mode_t getWaveForm(ESP_AD9833::channel_t channel,
+                                        const char *content) {
+    static const char idCh0[] = "select-waveform-osc0";
+    static const char idCh1[] = "select-waveform-osc1";
+    const auto modeStr = getStdString(content, selectId(channel, idCh0, idCh1));
     if (modeStr.compare("off") == 0) {
       return ESP_AD9833::mode_t::MODE_OFF;
     } else if (modeStr.compare("sine") == 0) {
@@ -160,13 +171,27 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
     ESP_LOGI("lololo", "before cast , %p", req->user_ctx);
     auto serverInstance = static_cast<Server *>(req->user_ctx);
 
+    const auto freqCh0 = ParseRequests::getFrequency(
+        ESP_AD9833::channel_t::CHAN_0, content.data());
+    const auto freqCh1 = ParseRequests::getFrequency(
+        ESP_AD9833::channel_t::CHAN_1, content.data());
+    const auto phaseCh0 =
+        ParseRequests::getPhase(ESP_AD9833::channel_t::CHAN_0, content.data());
+    const auto phaseCh1 =
+        ParseRequests::getPhase(ESP_AD9833::channel_t::CHAN_1, content.data());
+    const auto waveformCh0 = ParseRequests::getWaveForm(
+        ESP_AD9833::channel_t::CHAN_0, content.data());
+    const auto waveformCh1 = ParseRequests::getWaveForm(
+        ESP_AD9833::channel_t::CHAN_1, content.data());
+    const auto gainCh0 =
+        ParseRequests::getGain(ESP_AD9833::channel_t::CHAN_0, content.data());
+    const auto gainCh1 =
+        ParseRequests::getGain(ESP_AD9833::channel_t::CHAN_1, content.data());
+
     if (serverInstance->mSigGenOrchestrator.has_value()) {
       serverInstance->mSigGenOrchestrator.value()->pushRequest(
-          ESP_AD9833::ESP_AD9833::channel_t::CHAN_0 /*TODO*/,
-          ParseRequests::getFrequency(content.data()),
-          ParseRequests::getPhase(content.data()),
-          ParseRequests::getWaveForm(content.data()),
-          ParseRequests::getGain(content.data()) * 100);
+          ESP_AD9833::channel_t::CHAN_0 /*TODO*/, freqCh0, phaseCh0,
+          waveformCh0, gainCh0 * 100);
     }
 
     httpd_resp_send(
