@@ -71,7 +71,7 @@
         </div>
 	<p>
 	    <label for="checkbox-selected-osc0">Active Channel</label>
-	    <input type="checkbox" name="checkbox-selected-osc0" id="checkbox-selected-osc0" value="true" onclick="selectChannel(0);" />
+	    <input type="checkbox" name="checkbox-selected-osc0" id="checkbox-selected-osc0" value="true" onclick="selectChannel(0);" required="required" />
 	</p>
      </div>                                         
   </div>
@@ -110,7 +110,7 @@
         </div>
 	<p>
 	    <label for="checkbox-selected-osc1">Active Channel</label>
-	    <input type="checkbox" name="checkbox-selected-osc1" id="checkbox-selected-osc1" value="true" onclick="selectChannel(1);" />
+	    <input type="checkbox" name="checkbox-selected-osc1" id="checkbox-selected-osc1" value="true" onclick="selectChannel(1);" required="required" />
 	</p>
    </div>
   </div>
@@ -161,25 +161,25 @@
    waveform = readCookie("waveform-osc0");
    document.querySelector('#select-waveform-osc0').value = waveform != null ? waveform : "off";
    phase = readCookie("phase-osc0");
-   document.querySelector('#number-phase-osc0').valuei = phase != null ? phase : "0";
+   document.querySelector('#number-phase-osc0').value = phase != null ? phase : "0";
    frequency = readCookie("frequency-osc0");
    document.querySelector('#number-frequency-osc0').value = frequency != null ? frequency : "1000";
    gain = readCookie("gain-osc0");
    document.querySelector('#number-gain-osc0').value = gain != null ? gain : "1.0";
    selected = readCookie("selected-osc0");
-   document.querySelector('#checkbox-selected-osc0').checked = selected != null && selected == "1" ? True: False;
+   document.querySelector('#checkbox-selected-osc0').checked = selected != null && selected == "1" ? 1 : 0;
 
 
    waveform = readCookie("waveform-osc1");
    document.querySelector('#select-waveform-osc1').value = waveform != null ? waveform : "off";
    phase = readCookie("phase-osc1");
-   document.querySelector('#number-phase-osc1').valuei = phase != null ? phase : "0";
+   document.querySelector('#number-phase-osc1').value = phase != null ? phase : "0";
    frequency = readCookie("frequency-osc1");
    document.querySelector('#number-frequency-osc1').value = frequency != null ? frequency : "1000";
    gain = readCookie("gain-osc1");
    document.querySelector('#number-gain-osc1').value = gain != null ? gain : "1.0";
    selected = readCookie("selected-osc1");
-   document.querySelector('#checkbox-selected-osc1').checked = selected != null && selected == "1" ? True: False;
+   document.querySelector('#checkbox-selected-osc1').checked = selected != null && selected == "1" ? 1 : 0;
    }
    restoreCurrentParams();
    
@@ -192,9 +192,9 @@
 
    function selectChannel(channel) {
    document.querySelector('#checkbox-selected-osc0').checked &= channel == 0;
-   document.querySelector('#checkbox-selected-osc0').value = channel == 0 ? "true" : "false";
+//   document.querySelector('#checkbox-selected-osc0').value = channel == 0 ? "true" : "";
    document.querySelector('#checkbox-selected-osc1').checked &= channel == 1;
-   document.querySelector('#checkbox-selected-osc1').value = channel == 1 ? "true" : "false";
+//   document.querySelector('#checkbox-selected-osc1').value = channel == 1 ? "true" : "";
    return submitForm();
    }
     </script>
