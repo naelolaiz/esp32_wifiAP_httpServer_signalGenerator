@@ -94,7 +94,6 @@ void initTimer() {
     // timerStart(timer);
     // addApbChangeCallback(timer, _on_apb_change);
     // return timer;
-    timer_init(tim)
   };
 #if 0
   timerSemaphore = xSemaphoreCreateBinary();
