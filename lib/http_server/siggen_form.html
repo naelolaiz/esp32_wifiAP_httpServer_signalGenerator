@@ -1,4 +1,4 @@
-<html><head>
+﻿<html><head>
     <style>
     form {
     display:
@@ -15,11 +15,69 @@
     input {
     display: table-cell;
     }
+
+{
+  box-sizing: border-box;
+}
+
+.row {
+  display: flex;
+}
+
+/* Create two equal columns that sits next to each other */
+.column {
+  flex: 50%;
+  padding: 10px;
+  height: 300px; /* Should be removed. Only for demonstration */
+}
+
     </style>
     </head>
     <body>
-    <div class="rendered-form">
-    <form action="" id="form-control-osc1" name="form-control-osc1" method="post"> <!--onsubmit="return submitForm();">-->
+    <form action="" id="form-control" name="form-control" method="post"> <!--onsubmit="return submitForm();">-->
+   <div class="row">
+
+  <div class="column" style="background-color:#ddd;">
+    <div class="rendered-form-osc1"> 
+        <div class="formbuilder-select form-group field-select-waveform-osc0">
+        <p>
+            <label for="select-waveform-osc0" class="formbuilder-select-label">Wave type</label>
+            <select name="select-waveform-osc0" id="select-waveform-osc0" required="required" aria-required="true" onchange="submitForm();">
+                <option value="off" id="select-waveform-osc0-0">OFF</option>
+                <option value="sine">SINE</option>
+                <option value="triangular" id="select-waveform-osc0-2">TRIANGULAR</option>
+                <option value="square1" id="select-waveform-osc0-3">SQUARE1</option>
+                <option value="square2" id="select-waveform-osc0-4">SQUARE2</option>
+            </select>  
+        </p>
+        </div>               
+        <div class="formbuilder-number form-group field-number-phase-osc0">
+        <p>              
+            <label for="number-phase-osc0" class="formbuilder-number-label">Starting Phase</label>
+            <input type="number" name="number-phase-osc0" value="0" min="0" max="360" step="0.1" id="number-phase-osc0" onchange="submitForm();" required="required" aria-required="true" />
+        </p>
+        </div>
+        <div class="formbuilder-number form-group field-number-frequency-osc0">
+        <p>              
+            <label for="number-frequency-osc0" class="formbuilder-number-label">Frequency</label>
+            <input type="number" name="number-frequency-osc0" value="1000" min="0" max="10000000" step="1" id="number-frequency-osc0" onchange="submitForm();" required="required" aria-required="true" />
+        </p>
+        </div>         
+        <div class="formbuilder-number form-group field-number-gain-osc0">
+        <p>
+            <label for="number-gain-osc0" class="formbuilder-number-label">Gain</label>
+            <input type="number" name="number-gain-osc0" value="1.0" min="0" max="2" step="0.01" id="number-gain-osc0" onchange="submitForm();" required="required" aria-required="true" />
+        </p>           
+        </div>
+	<p>
+	    <label for="checkbox-selected-osc0">Active Channel</label>
+	    <input type="checkbox" name="checkbox-selected-osc0" id="checkbox-selected-osc0" onclick="selectChannel(0);" />
+	</p>
+     </div>                                         
+  </div>
+
+  <div class="column" style="background-color:#ccc;">
+    <div class="rendered-form-osc2"> 
         <div class="formbuilder-select form-group field-select-waveform-osc1">
         <p>
             <label for="select-waveform-osc1" class="formbuilder-select-label">Wave type</label>
@@ -35,27 +93,29 @@
         <div class="formbuilder-number form-group field-number-phase-osc1">
         <p>              
             <label for="number-phase-osc1" class="formbuilder-number-label">Starting Phase</label>
-            <input type="number" name="number-phase-osc1" value="0" min="0" max="360" step="0.1" id="number-phase-osc1" onchange="submitForm();"required="required" aria-required="true">
+            <input type="number" name="number-phase-osc1" value="0" min="0" max="360" step="0.1" id="number-phase-osc1" onchange="submitForm();" required="required" aria-required="true" />
         </p>             
         </div>           
         <div class="formbuilder-number form-group field-number-frequency-osc1">
         <p>              
             <label for="number-frequency-osc1" class="formbuilder-number-label">Frequency</label>
-            <input type="number" name="number-frequency-osc1" value="1000" min="0" max="10000000" step="1" id="number-frequency-osc1" onchange="submitForm();" required="required" aria-required="true">
+            <input type="number" name="number-frequency-osc1" value="1000" min="0" max="10000000" step="1" id="number-frequency-osc1" onchange="submitForm();" required="required" aria-required="true" />
         </p>
         </div>         
         <div class="formbuilder-number form-group field-number-gain-osc1">
         <p>
             <label for="number-gain-osc1" class="formbuilder-number-label">Gain</label>
-            <input type="number" name="number-gain-osc1" value="1.0" min="0" max="2" step="0.01" id="number-gain-osc1" onchange="submitForm();" required="required" aria-required="true">
+            <input type="number" name="number-gain-osc1" value="1.0" min="0" max="2" step="0.01" id="number-gain-osc1" onchange="submitForm();" required="required" aria-required="true" />
         </p>           
         </div>
-        <!--
-        <div class="formbuilder-button form-group field-button-submit-osc1">
-            <button name="button-submit-osc1" style="default" type="submit" onclick="submitForm();" value="submit" id="button-submit-osc1">Send</button>
-        </div>-->
-    </form>                                        
-    </div>
+	<p>
+	    <label for="checkbox-selected-osc1">Active Channel</label>
+	    <input type="checkbox" name="checkbox-selected-osc1" id="checkbox-selected-osc1" onclick="selectChannel(1);" />
+	</p>
+   </div>
+  </div>
+  </div>
+</form>
     <script>       
    
    function createCookie(name,value,days) {
@@ -65,11 +125,11 @@
                    var expires = "; expires="+date.toGMTString();
            }
            else var expires = "";
-           document.cookie = "siggen-osc1-"+name+"="+value+expires+"; path=/";
+           document.cookie = "siggen-"+name+"="+value+expires+"; path=/";
    }
    
    function readCookie(name) {
-           var nameEQ = "siggen-osc1-" + name + "=";
+           var nameEQ = "siggen-" + name + "=";
            var ca = document.cookie.split(';');
            for(var i=0;i < ca.length;i++) {
                    var c = ca[i];
@@ -84,21 +144,42 @@
    }
    
    function cacheCurrentParams() {
-   createCookie("waveform", document.querySelector('#select-waveform-osc1').value, 1);
-   createCookie("phase", document.querySelector('#number-phase-osc1').value, 1);
-   createCookie("frequency", document.querySelector('#number-frequency-osc1').value, 1);
-   createCookie("gain", document.querySelector('#number-gain-osc1').value, 1);
+   createCookie("waveform-osc0", document.querySelector('#select-waveform-osc0').value, 1);
+   createCookie("phase-osc0", document.querySelector('#number-phase-osc0').value, 1);
+   createCookie("frequency-osc0", document.querySelector('#number-frequency-osc0').value, 1);
+   createCookie("gain-osc0", document.querySelector('#number-gain-osc0').value, 1);
+   createCookie("selected-osc0", document.querySelector('#checkbox-selected-osc0').checked ? "1" : "0", 1);
+
+   createCookie("waveform-osc1", document.querySelector('#select-waveform-osc1').value, 1);
+   createCookie("phase-osc1", document.querySelector('#number-phase-osc1').value, 1);
+   createCookie("frequency-osc1", document.querySelector('#number-frequency-osc1').value, 1);
+   createCookie("gain-osc1", document.querySelector('#number-gain-osc1').value, 1);
+   createCookie("selected-osc1", document.querySelector('#checkbox-selected-osc1').checked ? "1" : "0", 1);
    }
    
    function restoreCurrentParams() {
-   waveform = readCookie("waveform");
+   waveform = readCookie("waveform-osc0");
+   document.querySelector('#select-waveform-osc0').value = waveform != null ? waveform : "off";
+   phase = readCookie("phase-osc0");
+   document.querySelector('#number-phase-osc0').valuei = phase != null ? phase : "0";
+   frequency = readCookie("frequency-osc0");
+   document.querySelector('#number-frequency-osc0').value = frequency != null ? frequency : "1000";
+   gain = readCookie("gain-osc0");
+   document.querySelector('#number-gain-osc0').value = gain != null ? gain : "1.0";
+   selected = readCookie("selected-osc0");
+   document.querySelector('#checkbox-selected-osc0').checked = selected != null && selected == "1" ? True: False;
+
+
+   waveform = readCookie("waveform-osc1");
    document.querySelector('#select-waveform-osc1').value = waveform != null ? waveform : "off";
-   phase = readCookie("phase");
+   phase = readCookie("phase-osc1");
    document.querySelector('#number-phase-osc1').valuei = phase != null ? phase : "0";
-   frequency = readCookie("frequency");
+   frequency = readCookie("frequency-osc1");
    document.querySelector('#number-frequency-osc1').value = frequency != null ? frequency : "1000";
-   gain = readCookie("gain");
+   gain = readCookie("gain-osc1");
    document.querySelector('#number-gain-osc1').value = gain != null ? gain : "1.0";
+   selected = readCookie("selected-osc1");
+   document.querySelector('#checkbox-selected-osc1').checked = selected != null && selected == "1" ? True: False;
    }
    restoreCurrentParams();
    
@@ -107,6 +188,12 @@
    var frm = document.getElementsByName('form-control-osc1')[0];
    frm.submit();
    return true;
+   }
+
+   function selectChannel(channel) {
+   document.querySelector('#checkbox-selected-osc0').checked &= channel == 0;
+   document.querySelector('#checkbox-selected-osc1').checked &= channel == 1;
+   return submitForm();
    }
     </script>
     </body></html>
