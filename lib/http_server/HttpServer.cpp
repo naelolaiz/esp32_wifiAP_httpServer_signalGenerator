@@ -74,7 +74,7 @@ public:
     static const char idCh0[] = "checkbox-selected-osc0";
     static const char idCh1[] = "checkbox-selected-osc1";
     ESP_LOGI("checkbox", "checkbox: %u, %s", static_cast<uint8_t>(channel),
-             selectId(channel, idCh0, idCh1));
+             getStdString(content, selectId(channel, idCh0, idCh1)).c_str());
   }
 
   static ESP_AD9833::mode_t getWaveForm(ESP_AD9833::channel_t channel,

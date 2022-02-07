@@ -71,7 +71,7 @@
         </div>
 	<p>
 	    <label for="checkbox-selected-osc0">Active Channel</label>
-	    <input type="checkbox" name="checkbox-selected-osc0" id="checkbox-selected-osc0" onclick="selectChannel(0);" />
+	    <input type="checkbox" name="checkbox-selected-osc0" id="checkbox-selected-osc0" value="true" onclick="selectChannel(0);" />
 	</p>
      </div>                                         
   </div>
@@ -110,7 +110,7 @@
         </div>
 	<p>
 	    <label for="checkbox-selected-osc1">Active Channel</label>
-	    <input type="checkbox" name="checkbox-selected-osc1" id="checkbox-selected-osc1" onclick="selectChannel(1);" />
+	    <input type="checkbox" name="checkbox-selected-osc1" id="checkbox-selected-osc1" value="true" onclick="selectChannel(1);" />
 	</p>
    </div>
   </div>
@@ -192,7 +192,9 @@
 
    function selectChannel(channel) {
    document.querySelector('#checkbox-selected-osc0').checked &= channel == 0;
+   document.querySelector('#checkbox-selected-osc0').value = channel == 0 ? "true" : "false";
    document.querySelector('#checkbox-selected-osc1').checked &= channel == 1;
+   document.querySelector('#checkbox-selected-osc1').value = channel == 1 ? "true" : "false";
    return submitForm();
    }
     </script>
