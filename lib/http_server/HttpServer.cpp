@@ -74,7 +74,7 @@ public:
     static const char idCh0[] = "checkbox-selected-osc0";
     static const char idCh1[] = "checkbox-selected-osc1";
     ESP_LOGI("checkbox", "checkbox: %u, %s", static_cast<uint8_t>(channel),
-             getStdString(content, selectId(channel, idCh0, idCh1)).c_str());
+             getStdString(channel, idCh0, idCh1).c_str());
   }
 
   static ESP_AD9833::mode_t getWaveForm(ESP_AD9833::channel_t channel,
@@ -134,7 +134,7 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
    * In case of string data, null termination will be absent, and
    * content length would give length of string */
   // char content[100];
-  std::array<char, 200> content;
+  std::array<char, 512> content;
   content.fill(0);
 
   /* Truncate if content length larger than the buffer */

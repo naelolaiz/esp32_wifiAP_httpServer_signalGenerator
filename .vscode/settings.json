@@ -1,5 +1,6 @@
 {
     "C_Cpp.dimInactiveRegions": false,
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "idf.adapterTargetName": "esp32"
 
 }
