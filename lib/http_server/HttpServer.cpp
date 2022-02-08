@@ -52,10 +52,9 @@ public:
     return getFloat(content, selectId(channel, idCh0, idCh1));
   }
 
-  static float getGain(ESP_AD9833::channel_t channel, const char *content) {
-    static const char idCh0[] = "number-gain-osc0";
-    static const char idCh1[] = "number-gain-osc1";
-    return getFloat(content, selectId(channel, idCh0, idCh1));
+  static float getGain(const char *content) {
+    static const char id[] = "number-gain";
+    return getFloat(content, id);
   }
   // static std::string getStdString(httpd_req_t *req, const char *id) {
   static std::string getStdString(const char *content, const char *id) {
@@ -190,10 +189,7 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
         ESP_AD9833::channel_t::CHAN_0, content.data());
     const auto waveformCh1 = ParseRequests::getWaveForm(
         ESP_AD9833::channel_t::CHAN_1, content.data());
-    const auto gainCh0 =
-        ParseRequests::getGain(ESP_AD9833::channel_t::CHAN_0, content.data());
-    const auto gainCh1 =
-        ParseRequests::getGain(ESP_AD9833::channel_t::CHAN_1, content.data());
+    const auto gain = ParseRequests::getGain(content.data()) * 100.f;
 
     const bool selectedCh0 = ParseRequests::checkOscEnabled(
         ESP_AD9833::channel_t::CHAN_0, content.data());
@@ -205,12 +201,11 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
     const auto selectedFrequency = selectedCh0 ? freqCh0 : freqCh1;
     const auto selectedPhase = selectedCh0 ? phaseCh0 : phaseCh1;
     const auto selectedWaveform = selectedCh0 ? waveformCh0 : waveformCh1;
-    const auto selectedGain = (selectedCh0 ? gainCh0 : gainCh1) * 100.f;
 
     if (serverInstance->mSigGenOrchestrator.has_value()) {
       serverInstance->mSigGenOrchestrator.value()->pushRequest(
           selectedChannel, selectedFrequency, selectedPhase, selectedWaveform,
-          selectedGain);
+          gain);
     }
 
     httpd_resp_send(

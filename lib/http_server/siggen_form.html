@@ -27,8 +27,7 @@
 /* Create two equal columns that sits next to each other */
 .column {
   flex: 50%;
-  padding: 10px;
-  height: 300px; /* Should be removed. Only for demonstration */
+  padding: 20px;
 }
 
     </style>
@@ -63,12 +62,6 @@
             <input type="number" name="number-frequency-osc0" value="1000" min="0" max="10000000" step="1" id="number-frequency-osc0" onchange="submitForm();" required="required" aria-required="true" />
         </p>
         </div>         
-        <div class="formbuilder-number form-group field-number-gain-osc0">
-        <p>
-            <label for="number-gain-osc0" class="formbuilder-number-label">Gain</label>
-            <input type="number" name="number-gain-osc0" value="1.0" min="0" max="2" step="0.01" id="number-gain-osc0" onchange="submitForm();" required="required" aria-required="true" />
-        </p>           
-        </div>
 	<p>
 	    <label for="checkbox-selected-osc0">Active Channel</label>
 	    <input type="checkbox" name="checkbox-selected-osc0" id="checkbox-selected-osc0" value="selected" onclick="selectChannel(0);" required="required" />
@@ -102,18 +95,18 @@
             <input type="number" name="number-frequency-osc1" value="1000" min="0" max="10000000" step="1" id="number-frequency-osc1" onchange="submitForm();" required="required" aria-required="true" />
         </p>
         </div>         
-        <div class="formbuilder-number form-group field-number-gain-osc1">
-        <p>
-            <label for="number-gain-osc1" class="formbuilder-number-label">Gain</label>
-            <input type="number" name="number-gain-osc1" value="1.0" min="0" max="2" step="0.01" id="number-gain-osc1" onchange="submitForm();" required="required" aria-required="true" />
-        </p>           
-        </div>
 	<p>
 	    <label for="checkbox-selected-osc1">Active Channel</label>
 	    <input type="checkbox" name="checkbox-selected-osc1" id="checkbox-selected-osc1" value="selected" onclick="selectChannel(1);" required="required" />
 	</p>
    </div>
   </div>
+  </div>
+  <div class="row" style="background-color:#999;">
+        <p>
+            <label for="number-gain" class="formbuilder-number-label">Gain</label>
+            <input type="number" name="number-gain" value="1.0" min="0" max="2" step="0.01" id="number-gain" onchange="submitForm();" required="required" aria-required="true" />
+        </p>           
   </div>
 </form>
     <script>       
@@ -147,13 +140,12 @@
    createCookie("waveform-osc0", document.querySelector('#select-waveform-osc0').value, 1);
    createCookie("phase-osc0", document.querySelector('#number-phase-osc0').value, 1);
    createCookie("frequency-osc0", document.querySelector('#number-frequency-osc0').value, 1);
-   createCookie("gain-osc0", document.querySelector('#number-gain-osc0').value, 1);
+   createCookie("gain", document.querySelector('#number-gain').value, 1);
    createCookie("selected-osc0", document.querySelector('#checkbox-selected-osc0').checked ? "1" : "0", 1);
 
    createCookie("waveform-osc1", document.querySelector('#select-waveform-osc1').value, 1);
    createCookie("phase-osc1", document.querySelector('#number-phase-osc1').value, 1);
    createCookie("frequency-osc1", document.querySelector('#number-frequency-osc1').value, 1);
-   createCookie("gain-osc1", document.querySelector('#number-gain-osc1').value, 1);
    createCookie("selected-osc1", document.querySelector('#checkbox-selected-osc1').checked ? "1" : "0", 1);
    }
    
@@ -164,8 +156,8 @@
    document.querySelector('#number-phase-osc0').value = phase != null ? phase : "0";
    frequency = readCookie("frequency-osc0");
    document.querySelector('#number-frequency-osc0').value = frequency != null ? frequency : "1000";
-   gain = readCookie("gain-osc0");
-   document.querySelector('#number-gain-osc0').value = gain != null ? gain : "1.0";
+   gain = readCookie("gain");
+   document.querySelector('#number-gain').value = gain != null ? gain : "1.0";
    selected = readCookie("selected-osc0");
    document.querySelector('#checkbox-selected-osc0').checked = selected != null && selected == "1" ? 1 : 0;
 
@@ -176,8 +168,6 @@
    document.querySelector('#number-phase-osc1').value = phase != null ? phase : "0";
    frequency = readCookie("frequency-osc1");
    document.querySelector('#number-frequency-osc1').value = frequency != null ? frequency : "1000";
-   gain = readCookie("gain-osc1");
-   document.querySelector('#number-gain-osc1').value = gain != null ? gain : "1.0";
    selected = readCookie("selected-osc1");
    document.querySelector('#checkbox-selected-osc1').checked = selected != null && selected == "1" ? 1 : 0;
    }
