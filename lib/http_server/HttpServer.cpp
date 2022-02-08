@@ -69,12 +69,12 @@ public:
     }
     return std::string(buffer);
   }
-  static void checkOscEnabled(ESP_AD9833::channel_t channel,
+  static bool checkOscEnabled(ESP_AD9833::channel_t channel,
                               const char *content) {
     static const char idCh0[] = "checkbox-selected-osc0";
     static const char idCh1[] = "checkbox-selected-osc1";
-    ESP_LOGI("checkbox", "checkbox: %u, %s", static_cast<uint8_t>(channel),
-             getStdString(channel, idCh0, idCh1).c_str());
+    return getStdString(content, selectId(channel, idCh0, idCh1))
+               .compare("selected") == 0;
   }
 
   static ESP_AD9833::mode_t getWaveForm(ESP_AD9833::channel_t channel,
@@ -195,14 +195,22 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
     const auto gainCh1 =
         ParseRequests::getGain(ESP_AD9833::channel_t::CHAN_1, content.data());
 
-    ParseRequests::checkOscEnabled(ESP_AD9833::channel_t::CHAN_0,
-                                   content.data());
-    ParseRequests::checkOscEnabled(ESP_AD9833::channel_t::CHAN_1,
-                                   content.data());
+    const bool selectedCh0 = ParseRequests::checkOscEnabled(
+        ESP_AD9833::channel_t::CHAN_0, content.data());
+    const bool selectedCh1 = ParseRequests::checkOscEnabled(
+        ESP_AD9833::channel_t::CHAN_1, content.data());
+
+    const auto selectedChannel = selectedCh0 ? ESP_AD9833::channel_t::CHAN_0
+                                             : ESP_AD9833::channel_t::CHAN_1;
+    const auto selectedFrequency = selectedCh0 ? freqCh0 : freqCh1;
+    const auto selectedPhase = selectedCh0 ? phaseCh0 : phaseCh1;
+    const auto selectedWaveform = selectedCh0 ? waveformCh0 : waveformCh1;
+    const auto selectedGain = (selectedCh0 ? gainCh0 : gainCh1) * 100.f;
+
     if (serverInstance->mSigGenOrchestrator.has_value()) {
       serverInstance->mSigGenOrchestrator.value()->pushRequest(
-          ESP_AD9833::channel_t::CHAN_0 /*TODO*/, freqCh0, phaseCh0,
-          waveformCh0, gainCh0 * 100);
+          selectedChannel, selectedFrequency, selectedPhase, selectedWaveform,
+          selectedGain);
     }
 
     httpd_resp_send(

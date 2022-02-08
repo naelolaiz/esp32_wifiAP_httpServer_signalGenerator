@@ -91,7 +91,15 @@ void AD9833Manager::AD9833FuncGen::setSettings(
   attributeChannelSettings.volume = channelSettings.volume; // 99; // 1500 mVpp
   attributeChannelSettings.mVpp = convertVolumeTomVpp(channelSettings.volume);
 
-  activateChannelSettings(channelSettings.chn);
+  mDriver9833.setFrequency(channelSettings.chn, channelSettings.frequency);
+  mDriver9833.setPhase(channelSettings.chn, channelSettings.phase);
+
+  mDriver9833.setActiveFrequency(channelSettings.chn);
+  mDriver9833.setActivePhase(channelSettings.chn);
+  mDriver9833.setMode(channelSettings.mode);
+  setVolume(channelSettings.volume);
+
+  /// activateChannelSettings(channelSettings.chn);
 }
 AD9833Manager::SigGenOrchestrator::SigGenOrchestrator(
     std::shared_ptr<AD9833Manager::AD9833FuncGen> ad9833FuncGen)
