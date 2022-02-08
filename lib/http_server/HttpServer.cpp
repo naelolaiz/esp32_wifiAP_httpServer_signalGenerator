@@ -15,11 +15,9 @@ auto selectId = [](ESP_AD9833::channel_t channel, const char *idCh0,
 };
 class ParseRequests {
 public:
-  // static size_t getSizeT(httpd_req_t *req, const char *id) {
   static size_t getSizeT(const char *content, const char *id) {
     char buffer[30];
     const esp_err_t err =
-        //        httpd_req_get_hdr_value_str(req, id, buffer, sizeof(buffer));
         httpd_query_key_value(content, id, buffer, sizeof(buffer));
 
     if (err != ESP_OK) {
@@ -37,7 +35,6 @@ public:
   static float getFloat(const char *content, const char *id) {
     char buffer[30];
     const esp_err_t err =
-        //        httpd_req_get_hdr_value_str(req, id, buffer, sizeof(buffer));
         httpd_query_key_value(content, id, buffer, sizeof(buffer));
 
     if (err != ESP_OK) {
@@ -56,13 +53,10 @@ public:
     static const char id[] = "number-gain";
     return getFloat(content, id);
   }
-  // static std::string getStdString(httpd_req_t *req, const char *id) {
   static std::string getStdString(const char *content, const char *id) {
     char buffer[255];
     const esp_err_t err =
         httpd_query_key_value(content, id, buffer, sizeof(buffer));
-    // httpd_req_get_hdr_value_str(req, id, buffer, sizeof(buffer));
-    //        ESP_ERROR_CHECK()
     if (err != ESP_OK) {
       return "";
     }
