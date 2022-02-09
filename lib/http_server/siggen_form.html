@@ -34,9 +34,10 @@
     </head>
     <body>
     <form action="" id="form-control" name="form-control" method="post"> <!--onsubmit="return submitForm();">-->
-   <div class="row">
-
-  <div class="column" style="background-color:#ddd;">
+   <div class="row" style="background-color:#dee;">
+<h1>Oscillator Configuration</h1>
+  <div class="column" style="background-color:#cdd;">
+<h2>Channel 0</h2>
     <div class="rendered-form-osc1"> 
         <div class="formbuilder-select form-group field-select-waveform-osc0">
         <p>
@@ -69,7 +70,8 @@
      </div>                                         
   </div>
 
-  <div class="column" style="background-color:#ccc;">
+  <div class="column" style="background-color:#bcc;">
+<h2>Channel 1</h2>
     <div class="rendered-form-osc2"> 
         <div class="formbuilder-select form-group field-select-waveform-osc1">
         <p>
@@ -102,12 +104,44 @@
    </div>
   </div>
   </div>
-  <div class="row" style="background-color:#999;">
+  <div class="row" style="background-color:#8AA;">
         <p>
             <label for="number-gain" class="formbuilder-number-label">Gain</label>
             <input type="number" name="number-gain" value="1.0" min="0" max="2" step="0.01" id="number-gain" onchange="submitForm();" required="required" aria-required="true" />
         </p>           
   </div>
+  </div>
+ </form>
+    <form action="" id="form-sweep-control" name="form-sweep-control" method="post"> <!--onsubmit="return submitForm();">-->
+  <div class="row">
+  <div class="column" style="background-color:#abc;">
+<h1>Sweep Configuration</h1>
+  </div>
+  <div class="column" style="background-color:#9ab;">
+    <div>
+        <p>
+            <label for="select-sweep-mode">Sweep mode</label>
+            <select name="select-sweep-mode" id="select-sweep-mode">
+                <option value="0-1" id="select-sweep-mode-0-1">Channel 0 to Channel 1</option>
+                <option value="1-0" id="select-sweep-mode-1-0">Channel 1 to Channel 0</option>
+                <option value="0-1-0" id="select-sweep-mode-0-1-0">Channel 0 to Channel 1 to Channel 0</option>
+                <option value="1-0-1" id="select-sweep-mode-1-0-1">Channel 1 to Channel 0 to Channel 1</option>
+            </select>  
+        </p>
+	<p>
+	    <label for="checkbox-sweeo-infiniteloop">Loop active</label>
+	    <input type="checkbox" name="checkbox-sweep-infiniteloop" id="checkbox-sweep-infiniteloop" value="selected" />
+	</p>
+        <p>             
+            <label for="number-sweep-step-frequency">Frequency Steps in Hz</label>
+            <input type="number" name="number-sweep-step-frequency" value="1000" min="0" max="10000000" step="1" id="number-sweep-step-frequency" />
+        </p>
+        <p>             
+            <label for="number-sweep-total-time-seconds">Total time in seconds</label>
+            <input type="number" name="number-sweep-total-time-seconds" value="5" min="0.1" max="10000000" step="0.1" id="number-sweep-total-time-seconds" />
+        </p>
+   </div>
+</div>
 </form>
     <script>       
    
