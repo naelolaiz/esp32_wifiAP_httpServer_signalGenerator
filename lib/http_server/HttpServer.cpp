@@ -89,9 +89,13 @@ public:
       throw std::runtime_error("WTF?");
     }
   }
-  static AD9833Manager::SweepSettings getSweepSettings(const char *content) {
-    AD9833Manager::SweepSettings settingsToReturn;
+  static std::optional<AD9833Manager::SweepSettings>
+  getSweepSettings(const char *content) {
     const auto modeStr = getStdString(content, "select-sweep-mode");
+    if (modeStr.empty()) {
+      return std::nullopt;
+    }
+    AD9833Manager::SweepSettings settingsToReturn;
     if (modeStr.compare("0-1") == 0) {
       settingsToReturn.mode = AD9833Manager::SweepMode::CH_0_1;
     } else if (modeStr.compare("1-0") == 0) {
@@ -115,6 +119,7 @@ public:
         getStdString(content, "checkbox-sweep-infiniteloop").compare("on") == 0;
 
     // settingsToReturn.fsweep;
+    return std::make_optional(settingsToReturn);
   }
 };
 } // namespace
@@ -198,37 +203,46 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
     ESP_LOGI("lololo", "before cast , %p", req->user_ctx);
     auto serverInstance = static_cast<Server *>(req->user_ctx);
 
-    const auto freqCh0 = ParseRequests::getFrequency(
-        ESP_AD9833::channel_t::CHAN_0, content.data());
-    const auto freqCh1 = ParseRequests::getFrequency(
-        ESP_AD9833::channel_t::CHAN_1, content.data());
-    const auto phaseCh0 =
-        ParseRequests::getPhase(ESP_AD9833::channel_t::CHAN_0, content.data());
-    const auto phaseCh1 =
-        ParseRequests::getPhase(ESP_AD9833::channel_t::CHAN_1, content.data());
-    const auto waveformCh0 = ParseRequests::getWaveForm(
-        ESP_AD9833::channel_t::CHAN_0, content.data());
-    const auto waveformCh1 = ParseRequests::getWaveForm(
-        ESP_AD9833::channel_t::CHAN_1, content.data());
-    const auto gain = ParseRequests::getGain(content.data()) * 100.f;
+    auto sweepSettings = ParseRequests::getSweepSettings(content.data());
+    if (sweepSettings) {
+      sweepSettings.value().running = true;
+      if (serverInstance->mSigGenOrchestrator.has_value()) {
+        serverInstance->mSigGenOrchestrator.value()->setSweepSettings(
+            sweepSettings.value());
+      }
+    } else {
 
-    const bool selectedCh0 = ParseRequests::checkOscEnabled(
-        ESP_AD9833::channel_t::CHAN_0, content.data());
-    const bool selectedCh1 = ParseRequests::checkOscEnabled(
-        ESP_AD9833::channel_t::CHAN_1, content.data());
+      const auto freqCh0 = ParseRequests::getFrequency(
+          ESP_AD9833::channel_t::CHAN_0, content.data());
+      const auto freqCh1 = ParseRequests::getFrequency(
+          ESP_AD9833::channel_t::CHAN_1, content.data());
+      const auto phaseCh0 = ParseRequests::getPhase(
+          ESP_AD9833::channel_t::CHAN_0, content.data());
+      const auto phaseCh1 = ParseRequests::getPhase(
+          ESP_AD9833::channel_t::CHAN_1, content.data());
+      const auto waveformCh0 = ParseRequests::getWaveForm(
+          ESP_AD9833::channel_t::CHAN_0, content.data());
+      const auto waveformCh1 = ParseRequests::getWaveForm(
+          ESP_AD9833::channel_t::CHAN_1, content.data());
+      const auto gain = ParseRequests::getGain(content.data()) * 100.f;
 
-    const auto selectedChannel = selectedCh0 ? ESP_AD9833::channel_t::CHAN_0
-                                             : ESP_AD9833::channel_t::CHAN_1;
-    const auto selectedFrequency = selectedCh0 ? freqCh0 : freqCh1;
-    const auto selectedPhase = selectedCh0 ? phaseCh0 : phaseCh1;
-    const auto selectedWaveform = selectedCh0 ? waveformCh0 : waveformCh1;
+      const bool selectedCh0 = ParseRequests::checkOscEnabled(
+          ESP_AD9833::channel_t::CHAN_0, content.data());
+      const bool selectedCh1 = ParseRequests::checkOscEnabled(
+          ESP_AD9833::channel_t::CHAN_1, content.data());
 
-    if (serverInstance->mSigGenOrchestrator.has_value()) {
-      serverInstance->mSigGenOrchestrator.value()->pushRequest(
-          selectedChannel, selectedFrequency, selectedPhase, selectedWaveform,
-          gain);
+      const auto selectedChannel = selectedCh0 ? ESP_AD9833::channel_t::CHAN_0
+                                               : ESP_AD9833::channel_t::CHAN_1;
+      const auto selectedFrequency = selectedCh0 ? freqCh0 : freqCh1;
+      const auto selectedPhase = selectedCh0 ? phaseCh0 : phaseCh1;
+      const auto selectedWaveform = selectedCh0 ? waveformCh0 : waveformCh1;
+
+      if (serverInstance->mSigGenOrchestrator.has_value()) {
+        serverInstance->mSigGenOrchestrator.value()->pushRequest(
+            selectedChannel, selectedFrequency, selectedPhase, selectedWaveform,
+            gain);
+      }
     }
-
     httpd_resp_send(
         req,
         reinterpret_cast<const char *>(src_http_server_siggen_form_html_start),

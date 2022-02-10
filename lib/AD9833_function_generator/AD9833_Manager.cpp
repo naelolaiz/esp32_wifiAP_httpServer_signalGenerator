@@ -114,6 +114,11 @@ void AD9833Manager::SigGenOrchestrator::pushRequest(
   mChannelSettings = std::make_optional(channelSettings);
 }
 
+void AD9833Manager::SigGenOrchestrator::setSweepSettings(
+    const AD9833Manager::SweepSettings &sweepSettings) {
+  mAD9833FuncGen->mSettings.mSweep = sweepSettings;
+}
+
 void AD9833Manager::SigGenOrchestrator::pushRequest(
     ESP_AD9833::channel_t channel, double frequency, float phase,
     ESP_AD9833::mode_t mode, float volume) {
