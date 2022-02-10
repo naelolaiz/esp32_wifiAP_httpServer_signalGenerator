@@ -336,7 +336,7 @@ void SweepManager::runSweep() {
         mAD9833FuncGen->mSettings.mChannel1.frequency) {
       // if timer has fired
       if (xSemaphoreTake(mTimerSemaphore, 0) == pdTRUE) {
-        portENTER_CRITICAL(&timerMux);
+        portENTER_CRITICAL(&mTimerMux);
         mAD9833FuncGen->getDriver().setFrequency(
             mAD9833FuncGen->mSettings.mSweep.activeChannel,
             mAD9833FuncGen->mSettings.mSweep.fsweep);
@@ -349,7 +349,7 @@ void SweepManager::runSweep() {
              ESP_AD9833::channel_t::CHAN_0)
                 ? ESP_AD9833::channel_t::CHAN_1
                 : ESP_AD9833::channel_t::CHAN_0;
-        portEXIT_CRITICAL(&timerMux);
+        portEXIT_CRITICAL(&mTimerMux);
       }
     } else {
       mAD9833FuncGen->mSettings.mSweep.fsweep =
@@ -368,7 +368,7 @@ void SweepManager::runSweep() {
         mAD9833FuncGen->mSettings.mChannel0.frequency) {
       // if timer has fired
       if (xSemaphoreTake(mTimerSemaphore, 0) == pdTRUE) {
-        portENTER_CRITICAL(&timerMux);
+        portENTER_CRITICAL(&mTimerMux);
         mAD9833FuncGen->getDriver().setFrequency(
             mAD9833FuncGen->mSettings.mSweep.activeChannel,
             mAD9833FuncGen->mSettings.mSweep.fsweep);
@@ -381,7 +381,7 @@ void SweepManager::runSweep() {
              ESP_AD9833::channel_t::CHAN_0)
                 ? ESP_AD9833::channel_t::CHAN_1
                 : ESP_AD9833::channel_t::CHAN_0;
-        portEXIT_CRITICAL(&timerMux);
+        portEXIT_CRITICAL(&mTimerMux);
       }
     } else {
       mAD9833FuncGen->mSettings.mSweep.fsweep =
@@ -400,7 +400,7 @@ void SweepManager::runSweep() {
         mAD9833FuncGen->mSettings.mSweep.firstslope) {
       // if timer has fired
       if (xSemaphoreTake(mTimerSemaphore, 0) == pdTRUE) {
-        portENTER_CRITICAL(&timerMux);
+        portENTER_CRITICAL(&mTimerMux);
         mAD9833FuncGen->getDriver().setFrequency(
             mAD9833FuncGen->mSettings.mSweep.activeChannel,
             mAD9833FuncGen->mSettings.mSweep.fsweep);
@@ -413,7 +413,7 @@ void SweepManager::runSweep() {
              ESP_AD9833::channel_t::CHAN_0)
                 ? ESP_AD9833::channel_t::CHAN_1
                 : ESP_AD9833::channel_t::CHAN_0;
-        portEXIT_CRITICAL(&timerMux);
+        portEXIT_CRITICAL(&mTimerMux);
       }
     } else { // max. frequency reached, first slope done, now reset flag
       if (mAD9833FuncGen->mSettings.mSweep.firstslope) {
@@ -423,7 +423,7 @@ void SweepManager::runSweep() {
             mAD9833FuncGen->mSettings.mChannel0.frequency) {
           // if timer has fired
           if (xSemaphoreTake(mTimerSemaphore, 0) == pdTRUE) {
-            portENTER_CRITICAL(&timerMux);
+            portENTER_CRITICAL(&mTimerMux);
             mAD9833FuncGen->getDriver().setFrequency(
                 mAD9833FuncGen->mSettings.mSweep.activeChannel,
                 mAD9833FuncGen->mSettings.mSweep.fsweep);
@@ -436,7 +436,7 @@ void SweepManager::runSweep() {
                  ESP_AD9833::channel_t::CHAN_0)
                     ? ESP_AD9833::channel_t::CHAN_1
                     : ESP_AD9833::channel_t::CHAN_0;
-            portEXIT_CRITICAL(&timerMux);
+            portEXIT_CRITICAL(&mTimerMux);
           }
         } else { // min. frequency reached
           mAD9833FuncGen->mSettings.mSweep.done = true;
@@ -456,7 +456,7 @@ void SweepManager::runSweep() {
         mAD9833FuncGen->mSettings.mSweep.firstslope) {
       // if timer has fired
       if (xSemaphoreTake(mTimerSemaphore, 0) == pdTRUE) {
-        portENTER_CRITICAL(&timerMux);
+        portENTER_CRITICAL(&mTimerMux);
         mAD9833FuncGen->getDriver().setFrequency(
             mAD9833FuncGen->mSettings.mSweep.activeChannel,
             mAD9833FuncGen->mSettings.mSweep.fsweep);
@@ -469,7 +469,7 @@ void SweepManager::runSweep() {
              ESP_AD9833::channel_t::CHAN_0)
                 ? ESP_AD9833::channel_t::CHAN_1
                 : ESP_AD9833::channel_t::CHAN_0;
-        portEXIT_CRITICAL(&timerMux);
+        portEXIT_CRITICAL(&mTimerMux);
       }
     } else { // min. frequency reached, first slope done, now reset flag
       if (mAD9833FuncGen->mSettings.mSweep.firstslope) {
@@ -479,7 +479,7 @@ void SweepManager::runSweep() {
             mAD9833FuncGen->mSettings.mChannel1.frequency) {
           // if timer has fired
           if (xSemaphoreTake(mTimerSemaphore, 0) == pdTRUE) {
-            portENTER_CRITICAL(&timerMux);
+            portENTER_CRITICAL(&mTimerMux);
             mAD9833FuncGen->getDriver().setFrequency(
                 mAD9833FuncGen->mSettings.mSweep.activeChannel,
                 mAD9833FuncGen->mSettings.mSweep.fsweep);
@@ -492,7 +492,7 @@ void SweepManager::runSweep() {
                  ESP_AD9833::channel_t::CHAN_0)
                     ? ESP_AD9833::channel_t::CHAN_1
                     : ESP_AD9833::channel_t::CHAN_0;
-            portEXIT_CRITICAL(&timerMux);
+            portEXIT_CRITICAL(&mTimerMux);
           }
         } else { // min frequency reached
           mAD9833FuncGen->mSettings.mSweep.done = true;
