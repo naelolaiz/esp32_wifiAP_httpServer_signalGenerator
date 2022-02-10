@@ -7,7 +7,7 @@
 
 namespace Misc {
 class OnBoardLedManager {
-  static constexpr gpio_num_t mOnBoardLedPin = GPIO_NUM_16;
+  static constexpr gpio_num_t mOnBoardLedPin = GPIO_NUM_5; // 16;
   static constexpr uint32_t mInitialValue = 1; // inverted. Starting OFF
   static std::atomic<bool> mCurrentValue;
 
