@@ -9,9 +9,13 @@ using namespace AD9833Manager;
 /**
  * Runs loop of base class and runs sweep if enabled
  */
-void SweepManager::loop() {
-  if (mAD9833FuncGen->mSettings.mSweep.running) {
-    runSweep();
+void SweepManager::loopTask(void *args) {
+  auto sweepManager = static_cast<SweepManager *>(args);
+  while (true) {
+    if (sweepManager->mAD9833FuncGen->mSettings.mSweep.running) {
+      sweepManager->runSweep();
+    }
+    vTaskDelay(10 / portTICK_PERIOD_MS);
   }
 }
 
@@ -511,6 +515,11 @@ void SweepManager::runSweep() {
 AD9833Manager::SweepManager::SweepManager(std::shared_ptr<AD9833FuncGen> fgen)
     : mAD9833FuncGen(fgen) {
   configTimerAndSemaphore();
+  startTasks();
+}
+
+void AD9833Manager::SweepManager::startTasks() {
+  xTaskCreate(&loopTask, "loopTaskForSweepManager", 4096, this, 5, NULL);
 }
 
 void AD9833Manager::SweepManager::CallbackForTimer(void *args) {

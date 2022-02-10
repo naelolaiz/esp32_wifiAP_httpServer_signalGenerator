@@ -42,9 +42,10 @@ class SweepManager {
 
 public:
   SweepManager(std::shared_ptr<AD9833Manager::AD9833FuncGen> fgen);
-  void loop();
+  void startTasks();
 
 private:
+  static void loopTask(void *args);
   static void CallbackForTimer(void *args);
   void configTimerAndSemaphore();
   void setSettings(AD9833Manager::ChannelSettings &settings);
