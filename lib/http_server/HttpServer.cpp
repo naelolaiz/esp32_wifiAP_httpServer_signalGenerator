@@ -89,6 +89,33 @@ public:
       throw std::runtime_error("WTF?");
     }
   }
+  static AD9833Manager::SweepSettings getSweepSettings(const char *content) {
+    AD9833Manager::SweepSettings settingsToReturn;
+    const auto modeStr = getStdString(content, "select-sweep-mode");
+    if (modeStr.compare("0-1") == 0) {
+      settingsToReturn.mode = AD9833Manager::SweepMode::CH_0_1;
+    } else if (modeStr.compare("1-0") == 0) {
+      settingsToReturn.mode = AD9833Manager::SweepMode::CH_1_0;
+      // settingsToReturn.fsweep =
+      // mAD9833FuncGen->mSettings.mChannel1.frequency;
+    } else if (modeStr.compare("0-1-0") == 0) {
+      settingsToReturn.mode = AD9833Manager::SweepMode::CH_0_1_0;
+    } else if (modeStr.compare("1-0-1") == 0) {
+      settingsToReturn.mode = AD9833Manager::SweepMode::CH_1_0_1;
+      //      settingsToReturn.fsweep =
+      //      mAD9833FuncGen->mSettings.mChannel1.frequency;
+    } else {
+      throw std::runtime_error("WTF?");
+    }
+
+    settingsToReturn.time = int(getFloat(content, "number-sweep-time-ms"));
+    settingsToReturn.freqstep =
+        getFloat(content, "number-sweep-step-frequency");
+    settingsToReturn.repeat =
+        getStdString(content, "checkbox-sweep-infiniteloop").compare("on") == 0;
+
+    // settingsToReturn.fsweep;
+  }
 };
 } // namespace
 
