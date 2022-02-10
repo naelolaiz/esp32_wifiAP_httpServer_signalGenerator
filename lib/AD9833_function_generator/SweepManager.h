@@ -42,13 +42,14 @@ class SweepManager {
 
 public:
   SweepManager(std::shared_ptr<AD9833Manager::AD9833FuncGen> fgen);
-  void startTasks();
+  void startSweep() { mAD9833FuncGen->mSettings.mSweep.running = true; }
 
 private:
   static void loopTask(void *args);
   static void CallbackForTimer(void *args);
   void configTimerAndSemaphore();
-  void setSettings(AD9833Manager::ChannelSettings &settings);
+  void startTasks();
+  //  void setSettings(AD9833Manager::ChannelSettings &settings);
 
   void nextSweepMode(SweepSettings &settings);
   void prevSweepMode(SweepSettings &settings);
@@ -70,6 +71,7 @@ private:
                             double multiplier, uint8_t rowLCD);
 
   StateSetSwp _stateSetSwp = StateSetSwp::SELECT_STATE;
+  SweepSettings mSweepSettings;
 };
 } // namespace AD9833Manager
 #endif //__SWEEP_MANAGER_H__

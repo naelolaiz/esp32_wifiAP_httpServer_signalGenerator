@@ -15,19 +15,18 @@ void SweepManager::loopTask(void *args) {
     if (sweepManager->mAD9833FuncGen->mSettings.mSweep.running) {
       sweepManager->runSweep();
     }
-    vTaskDelay(10 / portTICK_PERIOD_MS);
   }
 }
 
-/**
- * Activates settings of the selected channel for output
- */
-void SweepManager::setSettings(AD9833Manager::ChannelSettings &settings) {
-  mAD9833FuncGen->getDriver().setActiveFrequency(settings.chn);
-  mAD9833FuncGen->getDriver().setFrequency(settings.chn, settings.frequency);
-  mAD9833FuncGen->getDriver().setMode(settings.mode);
-  mAD9833FuncGen->setVolume(settings.volume);
-}
+// /**
+//  * Activates settings of the selected channel for output
+//  */
+// void SweepManager::setSettings(AD9833Manager::ChannelSettings &settings) {
+//   mAD9833FuncGen->getDriver().setActiveFrequency(settings.chn);
+//   mAD9833FuncGen->getDriver().setFrequency(settings.chn, settings.frequency);
+//   mAD9833FuncGen->getDriver().setMode(settings.mode);
+//   mAD9833FuncGen->setVolume(settings.volume);
+// }
 
 /**
  * Selects next sweep mode and wrappes around
