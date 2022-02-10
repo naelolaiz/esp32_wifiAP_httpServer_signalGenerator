@@ -15,6 +15,7 @@ void SweepManager::loopTask(void *args) {
     if (sweepManager->mAD9833FuncGen->mSettings.mSweep.running) {
       sweepManager->runSweep();
     }
+    vTaskDelay(1);
   }
 }
 
@@ -102,6 +103,7 @@ void SweepManager::toggleSweepRunning(SweepSettings &settings) {
     settings.activeChannel = ESP_AD9833::channel_t::CHAN_0;
     mAD9833FuncGen->getDriver().setActiveFrequency(settings.activeChannel);
 
+    // ESP_LOGI("SWEEPMANAGER", "starting periodic timer");
     ESP_ERROR_CHECK(esp_timer_start_periodic(
         mPeriodicTimer, mAD9833FuncGen->mSettings.mSweep.time));
 
@@ -228,7 +230,7 @@ void SweepManager::decrSwpTimeDigit(SweepSettings &settings, uint8_t digit,
  * Increments sweep frequency step
  */
 void SweepManager::incrSwpFreqStep(SweepSettings &settings) {
-  ESP_LOGI(TAG, "incrSweepFreqStep stateSwp=%d\r\n", (int)_stateSetSwp);
+  // ESP_LOGI(TAG, "incrSweepFreqStep stateSwp=%d\r\n", (int)_stateSetSwp);
   switch (_stateSetSwp) {
   case StateSetSwp::SET_F100K:
     incrSwpFreqStepDigit(settings, 0, 100000, 3);
@@ -260,7 +262,7 @@ void SweepManager::incrSwpFreqStep(SweepSettings &settings) {
  * Decrements sweep frequency step
  */
 void SweepManager::decrSwpFreqStep(SweepSettings &settings) {
-  ESP_LOGI(TAG, "decrSweepFreqStep stateSwp=%d\r\n", (int)_stateSetSwp);
+  // ESP_LOGI(TAG, "decrSweepFreqStep stateSwp=%d\r\n", (int)_stateSetSwp);
   switch (_stateSetSwp) {
   case StateSetSwp::SET_F100K:
     decrSwpFreqStepDigit(settings, 0, 100000, 3);
@@ -313,7 +315,7 @@ void SweepManager::decrSwpFreqStepDigit(SweepSettings &settings, uint8_t digit,
   sprintf(digits, "%08.1f", settings.freqstep);
   digitOld = digits[digit] - 48;
   digitNew = digitOld == 0 ? 9 : digitOld - 1;
-  ESP_LOGI(TAG, "digitOld = %d, digitNew = %d\r\n", digitOld, digitNew);
+  // ESP_LOGI(TAG, "digitOld = %d, digitNew = %d\r\n", digitOld, digitNew);
   settings.freqstep += (digitNew - digitOld) * multiplier;
 }
 
@@ -323,10 +325,10 @@ void SweepManager::decrSwpFreqStepDigit(SweepSettings &settings, uint8_t digit,
 void SweepManager::runSweep() {
   switch (mAD9833FuncGen->mSettings.mSweep.mode) {
   case SweepMode::CH_0_1:
-    ESP_LOGI(TAG, "/ fsweep=%f, f0=%f, f1=%f\r\n",
-             mAD9833FuncGen->mSettings.mSweep.fsweep,
-             mAD9833FuncGen->mSettings.mChannel0.frequency,
-             mAD9833FuncGen->mSettings.mChannel1.frequency);
+    // ESP_LOGI(TAG, "/ 1fsweep=%f, f0=%f, f1=%f\r\n",
+    //             mAD9833FuncGen->mSettings.mSweep.fsweep,
+    //             mAD9833FuncGen->mSettings.mChannel0.frequency,
+    //             mAD9833FuncGen->mSettings.mChannel1.frequency);
     if (mAD9833FuncGen->mSettings.mSweep.fsweep <=
         mAD9833FuncGen->mSettings.mChannel1.frequency) {
       // if timer has fired
@@ -355,10 +357,10 @@ void SweepManager::runSweep() {
     break;
 
   case SweepMode::CH_1_0:
-    ESP_LOGI(TAG, "\\ fsweep=%f, f0=%f, f1=%f\r\n",
-             mAD9833FuncGen->mSettings.mSweep.fsweep,
-             mAD9833FuncGen->mSettings.mChannel0.frequency,
-             mAD9833FuncGen->mSettings.mChannel1.frequency);
+    ////ESP_LOGI(TAG, "\\ 2fsweep=%f, f0=%f, f1=%f\r\n",
+    //           mAD9833FuncGen->mSettings.mSweep.fsweep,
+    //         mAD9833FuncGen->mSettings.mChannel0.frequency,
+    //        mAD9833FuncGen->mSettings.mChannel1.frequency);
     if (mAD9833FuncGen->mSettings.mSweep.fsweep >=
         mAD9833FuncGen->mSettings.mChannel0.frequency) {
       // if timer has fired
@@ -386,10 +388,10 @@ void SweepManager::runSweep() {
     break;
 
   case SweepMode::CH_0_1_0:
-    ESP_LOGI(TAG, "/\\ fsweep=%f, f0=%f, f1=%f\r\n",
-             mAD9833FuncGen->mSettings.mSweep.fsweep,
-             mAD9833FuncGen->mSettings.mChannel0.frequency,
-             mAD9833FuncGen->mSettings.mChannel1.frequency);
+    ////ESP_LOGI(TAG, "/\\ 3fsweep=%f, f0=%f, f1=%f\r\n",
+    //          mAD9833FuncGen->mSettings.mSweep.fsweep,
+    //         mAD9833FuncGen->mSettings.mChannel0.frequency,
+    //        mAD9833FuncGen->mSettings.mChannel1.frequency);
     if (mAD9833FuncGen->mSettings.mSweep.fsweep <=
             mAD9833FuncGen->mSettings.mChannel1.frequency &&
         mAD9833FuncGen->mSettings.mSweep.firstslope) {
@@ -410,7 +412,8 @@ void SweepManager::runSweep() {
                 : ESP_AD9833::channel_t::CHAN_0;
         portEXIT_CRITICAL(&mTimerMux);
       }
-    } else { // max. frequency reached, first slope done, now reset flag
+    } else { // max. frequency reached, first slope done, now reset
+             // flag
       if (mAD9833FuncGen->mSettings.mSweep.firstslope) {
         mAD9833FuncGen->mSettings.mSweep.firstslope = false;
       } else { // do 2nd slope
@@ -442,10 +445,10 @@ void SweepManager::runSweep() {
     }
     break;
   case SweepMode::CH_1_0_1:
-    ESP_LOGI(TAG, "\\/\\ fsweep=%f, f0=%f, f1=%f\r\n",
-             mAD9833FuncGen->mSettings.mSweep.fsweep,
-             mAD9833FuncGen->mSettings.mChannel0.frequency,
-             mAD9833FuncGen->mSettings.mChannel1.frequency);
+    ////ESP_LOGI(TAG, "\\/\\ 4fsweep=%f, f0=%f, f1=%f\r\n",
+    //             mAD9833FuncGen->mSettings.mSweep.fsweep,
+    //            mAD9833FuncGen->mSettings.mChannel0.frequency,
+    //           mAD9833FuncGen->mSettings.mChannel1.frequency);
     if (mAD9833FuncGen->mSettings.mSweep.fsweep >=
             mAD9833FuncGen->mSettings.mChannel0.frequency &&
         mAD9833FuncGen->mSettings.mSweep.firstslope) {
@@ -466,7 +469,8 @@ void SweepManager::runSweep() {
                 : ESP_AD9833::channel_t::CHAN_0;
         portEXIT_CRITICAL(&mTimerMux);
       }
-    } else { // min. frequency reached, first slope done, now reset flag
+    } else { // min. frequency reached, first slope done, now reset
+             // flag
       if (mAD9833FuncGen->mSettings.mSweep.firstslope) {
         mAD9833FuncGen->mSettings.mSweep.firstslope = false;
       } else { // do 2nd slope
@@ -512,15 +516,19 @@ AD9833Manager::SweepManager::SweepManager(std::shared_ptr<AD9833FuncGen> fgen)
 }
 
 void AD9833Manager::SweepManager::startTasks() {
-  xTaskCreate(&loopTask, "loopTaskForSweepManager", 4096, this, 5, NULL);
+  xTaskCreate(&SweepManager::loopTask, "loopTaskForSweepManager", 4096, this, 5,
+              NULL);
 }
 
 void AD9833Manager::SweepManager::CallbackForTimer(void *args) {
   // portENTER_CRITICAL_ISR(&timerMux);
   //   Critical code here
   // portEXIT_CRITICAL_ISR(&timerMux);
-  xSemaphoreGiveFromISR(static_cast<SweepManager *>(args)->mTimerSemaphore,
-                        nullptr);
+  // ESP_LOGI("give semaphore", "give semaphore");
+  xSemaphoreGive(static_cast<SweepManager *>(args)->mTimerSemaphore);
+  // xSemaphoreGiveFromISR(static_cast<SweepManager *>(args)->mTimerSemaphore,
+  //                       nullptr);
+  //  ESP_LOGI("give semaphore", "semaphore given");
 }
 
 void AD9833Manager::SweepManager::configTimerAndSemaphore() {
@@ -528,10 +536,8 @@ void AD9833Manager::SweepManager::configTimerAndSemaphore() {
   const esp_timer_create_args_t periodic_timer_args = {
       .callback = &CallbackForTimer,
       .arg = this,
-      /* name is optional, but may help identify the timer when
-         debugging */
-      .name = "periodic",
-      .skip_unhandled_events = false};
+      .name = "periodic_timer",
+      .skip_unhandled_events = true}; // false};
   ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &mPeriodicTimer));
   //  ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer,
   //  1));sp_timer_handle_t periodic_timer;

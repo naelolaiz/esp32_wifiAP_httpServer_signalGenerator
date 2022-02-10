@@ -36,13 +36,14 @@ enum class StateSetSwp {
 
 class SweepManager {
   std::shared_ptr<AD9833FuncGen> mAD9833FuncGen;
-  volatile SemaphoreHandle_t mTimerSemaphore;
+  // volatile
+  SemaphoreHandle_t mTimerSemaphore;
   portMUX_TYPE mTimerMux = portMUX_INITIALIZER_UNLOCKED;
   esp_timer_handle_t mPeriodicTimer;
 
 public:
   SweepManager(std::shared_ptr<AD9833Manager::AD9833FuncGen> fgen);
-  void startSweep() { mAD9833FuncGen->mSettings.mSweep.running = true; }
+  void toggleSweepRunning(SweepSettings &settings);
 
 private:
   static void loopTask(void *args);
@@ -54,7 +55,6 @@ private:
   void nextSweepMode(SweepSettings &settings);
   void prevSweepMode(SweepSettings &settings);
   void toggleSweepRepeat(SweepSettings &settings);
-  void toggleSweepRunning(SweepSettings &settings);
   void runSweep();
   void incrSweepTime(SweepSettings &settings);
   void decrSweepTime(SweepSettings &settings);

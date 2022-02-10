@@ -122,7 +122,6 @@ void app_main() {
 // MISO = SPI2_IOMUX_PIN_NUM_MISO = 12
 // ->>>> MOSI = SPI2_IOMUX_PIN_NUM_MOSI = 13
 // ->>>> SCLK = SPI2_IOMUX_PIN_NUM_CLK = 14
-// ->>>> FSYNC = 9
 #endif
   constexpr gpio_num_t gpioForAD9883 = GPIO_NUM_26;
   constexpr gpio_num_t gpioForMPU = GPIO_NUM_27;

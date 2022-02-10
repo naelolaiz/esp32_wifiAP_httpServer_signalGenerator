@@ -201,19 +201,19 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
     // ESP_LOGI(TAG, "%s", mFormForLed.parseToUart(content.data()).c_str());
   } else if (strcmp(req->uri, "/siggen") == 0) {
 
-    ESP_LOGI("lololo", "before cast , %p", req->user_ctx);
+    // ESP_LOGI("lololo", "before cast , %p", req->user_ctx);
     auto serverInstance = static_cast<Server *>(req->user_ctx);
 
     auto sweepSettings = ParseRequests::getSweepSettings(content.data());
 
     if (sweepSettings) {
-      ESP_LOGI(
-          "SweepServer", "%s",
-          std::to_string(static_cast<int>(sweepSettings.value().mode)).c_str());
-      ESP_LOGI("SweepServer", "%s",
-               std::to_string(sweepSettings.value().time).c_str());
-      ESP_LOGI("SweepServer", "%s",
-               std::to_string(sweepSettings.value().freqstep).c_str());
+      // ESP_LOGI(
+      //     "SweepServer", "%s",
+      //     std::to_string(static_cast<int>(sweepSettings.value().mode)).c_str());
+      // ESP_LOGI("SweepServer", "%s",
+      //          std::to_string(sweepSettings.value().time).c_str());
+      // ESP_LOGI("SweepServer", "%s",
+      //          std::to_string(sweepSettings.value().freqstep).c_str());
       if (serverInstance->mSigGenOrchestrator.has_value()) {
         serverInstance->mSigGenOrchestrator.value()->setSweepSettings(
             sweepSettings.value());

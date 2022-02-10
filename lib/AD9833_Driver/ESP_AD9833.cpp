@@ -216,7 +216,7 @@ void ESP_AD9833::spiSend(uint16_t data)
 // routine below is modelled on the flow and timing on the datasheet and seems
 // to works reliably, but is much slower than the hardware interface.
 {
-  ESP_LOGI("lslslsl", "data: %x", data);
+  // ESP_LOGI("lslslsl", "data: %x", data);
 #if AD_DEBUG
   PRINTX("\nspiSend", data);
   dumpCmd(data);
@@ -234,7 +234,7 @@ void ESP_AD9833::spiSend(uint16_t data)
 
 void ESP_AD9833::setMpuPot(uint8_t value) // 0-255
 {
-  ESP_LOGI("loloe", "about to send %u", value);
+  // ESP_LOGI("loloe", "about to send %u", value);
 #if AD_DEBUG
   PRINTX("\nspiSend", data);
   dumpCmd(data);

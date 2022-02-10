@@ -126,7 +126,8 @@ void AD9833Manager::SigGenOrchestrator::setSweepSettings(
   fgenSettings.mSweep.firstslope = true;
 }
 void AD9833Manager::SigGenOrchestrator::enableSweep() {
-  mAD9833FuncGen->mSettings.mSweep.running = true;
+  mAD9833FuncGen->mSettings.mSweep.running = false;
+  mSweepManager->toggleSweepRunning(mAD9833FuncGen->mSettings.mSweep);
 }
 
 void AD9833Manager::SigGenOrchestrator::setChannelSettings(
