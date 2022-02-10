@@ -335,7 +335,7 @@ void SweepManager::runSweep() {
     if (mAD9833FuncGen->mSettings.mSweep.fsweep <=
         mAD9833FuncGen->mSettings.mChannel1.frequency) {
       // if timer has fired
-      if (xSemaphoreTake(timerSemaphore, 0) == pdTRUE) {
+      if (xSemaphoreTake(mTimerSemaphore, 0) == pdTRUE) {
         portENTER_CRITICAL(&timerMux);
         mAD9833FuncGen->getDriver().setFrequency(
             mAD9833FuncGen->mSettings.mSweep.activeChannel,
@@ -367,7 +367,7 @@ void SweepManager::runSweep() {
     if (mAD9833FuncGen->mSettings.mSweep.fsweep >=
         mAD9833FuncGen->mSettings.mChannel0.frequency) {
       // if timer has fired
-      if (xSemaphoreTake(timerSemaphore, 0) == pdTRUE) {
+      if (xSemaphoreTake(mTimerSemaphore, 0) == pdTRUE) {
         portENTER_CRITICAL(&timerMux);
         mAD9833FuncGen->getDriver().setFrequency(
             mAD9833FuncGen->mSettings.mSweep.activeChannel,
@@ -399,7 +399,7 @@ void SweepManager::runSweep() {
             mAD9833FuncGen->mSettings.mChannel1.frequency &&
         mAD9833FuncGen->mSettings.mSweep.firstslope) {
       // if timer has fired
-      if (xSemaphoreTake(timerSemaphore, 0) == pdTRUE) {
+      if (xSemaphoreTake(mTimerSemaphore, 0) == pdTRUE) {
         portENTER_CRITICAL(&timerMux);
         mAD9833FuncGen->getDriver().setFrequency(
             mAD9833FuncGen->mSettings.mSweep.activeChannel,
@@ -422,7 +422,7 @@ void SweepManager::runSweep() {
         if (mAD9833FuncGen->mSettings.mSweep.fsweep >=
             mAD9833FuncGen->mSettings.mChannel0.frequency) {
           // if timer has fired
-          if (xSemaphoreTake(timerSemaphore, 0) == pdTRUE) {
+          if (xSemaphoreTake(mTimerSemaphore, 0) == pdTRUE) {
             portENTER_CRITICAL(&timerMux);
             mAD9833FuncGen->getDriver().setFrequency(
                 mAD9833FuncGen->mSettings.mSweep.activeChannel,
@@ -455,7 +455,7 @@ void SweepManager::runSweep() {
             mAD9833FuncGen->mSettings.mChannel0.frequency &&
         mAD9833FuncGen->mSettings.mSweep.firstslope) {
       // if timer has fired
-      if (xSemaphoreTake(timerSemaphore, 0) == pdTRUE) {
+      if (xSemaphoreTake(mTimerSemaphore, 0) == pdTRUE) {
         portENTER_CRITICAL(&timerMux);
         mAD9833FuncGen->getDriver().setFrequency(
             mAD9833FuncGen->mSettings.mSweep.activeChannel,
@@ -478,7 +478,7 @@ void SweepManager::runSweep() {
         if (mAD9833FuncGen->mSettings.mSweep.fsweep <=
             mAD9833FuncGen->mSettings.mChannel1.frequency) {
           // if timer has fired
-          if (xSemaphoreTake(timerSemaphore, 0) == pdTRUE) {
+          if (xSemaphoreTake(mTimerSemaphore, 0) == pdTRUE) {
             portENTER_CRITICAL(&timerMux);
             mAD9833FuncGen->getDriver().setFrequency(
                 mAD9833FuncGen->mSettings.mSweep.activeChannel,

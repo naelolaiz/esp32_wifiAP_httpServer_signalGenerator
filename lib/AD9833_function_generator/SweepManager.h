@@ -2,12 +2,13 @@
 #define __SWEEP_MANAGER_H__
 
 #include "AD9833_Manager.h"
+#include <driver/timer.h>
 #include <freertos/semphr.h>
 #include <memory>
 
 // extern hw_timer_t *timer;
-extern portMUX_TYPE timerMux;
-extern volatile SemaphoreHandle_t timerSemaphore;
+// extern portMUX_TYPE timerMux;
+// extern volatile SemaphoreHandle_t timerSemaphore;
 namespace AD9833Manager {
 
 class AD9833FuncGen;
@@ -35,12 +36,35 @@ enum class StateSetSwp {
 
 class SweepManager {
   std::shared_ptr<AD9833FuncGen> mAD9833FuncGen;
+  volatile SemaphoreHandle_t mTimerSemaphore;
+  portMUX_TYPE mTimerMux = portMUX_INITIALIZER_UNLOCKED;
+  esp_timer_handle_t mPeriodicTimer;
 
 public:
   SweepManager(std::shared_ptr<AD9833Manager::AD9833FuncGen> fgen);
   void loop();
+  static void CallbackForTimer(void *args) {
+    // portENTER_CRITICAL_ISR(&timerMux);
+    //   Critical code here
+    // portEXIT_CRITICAL_ISR(&timerMux);
+    xSemaphoreGiveFromISR(static_cast<SweepManager *>(args)->mTimerSemaphore,
+                          nullptr);
+  }
 
 private:
+  void configTimerAndSemaphore() {
+    mTimerSemaphore = xSemaphoreCreateBinary();
+    const esp_timer_create_args_t periodic_timer_args = {
+        .callback = &CallbackForTimer,
+        .arg = this,
+        /* name is optional, but may help identify the timer when
+           debugging */
+        .name = "periodic",
+        .skip_unhandled_events = false};
+    ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &mPeriodicTimer));
+    //  ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer,
+    //  1));sp_timer_handle_t periodic_timer;
+  }
   void setSettings(AD9833Manager::ChannelSettings &settings);
 
   void nextSweepMode(SweepSettings &settings);

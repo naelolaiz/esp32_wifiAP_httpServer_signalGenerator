@@ -11,6 +11,7 @@
 timer_config_t timerConfig;
 volatile SemaphoreHandle_t timerSemaphore;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
+#if 0
 
 void IRAM_ATTR onTimer() {
   portENTER_CRITICAL_ISR(&timerMux);
@@ -20,6 +21,7 @@ void IRAM_ATTR onTimer() {
   TIMERG0.hw_timer[0].config.alarm_en = 1;
   xSemaphoreGiveFromISR(timerSemaphore, nullptr);
 }
+#endif
 #if 0
 typedef struct hw_timer_s {
   uint8_t group;
