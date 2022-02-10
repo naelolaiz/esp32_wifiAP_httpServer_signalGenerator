@@ -21,7 +21,7 @@ enum class SweepMode { CH_0_1, CH_1_0, CH_0_1_0, CH_1_0_1 };
 
 typedef struct {
   SweepMode mode;
-  uint32_t time;
+  size_t time;
   double fsweep;
   double freqstep;
   bool repeat;
@@ -66,9 +66,12 @@ public:
       std::shared_ptr<AD9833Manager::AD9833FuncGen> ad9833FuncGen);
   void pushRequest(const AD9833Manager::ChannelSettings &channelSettings);
   void setSweepSettings(const AD9833Manager::SweepSettings &sweepSettings);
-  void pushRequest(ESP_AD9833::channel_t channel, double frequency, float phase,
-                   ESP_AD9833::mode_t mode, float volume);
-  void checkAndApplyPendingChanges();
+  void enableSweep();
+
+  void setChannelSettings(ESP_AD9833::channel_t channel,
+                          ESP_AD9833::mode_t mode, double frequency,
+                          float phase, float volume);
+  void activateChannel(ESP_AD9833::channel_t channel);
 };
 
 } // namespace AD9833Manager

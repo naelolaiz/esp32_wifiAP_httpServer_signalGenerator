@@ -103,7 +103,7 @@ void SweepManager::toggleSweepRunning(SweepSettings &settings) {
     mAD9833FuncGen->getDriver().setActiveFrequency(settings.activeChannel);
 
     ESP_ERROR_CHECK(esp_timer_start_periodic(
-        mPeriodicTimer, mAD9833FuncGen->mSettings.mSweep.time * 1000));
+        mPeriodicTimer, mAD9833FuncGen->mSettings.mSweep.time));
 
     switch (settings.mode) {
     case SweepMode::CH_0_1:
@@ -222,12 +222,6 @@ void SweepManager::decrSwpTimeDigit(SweepSettings &settings, uint8_t digit,
     digitNew = 1;
     settings.time = digitNew * multiplier;
   }
-#if 0
-  _lcd.setCursor(digitPosition, rowLCD);
-  _lcd.print(digitNew);
-  _lcd.setCursor(digitPosition, rowLCD);
-  _lcd.display();
-#endif
 }
 
 /**

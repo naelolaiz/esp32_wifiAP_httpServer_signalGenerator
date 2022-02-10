@@ -113,7 +113,7 @@ public:
       throw std::runtime_error("WTF?");
     }
 
-    settingsToReturn.time = int(getFloat(content, "number-sweep-time-ms"));
+    settingsToReturn.time = getSizeT(content, "number-sweep-time-us");
     settingsToReturn.freqstep =
         getFloat(content, "number-sweep-step-frequency");
     settingsToReturn.repeat =
@@ -214,10 +214,10 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
                std::to_string(sweepSettings.value().time).c_str());
       ESP_LOGI("SweepServer", "%s",
                std::to_string(sweepSettings.value().freqstep).c_str());
-      sweepSettings.value().running = true;
       if (serverInstance->mSigGenOrchestrator.has_value()) {
         serverInstance->mSigGenOrchestrator.value()->setSweepSettings(
             sweepSettings.value());
+        serverInstance->mSigGenOrchestrator.value()->enableSweep();
       }
     } else {
 
@@ -242,14 +242,17 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
 
       const auto selectedChannel = selectedCh0 ? ESP_AD9833::channel_t::CHAN_0
                                                : ESP_AD9833::channel_t::CHAN_1;
-      const auto selectedFrequency = selectedCh0 ? freqCh0 : freqCh1;
-      const auto selectedPhase = selectedCh0 ? phaseCh0 : phaseCh1;
-      const auto selectedWaveform = selectedCh0 ? waveformCh0 : waveformCh1;
 
       if (serverInstance->mSigGenOrchestrator.has_value()) {
-        serverInstance->mSigGenOrchestrator.value()->pushRequest(
-            selectedChannel, selectedFrequency, selectedPhase, selectedWaveform,
+        // TODO: use push on queue instead
+        serverInstance->mSigGenOrchestrator.value()->setChannelSettings(
+            ESP_AD9833::channel_t::CHAN_0, waveformCh0, freqCh0, phaseCh0,
             gain);
+        serverInstance->mSigGenOrchestrator.value()->setChannelSettings(
+            ESP_AD9833::channel_t::CHAN_1, waveformCh1, freqCh1, phaseCh1,
+            gain);
+        serverInstance->mSigGenOrchestrator.value()->activateChannel(
+            selectedChannel);
       }
     }
     httpd_resp_send(

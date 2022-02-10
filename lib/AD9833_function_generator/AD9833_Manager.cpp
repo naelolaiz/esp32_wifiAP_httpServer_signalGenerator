@@ -116,35 +116,45 @@ void AD9833Manager::SigGenOrchestrator::pushRequest(
 
 void AD9833Manager::SigGenOrchestrator::setSweepSettings(
     const AD9833Manager::SweepSettings &sweepSettings) {
-  mAD9833FuncGen->mSettings.mSweep = sweepSettings;
+  auto &fgenSettings = mAD9833FuncGen->mSettings;
+  fgenSettings.mSweep = sweepSettings;
+  fgenSettings.mSweep.activeChannel = fgenSettings.mCurrentChannel;
+  fgenSettings.mSweep.fsweep =
+      fgenSettings.mCurrentChannel == ESP_AD9833::channel_t::CHAN_0
+          ? fgenSettings.mChannel0.frequency
+          : fgenSettings.mChannel1.frequency;
+  fgenSettings.mSweep.firstslope = true;
+}
+void AD9833Manager::SigGenOrchestrator::enableSweep() {
+  mAD9833FuncGen->mSettings.mSweep.running = true;
 }
 
-void AD9833Manager::SigGenOrchestrator::pushRequest(
-    ESP_AD9833::channel_t channel, double frequency, float phase,
-    ESP_AD9833::mode_t mode, float volume) {
-  if (mChannelSettings.has_value()) {
-    return; // TODO: queue
-  }
-  // TODO: mutex
-  ESP_LOGI("lalala", "filling channel settings struct");
-  AD9833Manager::ChannelSettings channelSettingsToPush;
-  channelSettingsToPush.chn = channel;
-  channelSettingsToPush.frequency = frequency;
-  channelSettingsToPush.phase = phase * 10;
-  channelSettingsToPush.mode = mode;
-  channelSettingsToPush.volume = volume;
-  mChannelSettings = std::make_optional(channelSettingsToPush);
-  // TODO
-  ESP_LOGI("lalala", "about to apply changes");
-  checkAndApplyPendingChanges();
-  ESP_LOGI("lalala", "applied changes");
+void AD9833Manager::SigGenOrchestrator::setChannelSettings(
+    ESP_AD9833::channel_t channel, ESP_AD9833::mode_t mode, double frequency,
+    float phase, float volume) {
+  auto &attributeChannelSettings = (channel == ESP_AD9833::channel_t::CHAN_0
+                                        ? mAD9833FuncGen->mSettings.mChannel0
+                                        : mAD9833FuncGen->mSettings.mChannel1);
+  attributeChannelSettings.frequency = frequency;
+  attributeChannelSettings.mode = mode;
+  attributeChannelSettings.phase = phase * 10;
+  attributeChannelSettings.volume = volume;
+  attributeChannelSettings.mVpp =
+      mAD9833FuncGen->convertVolumeTomVpp(attributeChannelSettings.volume);
 }
 
-void AD9833Manager::SigGenOrchestrator::checkAndApplyPendingChanges() {
-  auto storedChannelSettings = mChannelSettings;
-  if (!storedChannelSettings.has_value()) {
-    return;
-  }
-  mAD9833FuncGen->setSettings(mChannelSettings.value());
-  mChannelSettings.reset();
+void AD9833Manager::SigGenOrchestrator::activateChannel(
+    ESP_AD9833::channel_t channel) {
+  const auto &attributeChannelSettings =
+      (channel == ESP_AD9833::channel_t::CHAN_0
+           ? mAD9833FuncGen->mSettings.mChannel0
+           : mAD9833FuncGen->mSettings.mChannel1);
+  auto &driver = mAD9833FuncGen->getDriver();
+  driver.setFrequency(channel, attributeChannelSettings.frequency);
+  driver.setPhase(channel, attributeChannelSettings.phase);
+  driver.setActiveFrequency(channel);
+  driver.setActivePhase(channel);
+  driver.setMode(attributeChannelSettings.mode);
+  mAD9833FuncGen->setVolume(attributeChannelSettings.volume);
+  mChannelSettings.reset(); // TODO: is this really needed?
 }

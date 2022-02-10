@@ -78,7 +78,6 @@ void initTimer() {
                        timer_count_dir_t countDir) {
     if (num >= SOC_TIMER_GROUP_TOTAL_TIMERS) {
       ESP_LOGI("timer", "Timer dont have that timer number.");
-      return NULL;
     }
 
     // hw_timer_t *timer = &timer_dev[num]; // Get Timer group/num from 0-3
@@ -98,37 +97,6 @@ void initTimer() {
     // return timer;
     ///    timer_init(tim)
   };
-#if 0
-  timerSemaphore = xSemaphoreCreateBinary();
-  timerConfig.divider = 80; // Set prescaler for 1 MHz clock
-  timerConfig.counter_dir = TIMER_COUNT_UP;
-  timerConfig.alarm_en = 1;
-  timerConfig.intr_type = TIMER_INTR_LEVEL;
-  timerConfig.auto_reload =
-      TIMER_AUTORELOAD_EN; // Reset timer to 0 when end condition is triggered
-  timerConfig.counter_en = TIMER_PAUSE;
-  timer_init(TIMER_GROUP_0, 0, &timerConfig);   // start timer 0 at group 0
-  timer_set_counter_value(TIMER_GROUP_0, 0, 0); // set timer for 0
-  timer_isr_register(TIMER_GROUP_0, 0, &timer_group0_isr, &spkr_pin,
-                     ESP_INTR_FLAG_IRAM, NULL);
-  timer_set_alarm_value(TIMER_GROUP_0, 0, 5000000);
-  timer_enable_intr(TIMER_GROUP_0, 0);
-
-  timer_start(TIMER_GROUP_0, 0);
-#endif
-
-#if 0
-  timer = timerBegin(0, 8000,
-                     true); // Use 1st timer of 4 (counted from zero).
-                            // Set 80 divider for prescaler (see ESP32 Technical
-                            // Reference Manual for more info) 80   --> clock
-                            // = 1.0 usec 8000 --> clock = 0.1 msec
-
-  timerAttachInterrupt(timer, &onTimer,
-                       true); // Attach onTimer function to our timer
-                              // Set alarm to call onTimer function every 0.1 ms
-                              // Repeat the alarm (third parameter)
-#endif
 }
 
 extern "C" {
