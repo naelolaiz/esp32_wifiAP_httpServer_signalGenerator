@@ -1,6 +1,7 @@
 #include "HttpServer.h"
 #include "NaelWebPage.h"
 #include <array>
+#include <string> // for debugging
 
 extern const uint8_t src_http_server_siggen_form_html_start[] asm(
     "_binary_siggen_form_html_start");
@@ -204,7 +205,15 @@ esp_err_t Server::Server::post_handler(httpd_req_t *req) {
     auto serverInstance = static_cast<Server *>(req->user_ctx);
 
     auto sweepSettings = ParseRequests::getSweepSettings(content.data());
+
     if (sweepSettings) {
+      ESP_LOGI(
+          "SweepServer", "%s",
+          std::to_string(static_cast<int>(sweepSettings.value().mode)).c_str());
+      ESP_LOGI("SweepServer", "%s",
+               std::to_string(sweepSettings.value().time).c_str());
+      ESP_LOGI("SweepServer", "%s",
+               std::to_string(sweepSettings.value().freqstep).c_str());
       sweepSettings.value().running = true;
       if (serverInstance->mSigGenOrchestrator.has_value()) {
         serverInstance->mSigGenOrchestrator.value()->setSweepSettings(
