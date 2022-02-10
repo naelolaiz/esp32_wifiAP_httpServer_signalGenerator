@@ -4,11 +4,6 @@
 namespace {
 const char *TAG = "SweepManager\0";
 
-void timerConfig() {
-  timer_config_t timer;
-  timer.divider = 80;
-}
-
 } // namespace
 using namespace AD9833Manager;
 /**
@@ -95,17 +90,18 @@ void SweepManager::toggleSweepRepeat(SweepSettings &settings) {
 void SweepManager::toggleSweepRunning(SweepSettings &settings) {
   if (settings.running) {
     settings.running = false;
+
     // Stop timer
-    //    timerAlarmDisable(timer);
+    esp_timer_stop(mPeriodicTimer);
     mAD9833FuncGen->getDriver().setMode(ESP_AD9833::mode_t::MODE_OFF);
   } else {
     settings.running = true;
     settings.activeChannel = ESP_AD9833::channel_t::CHAN_0;
     mAD9833FuncGen->getDriver().setActiveFrequency(settings.activeChannel);
-    // timerAlarmWrite(timer, mAD9833FuncGen->mSettings.mSweep.time * 10.0,
-    // true);
-    //  Start an alarm
-    // timerAlarmEnable(timer);
+
+    ESP_ERROR_CHECK(esp_timer_start_periodic(
+        mPeriodicTimer, mAD9833FuncGen->mSettings.mSweep.time * 1000));
+
     switch (settings.mode) {
     case SweepMode::CH_0_1:
     case SweepMode::CH_0_1_0:
@@ -156,6 +152,8 @@ void SweepManager::incrSweepTime(SweepSettings &settings) {
   default:
     break;
   }
+  // ESP_ERROR_CHECK(esp_timer_start_periodic(
+  //     mPeriodicTimer, mAD9833FuncGen->mSettings.mSweep.time * 1000));
   // timerAlarmWrite(timer, settings.time * 10.0, true);
 }
 
@@ -511,4 +509,28 @@ void SweepManager::runSweep() {
   }
 }
 AD9833Manager::SweepManager::SweepManager(std::shared_ptr<AD9833FuncGen> fgen)
-    : mAD9833FuncGen(fgen) {}
+    : mAD9833FuncGen(fgen) {
+  configTimerAndSemaphore();
+}
+
+void AD9833Manager::SweepManager::CallbackForTimer(void *args) {
+  // portENTER_CRITICAL_ISR(&timerMux);
+  //   Critical code here
+  // portEXIT_CRITICAL_ISR(&timerMux);
+  xSemaphoreGiveFromISR(static_cast<SweepManager *>(args)->mTimerSemaphore,
+                        nullptr);
+}
+
+void AD9833Manager::SweepManager::configTimerAndSemaphore() {
+  mTimerSemaphore = xSemaphoreCreateBinary();
+  const esp_timer_create_args_t periodic_timer_args = {
+      .callback = &CallbackForTimer,
+      .arg = this,
+      /* name is optional, but may help identify the timer when
+         debugging */
+      .name = "periodic",
+      .skip_unhandled_events = false};
+  ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &mPeriodicTimer));
+  //  ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer,
+  //  1));sp_timer_handle_t periodic_timer;
+}
